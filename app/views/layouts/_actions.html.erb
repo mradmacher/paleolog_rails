@@ -1,0 +1,9 @@
+<% content_for :actions do %>
+<div id="actions">
+	<% items.each do |item| %>
+		<% name, link, args = item %>
+		<%= link_to( name, link, args || {} ) %>
+	<% end %>	
+</div>
+<% end %>
+

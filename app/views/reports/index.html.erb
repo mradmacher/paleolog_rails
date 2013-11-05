@@ -1,0 +1,9 @@
+<%= render_title 'Reports' %>
+<h1>Reports</h1>
+<table>
+	<% Report::TYPES.each do |type| %>
+	<tr><td>
+			<%= link_to( Report::TYPE_NAMES[type], new_report_url( :type => type ) ) %>
+	</td></tr>
+	<% end %>
+</table>

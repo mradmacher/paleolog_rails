@@ -1,0 +1,18 @@
+<%= form_for(@well) do |f| %>
+	<%= f.error_messages %>
+	<fieldset>
+		<legend>Well</legend>
+		<p>
+		<%= f.label :region_id %>
+		<%= f.collection_select :region_id, Region.all, :id, :name %>
+		</p>
+		<p>
+		<%= f.label :name %>
+		<%= f.text_field :name %>
+		</p>
+		<p>
+		<%= f.submit 'Save' %>
+		</p>
+	</fieldset>
+<% end %>
+

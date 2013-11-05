@@ -1,0 +1,64 @@
+<form accept-charset="UTF-8" action="/reports/export/report.html" method="post" target="_blank">
+  <input type="hidden" name="report[type]" value="<%= @report.type %>">
+  <input type="hidden" name="report[counting_id]" value="<%= @report.counting_id %>">
+  <input type="hidden" name="report[view]" value="<%= @report.view %>">
+  <input type="hidden" name="report[show_symbols]" value="<%= @report.show_symbols %>">
+  <input type="hidden" name="report[percentages]" value="<%= @report.percentages %>">
+  <% @report.column_criteria.each do |i, column| %>
+    <% if column['species_ids'] %>
+      <% column['species_ids'].each do |id| %>
+        <input type="hidden" name="report[columns][<%= i %>][species_ids][]" value="<%= id %>">
+      <% end %>
+    <% elsif column['computed'] %>
+      <input type="hidden" name="report[columns][<%= i %>][computed]" value="<%= column['computed'] %>">
+    <% end %>
+    <input type="hidden" name="report[columns][<%= i %>][merge]" value="<%= column['merge'] %>">
+    <input type="hidden" name="report[columns][<%= i %>][header]" value="<%= column['header'] %>">
+  <% end %>
+  <% @report.row_criteria.each do |i, row| %>
+    <% row['sample_ids'].each do |id| %>
+      <input type="hidden" name="report[rows][<%= i %>][sample_ids][]" value="<%= id %>">
+    <% end %>
+  <% end %>
+  <select name="report[format]">
+  <% if ['numbers', 'points', 'blocks', 'lines'].include? @report.view %>
+    <option value="svg">SVG</option>
+  <% end %>
+    <option value="csv">CSV</option>
+    <option value="pdf">PDF</option>
+    <option value="html">HTML</option>
+  </select>
+  <fieldset class="pdf-properties format-properties"><legend>Orientation</legend>
+    <%= label_tag :orientation_portrait, 'Portrait' %>
+    <%= radio_button_tag 'report[orientation]', 'Portrait', true %>
+    <%= label_tag :orientation_landscape, 'Landscape' %>
+    <%= radio_button_tag 'report[orientation]', 'Landscape' %>
+  </fieldset>
+  <input type="submit" value="Export">
+</form>
+<h1>Well <%= @report.title %></h1>
+<%= render :partial => 'reports/table', :formats => [:svg] %>
+
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="http://code.jquery.com/jquery-migrate-1.1.1.min.js"></script>
+<% javascript_include_tag '/js/jquery.min.js' %>
+<% javascript_include_tag '/js/jquery-migrate.min.js' %>
+<%= javascript_include_tag '/js/rails.js' %>
+<%= javascript_include_tag '/js/application.js' %>
+<script type="text/javascript">
+$(document).ready(function() {
+	set_format = function( form_tag, format ) {
+		form_tag.attr( "action", form_tag.attr( "action" ).replace( /\.\w+/, "" ) + "." + format );
+	};
+
+  var	form_tag = $( "form" );
+  var format_tag = form_tag.find( 'select[name="report[format]"]' );
+  format_tag.change( function() {
+    format = $(this).val();
+    set_format( form_tag, format );
+    form_tag.find('.format-properties').hide();
+    form_tag.find('.' + format + '-properties').show();
+  });
+  format_tag.change();
+});
+</script>

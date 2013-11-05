@@ -1,0 +1,147 @@
+en:
+  activerecord:
+    models:
+      group: group
+    errors:
+      messages:
+        record_invalid:
+      template:
+        header:
+          one:
+          few:
+          other:
+        body:
+      models:
+        research_participation:
+          attributes:
+            user_id:
+              blank: can't be blank
+              taken: has already been taken
+            well_id:
+              blank: can't be blank
+            manager:
+              inclusion: is not included in the list
+        group:
+          attributes:
+            name:
+              too_short: is too short (minimum is %{count} characters)
+              too_long: is too long (maximum is %{count} characters)
+              taken: has already been taken
+              blank: can't be blank
+        specimen:
+          attributes:
+            name:
+              too_short: is too short (minimum is %{count} characters)
+              too_long: is too long (maximum is %{count} characters)
+              taken: has already been taken
+            group_id:
+              blank: can't be blank
+              features: has some features that belongs to other group
+            account_id:
+              blank: can't be blank
+            description:
+              too_long: is too long (maximum is %{count} characters)
+            age:
+              too_long: is too long (maximum is %{count} characters)
+            comparison:
+              too_long: is too long (maximum is %{count} characters)
+            range:
+              too_long: is too long (maximum is %{count} characters)
+        field:
+          feature:
+            exists: can't delete field used in a feature
+          attributes:
+            name:
+              blank: can't be blank
+              taken: has already been taken
+              too_long: is too long (maximum is %{count} characters)
+            group_id:
+              blank: can't be blank
+        choice:
+          feature:
+            exists: can't delete choice used in a feature
+          attributes:
+            name:
+              blank: can't be blank
+              taken: has already been taken
+              too_long: is too long (maximum is %{count} characters)
+            field_id:
+              blank: can't be blank
+        feature:
+          attributes:
+            choice_id:
+              blank: can't be blank
+              invalid_group: has to be from the same group as species
+              taken: has already been taken
+            specimen_id:
+              blank: can't be blank
+        region:
+          wells:
+            exist: can't delete region with wells
+          attributes:
+            account_id:
+              blank: can't be blank
+            name:
+              blank: can't be blank
+              too_short: is too short (minimum is %{count} characters)
+              too_long: is too long (maximum is %{count} characters)
+              taken: has already been taken
+        well:
+          samples:
+            exist: can't delete region with samples
+          attributes:
+            name:
+              blank: can't be blank
+              too_short: is too short (minimum is %{count} characters)
+              too_long: is too long (maximum is %{count} characters)
+              taken: has already been taken
+            region_id:
+              blank: can't be blank
+        counting:
+          occurrences:
+            exist: can't delete counting used in samples
+          attributes:
+            name:
+              blank: can't be blank
+              too_short: is too short (minimum is %{count} characters)
+              too_long: is too long (maximum is %{count} characters)
+              taken: has already been taken
+            well_id:
+              blank: can't be blank
+            marker_count:
+              not_an_integer: should be an integer
+              not_a_number: should be a number
+              greater_than: "should be grater than 0"
+        sample_counting:
+          occurrences:
+            exist: can't delete sample counting with occurrences
+        sample:
+          occurrences:
+            exist: can't delete sample with occurrences
+          attributes:
+            name:
+              blank: can't be blank
+              too_short: is too short (minimum is %{count} characters)
+              too_long: is too long (maximum is %{count} characters)
+              taken: has already been taken
+            well_id:
+              blank: can't be blank
+            weight:
+              not_a_number: should be a number
+              greater_than: "should be grater than 0"
+        occurrence:
+          attributes:
+            counting_id:
+              blank: can't be blank
+            sample_id:
+              invalid: sample and counting must be from the same well
+              blank: can't be blank
+            specimen_id:
+              blank: can't be blank
+              taken: has already been taken
+            rank:
+              blank: can't be blank
+              taken: has already been taken
+            status:
+              inclusion: is not included in the list
+              blank: can't be blank

@@ -1,0 +1,4 @@
+<% pdfkit = PDFKit.new( render( :template => 'reports/export', :formats => [:html], :layout => 'layouts/report.html' ),
+  :orientation => @report.orientation ) %>
+<%=raw pdfkit.to_pdf %>
+

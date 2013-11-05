@@ -1,0 +1,184 @@
+<%= render_title @sample.name %>
+<%= render 'navigation' %>
+<%= render_actions [['Show counting', counting_sample_occurrences_path( @counting, @sample )]] %>  
+<% content_for :breadcrumb do %>
+  <%= link_to bracketize( @counting.well.region.name ), region_path( @counting.well.region ) %> - 
+  <%= link_to bracketize( @counting.well.name ), well_path( @counting.well ) %> - 
+  <%= link_to bracketize( @counting.name ), @counting %> - 
+  <%= link_to bracketize( @sample.name ), @sample %>
+<% end %>
+<%= render_heading 'Sample Counting' %>
+<dl class="fields">
+	<dt>Name</dt>
+	<dd><%= @counting.name %></dd>
+	<dt>Sum</dt>
+	<dd>
+		<table>
+			<tr>
+				<th>Counted:</th>
+				<td><span id="sample-countable-sum"><%= @occurrences.countable.sum( :quantity ) %></span></td>
+			</tr>
+			<tr>
+				<th>Other:</th>
+				<td><span id="sample-uncountable-sum"><%= @occurrences.uncountable.sum( :quantity ) %></span></td>
+			</tr>
+			<tr>
+				<th>Total:</th>
+				<td><span id="sample-total-sum"><%= @occurrences.sum( :quantity ) %></span></td>
+			</tr>
+		</table>
+	</dd>
+</dl>
+<table id="movable">
+  <tr>
+    <th></th>
+    <th>Species</th>
+    <th></th>
+    <th colspan="2"></th>
+    <th>Quantity</th>
+    <th>Status</th>
+		<th>&nbsp;<%= Occurrence::UNCERTAIN_SYMBOL %>&nbsp;</th>
+    <th></th>
+  </tr>
+  <%= render @occurrences %>
+</table>
+<% if current_user.admin? %>
+  <p><%= render :partial => 'occurrences/form', :locals => { :occurrence => @occurrence } %></p>
+<% end %>
+
+<script type="text/javascript">
+	$( function() {
+		$( "#movable" ).find( ".move-up" ).click( function( event ) {
+			event.preventDefault();
+			sourceRow = $(this).parents( "tr" );
+			targetRow = sourceRow.prev( "tr" ).not( ":has(th)" );
+			targetDirection = "none";
+			if( targetRow.length > 0 ) {
+				targetDirection = "before";
+			} else {
+				targetRow = $( sourceRow ).find( "~tr" ).last();
+				if( targetRow.length > 0 ) {
+					targetDirection = "after";
+				}
+			}
+			sourceId = sourceRow.find( '.reference-id' ).html();
+			targetId = targetRow.find( '.reference-id' ).html();
+			$.ajax({
+				url: '/occurrences/exchange.json',
+				dataType: 'json',
+				data: { id1: sourceId, id2: targetId },
+				success: function(json) {
+					if( targetDirection == "after" ) {
+						targetRow.after( sourceRow );
+					}	else if( targetDirection = "before" ) {
+						targetRow.before( sourceRow );
+					} },
+				failure: function(json) {
+					alert( 'I am sorry. Please try again.' ); }
+			});
+		});
+
+		var setOccurrences = function( context, action ) {
+			referenceId = $(context).parent().find( ".reference-id" ).html();
+			key = "quantity";
+			switch( action ) {
+				case "inc":
+					action = "increase_quantity"; break;
+				case "dec":
+					action = "decrease_quantity"; break;
+				case "qnt":
+					action = "set_quantity"; break;
+				case "stat":
+					action = "set_status"; 
+					key = "status"; break;
+				case "uncert":
+					action = "set_uncertain";
+					key = "uncertain"; break; }
+			var elem = $( "#occurrence-" + key + "-" + referenceId );
+			var newValue = elem.val();
+			if( key == "uncertain" ) {
+				newValue = elem.attr( "checked" ) == "checked"
+			}
+
+			$.ajax({
+				url: '/occurrences/' + action + '.json',
+				data: { id: referenceId, quantity: newValue },
+				success: function(json) {
+					elem.val( json.quantity );
+					if( key == "uncertain" ) {
+						if( json.quantity ) elem.attr( "checked", "checked" );
+						else elem.removeAttr( "checked" );
+					}
+					if( !(json.countable === undefined) ) {
+						$( "#sample-countable-sum" ).html( json.countable );
+					}
+					if( !(json.uncountable === undefined) ) {
+						$( "#sample-uncountable-sum" ).html( json.uncountable );
+					}
+					if( !(json.countable === undefined) && !(json.uncountable === undefined) ) {
+						$( "#sample-total-sum" ).html( json.countable + json.uncountable );
+					}
+				},
+				failure: function(json) {
+					alert( 'I am sorry. Please try again.' ); }
+			});
+		}
+
+		$( ".increase-one" ).click( function() {
+			setOccurrences( this, "inc" );
+		});
+
+		$( ".decrease-one" ).click( function() {
+			setOccurrences( this, "dec" );
+		});
+		$( ".occurrence-status" ).change( function() {
+			setOccurrences( this, "stat" );
+		});
+		$( ".occurrence-uncertain" ).click( function() {
+			setOccurrences( this, "uncert" );
+		});
+
+		$( ".self-updateable" ).blur( function() {
+			$(this).val( this.defaultValue ).attr( "readonly", "readonly" );
+		});
+		$( ".self-updateable" ).dblclick( function() {
+			$(this).removeAttr( "readonly" );
+		});
+		$( ".self-updateable" ).keypress( function( event ) {
+			if( event.keyCode == 27 ) {
+				$(this).val( this.defaultValue ).attr( "readonly", "readonly" );
+			} else if( event.keyCode == 13 ) {
+				setOccurrences( this, "qnt" );
+				this.defaultValue = $(this).val();
+				$(this).attr( "readonly", "readonly" );
+			}
+		});
+
+//occurrences
+    option_tag = function( value, text ) {
+      return $( "<option></option>" ).attr({ value: value }).append( text );
+    };
+    populate_species_tag = function( species_tag, group_id, counting_id, sample_id ) {
+      $.get("/countings/" + counting_id + "/samples/" + sample_id + "/occurrences/available.json", 
+        {group_id: group_id}, 
+        function( species ) {
+          species_tag.empty();
+          for( i in species ) {
+            species_tag.append( option_tag( species[i].id, species[i].name ) );
+          }
+        }
+      );
+    };
+
+		var group_tag = $( "#group_id" );
+		var species_tag = $( "#occurrence_specimen_id" );
+		var counting_tag = $( "#occurrence_counting_id" );
+		var sample_tag = $( "#occurrence_sample_id" );
+		species_tag.empty();
+		populate_species_tag( species_tag, group_tag.select( "option:selected" ).val(), counting_tag.val(), sample_tag.val() ); 
+		group_tag.change( function() {
+			populate_species_tag( species_tag, group_tag.select( "option:selected" ).val(), counting_tag.val(), sample_tag.val() ); 
+		});
+	});
+
+</script>

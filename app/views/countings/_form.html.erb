@@ -1,0 +1,96 @@
+<script type="text/javascript">
+	option_tag = function( value, text ) {
+		return $( "<option></option>" ).attr({ value: value }).append( text );
+	};
+
+  populate_specimen_tag = function( specimen_tag, group_id ) {
+    specimen_tag.empty();
+    if( group_id != '' ) {
+      $.get( '/specimens.json', { group_id: group_id }, function( specimens ) {
+        if( specimens.length == 0 ) {
+          specimen_tag.append( option_tag( '', '' ) );
+        }
+        for( i in specimens ) {
+          specimen_tag.append( option_tag( specimens[i].id, specimens[i].name ) );
+        }
+      });
+    } else {
+      specimen_tag.append( option_tag( '', '' ) );
+    }
+  };
+
+	$( function () {
+      var group_tag = $( "#marker_group_id" );
+      var specimen_tag = $( "#counting_marker_id" );
+      group_tag.change( function() {
+        populate_specimen_tag( specimen_tag, group_tag.select( "option:selected" ).val() ); 
+      });
+	});
+</script>
+<form method="post" action="<%= @counting.new_record?? countings_path : counting_path( @counting ) %>" accept-charset="UTF-8">
+	<%= error_messages_for :counting %>
+  <input type="hidden" value="<%= form_authenticity_token %>" name="<%= request_forgery_protection_token %>">
+  <% unless @counting.new_record? %>
+    <input type="hidden" value="put" name="_method">
+  <% end %>
+
+  <input type="hidden" name="counting[well_id]" value="<%= @counting.well_id %>">
+  <p>
+    <label for="counting_name">Name</label>
+    <input type="text" id="counting_name" name="counting[name]" value="<%= @counting.name %>">
+  </p>
+  <fieldset>
+    <legend>Computings</legend>
+    <label for="counting_group_id">Counted Group</label> 
+    <select id="counting_group_id" name="counting[group_id]">
+      <option value=""></option>
+      <% Group.all.each do |group| %>
+        <% if @counting.group_id == group.id %>
+          <option value="<%= group.id %>" selected="selected"><%= group.name %></option>
+        <% else %>
+          <option value="<%= group.id %>"><%= group.name %></option>
+        <% end %>
+      <% end %>
+    </select>
+
+    <fieldset>
+      <legend>Marker</legend>
+      <label for="marker_group_id">Group</label> 
+      <select id="marker_group_id" name="group_id">
+      <% if @counting.marker.nil? %>
+        <option value="" selected="selected"></option>
+        <% Group.all.each do |group| %>
+          <option value="<%= group.id %>"><%= group.name %></option>
+        <% end %>
+      <% else %>
+        <option value=""></option>
+        <% Group.all.each do |group| %>
+          <% if @counting.marker.group_id == group.id %>
+            <option value="<%= group.id %>" selected="selected"><%= group.name %></option>
+          <% else %>
+            <option value="<%= group.id %>"><%= group.name %></option>
+          <% end %>
+        <% end %>
+      <% end %>
+      </select>
+      <label for="counting_marker_id">Species</label> 
+      <select id="counting_marker_id" name="counting[marker_id]">
+        <% unless @counting.marker.nil? %>
+          <% @counting.marker.group.specimens.each do |specimen| %>
+            <% if @counting.marker_id == specimen.id %>
+              <option value="<%= specimen.id %>" selected="selected"><%= specimen.name %></option>
+            <% else %>
+              <option value="<%= specimen.id %>"><%= specimen.name %></option>
+            <% end %>
+          <% end %>
+        <% end %>
+      </select>
+      <label for="counting_marker_count">Count</label> 
+      <input type="number" name="counting[marker_count]" value="<%= @counting.marker_count %>">
+    </fieldset>
+  </fieldset>
+  <p>
+    <input type="submit" value="Save">
+  </p>
+</form>
+

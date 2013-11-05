@@ -1,0 +1,109 @@
+<%= render_title 'Reports' %>
+<h1>
+	Report
+</h1>
+<%= form_tag( reports_path, :target => '_blank', :id => 'new_report' ) do %>
+	<fieldset>
+	<legend>New Report</legend>
+	<p>
+  <%= label_tag :region_id %>
+  <%= select_tag :region_id, options_from_collection_for_select( Region.all, :id, :name ) %>
+  <%= label_tag :well_id %>
+  <%= select_tag :well_id, [] %>
+  <%= label_tag :counting_id %>
+  <%= select_tag :counting_id, [] %>
+	</p>
+  <br />
+	<p>
+	<%= label_tag :type, 'Data' %>
+	<%= select_tag :type, options_for_select( Report::TYPE_NAMES.each_pair.map{ |k, v| [v, k] } ) %>
+	<%= label_tag :view, 'Presentation' %>
+	<%= select_tag :view, options_for_select( Report::VIEW_NAMES.each_pair.map{ |k, v| [v, k] } ) %>
+	</p>
+  <br />
+  <table>
+    <tr>
+      <th>Samples</th>
+      <th>Column A</th>
+      <th>Column B</th>
+      <th>Computed field</th>
+    </tr>
+
+    <tr>
+      <td class="vector" data-vector="row" data-index="0">
+        <div class="filter" data-source="samples" data-filter-key="sample_ids">
+      </td>
+
+      <% 2.times do |index| %>
+      <td class="vector" data-vector="column" data-index="<%= index %>">
+        <label>Header
+          <input type="text" name="columns[<%= index %>][header]">
+        </label>
+        <br />
+        <label>Merge
+          <select name="columns[<%= index %>][merge]">
+            <option value=""></option>
+            <option value="sum">Sum</option>
+            <option value="count">Count</option>
+          </select>
+        </label>
+        <br />
+        <div class="filter" data-source="species" data-filter-key="species_ids">
+          <%= select_tag "columns[#{index}][group_id]", options_from_collection_for_select( Group.all, :id, :name), include_blank: true, 
+            class: 'selection-filter-field', 'data-filter-key' => 'group_id' %>
+          <br />
+          <% Field.all.each do |field| %>
+            <%= label_tag "columns[#{index}][choice_ids][]", field.name %>
+            <%= select_tag "columns[#{index}][choice_ids][]", 
+              options_from_collection_for_select( field.choices, :id, :name ), include_blank: true,
+              class: 'selection-filter-field', 'data-filter-key' => 'choice_ids[]', 'data-is-collection' => 'true' %>
+            <br />
+          <% end %>
+        </div>
+      </td>
+      <% end %>
+
+      <td class="vector" data-vector="column" data-index="3">
+        <label>Header
+          <input type="text" name="columns[3][header]">
+        </label>
+        <br />
+        <label>Formula
+          <input type="text" name="columns[3][computed]">
+        </label>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="selection" style="vertical-align:top" data-vector="row" data-index="0">
+        <input type="checkbox" checked="checked" class="all" />
+        <div class="ids"></div>
+      </td>
+
+      <% 2.times do |index| %>
+        <td class="selection" style="vertical-align:top" data-vector="column" data-index="<%= index %>">
+          <input type="checkbox" checked="checked" class="all" />
+          <div class="ids"></div>
+        </td>
+      <% end %>
+      <td>
+      </td>
+    </tr>
+  </table>
+  <br />
+  <fieldset>
+	<p>
+	  <%= label_tag :show_symbols do %>
+      <%= check_box_tag :show_symbols, 1, true %>Show symbols for species outside of counting
+    <% end %>
+  </p>
+  </fieldset>
+  <br />
+	<p>
+  <%= submit_tag "Generate" %>
+	</p>
+	</fieldset>
+<% end %>
+
+<%= javascript_include_tag '/js/reports.js' %>
+

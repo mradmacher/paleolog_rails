@@ -1,0 +1,8 @@
+<%= form_for( occurrence, :remote => true ) do |f| %>
+  <%= f.text_field :quantity, :readonly => true, :size => 4,
+      :onBlur => "this.value = this.defaultValue; this.setAttribute( 'readonly', 'readonly' );",
+      :onDblClick => "this.removeAttribute( 'readonly' );",
+      :onkeypress => "if( event.keyCode == 27 ) this.blur();"
+      %>
+<% end %>
+

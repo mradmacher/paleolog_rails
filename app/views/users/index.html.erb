@@ -1,0 +1,15 @@
+<%= render_title 'Users' %>
+<% if current_user.admin? %>
+	<%= render_actions [['Add user', new_user_path]] %> 
+<% end %>
+<h1>Listing users</h1>
+<table>
+<% @users.each do |user| %>
+  <tr>
+    <td>
+      <%= link_to user.name, user_path( user ) %>
+    </td>
+  </tr>
+<% end %>
+</table>
+

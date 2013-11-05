@@ -1,0 +1,12 @@
+<% content_for :navigation do %>
+  <div id="navigation">
+    <div class="navigation-section">
+      <span class="navigation-section-title">Sample</span>
+      <ul>
+        <% @sample.well.samples.all.each do |sample| %>
+          <li class="<%= sample == @sample ? 'current-item' : 'item' %>"><%= link_to sample.name, sample_path( sample ) %></li>
+        <% end %>
+      </ul></div>
+  </div>
+<% end %>
+

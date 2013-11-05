@@ -1,0 +1,35 @@
+<%= render_title "#{@counting.well.region.name}" %>
+<%= render 'navigation' %>
+
+<% if @counting.manageable_by?( current_user ) %>
+	<% actions = [] << 
+		['Edit counting', edit_counting_path( @counting )] %>
+	<% if @counting.can_be_destroyed? %>
+			<% actions << ['Delete counting', counting_path( @counting ), :confirm => 'Are you sure?', :method => :delete ] %>
+	<% end %>
+	<%= render_actions actions %>
+<% end %>
+<% content_for :breadcrumb do %>
+  <%= link_to bracketize( @counting.well.region.name ), region_path( @counting.well.region ) %> - 
+  <%= link_to bracketize( @counting.well.name ), well_path( @counting.well ) %> - 
+  <%= link_to bracketize( @counting.name ), counting_path( @counting ) %>
+<% end %>
+<%= render_heading 'Counting' %>
+<dl class="fields">
+	<dt>Name</dt>
+	<dd><%= @counting.name %></dd>
+  <% unless @counting.group.nil? %>
+    <dt>Counting's Group</dt>
+    <dd><%= @counting.group.name %></dd>
+  <% end %>
+  <% unless @counting.marker.nil? %>
+    <dt>Marker</dt>
+    <dd><%= @counting.marker.name %> (<%= @counting.marker.group.name %>)</dd>
+  <% end %>
+  <% unless @counting.marker_count.blank? %>
+    <dt>Marker Count</dt>
+    <dd><%= @counting.marker_count %></dd>
+  <% end %>
+</dl>
+
+

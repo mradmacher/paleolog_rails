@@ -1,0 +1,33 @@
+<%= form_for( @sample ) do |f| %>
+	<%= f.error_messages %>
+	<fieldset>
+		<legend>Sample</legend>
+		<% if @sample.occurrences.empty? %>
+		<p>
+		<%= f.label :well_id %>	
+		<%= f.collection_select :well_id, @sample.well.region.wells, :id, :name %>
+		</p>
+		<% end %>
+		<p>
+		<%= f.label :name %>
+		<%= f.text_field :name, :size => Sample::NAME_SIZE %>
+		</p>
+		<p>
+		<%= f.label 'Depth' %>
+		<%= f.text_field :bottom_depth, :size => Sample::BOTTOM_DEPTH_SIZE %>
+		&nbsp;-&nbsp;
+		<%= f.text_field :top_depth, :size => Sample::TOP_DEPTH_SIZE %>
+    </p>
+		<p>
+		<%= f.label :weight, 'Weight' %>
+		<%= f.number_field :weight, :size => Sample::WEIGHT_SIZE %>
+		</p>
+		<p>
+		<%= f.label :description %>
+		<%= f.text_area :description, :rows => Sample::DESCRIPTION_ROWS, :cols => Sample::DESCRIPTION_COLS %>
+    </p>
+		<p>
+		<%= f.submit 'Commit' %>
+		</p>
+	</fieldset>
+<% end %>

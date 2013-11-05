@@ -1,0 +1,57 @@
+<%= render_title 'Species' %>
+<%= render_navigation [['Module', 'Species', specimens_path]] %>
+<% if current_user.admin? %>
+	<%= render_actions [['Add species', new_specimen_path ]] %>
+<% end %>
+<h1>Listing Species</h1>
+<form action="<%= specimens_path %>" method="get">
+	<fieldset>
+		<p>
+		<%= label_tag 'Group' %>
+    <%= select_tag( :group_id, options_from_collection_for_select( Group.all, :id, :name, @group_id ) ) %>
+		</p>
+		<p>
+		<%= label_tag 'Name' %>
+		<%= text_field_tag( :name, @name_pattern ) %>
+		</p>
+		<p>
+		<%= label_tag 'Show Images' %>
+		<%= check_box_tag :images, 'true', @images_visible %>
+		</p>
+		<p>
+		<input type="submit" value="Search">
+		</p>
+	</fieldset>
+</form>
+<% if !@specimens.nil? %>
+  <p>
+  <b>Found:</b> <%= @specimens.size %>
+  </p>
+  <table>
+  <% @specimens.each do |specimen| %>
+    <tr>
+      <td>
+        <%= link_to specimen.name, specimen, :class => (specimen.verified ? 'verified' : 'unverified' ) %>
+      </td>
+      <% if !@images_visible %>
+      <td>
+        <small>
+        <% if !specimen.images.empty? %>
+          (<%= pluralize specimen.images.size, 'image' %>)
+         <% end -%>
+         </small>
+      </td>
+      <% end %>
+      <% if @images_visible %>
+        <td>
+          <% i = 0 %>
+          <% specimen.images.each do |image| %>
+            <%= resizable_image_tag( image.image ) %>
+          <% end %>
+        </td>
+      <% end %>
+    </tr>
+  <% end %>
+  </table>
+
+<% end %>

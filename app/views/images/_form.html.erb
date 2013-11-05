@@ -1,0 +1,145 @@
+<script type="text/javascript">
+	option_tag = function( value, text ) {
+		return $( "<option></option>" ).attr({ value: value }).append( text );
+	};
+	populate_well_tag = function( well_tag, sample_tag, parent_id ) {
+    well_tag.empty();
+    sample_tag.empty();
+    if( parent_id != '' ) {
+      $.get( "/wells.json", { region_id: parent_id }, function( wells ) {
+        for( i in wells ) {
+          well_tag.append( option_tag( wells[i].id, wells[i].name ) );
+        }
+        var well_id = well_tag.select( "option:selected" ).val();
+        if( well_id != '' ) {
+          populate_sample_tag( sample_tag, well_id );
+        }
+      });
+    } else {
+      sample_tag.append( option_tag( '', '' ) );
+    }
+	};
+
+  populate_sample_tag = function( sample_tag, well_id ) {
+    sample_tag.empty();
+    if( well_id != '' ) {
+      $.get( '/samples.json', { well_id: well_id }, function( samples ) {
+        for( i in samples ) {
+          sample_tag.append( option_tag( samples[i].id, samples[i].name ) );
+        }
+      });
+    } else {
+      sample_tag.append( option_tag( '', '' ) );
+    }
+  };
+
+  populate_specimen_tag = function( specimen_tag, group_id ) {
+    specimen_tag.empty();
+    $.get( '/specimens.json', { group_id: group_id }, function( specimens ) {
+      if( specimens.length == 0 ) {
+        specimen_tag.append( option_tag( '', '' ) );
+      }
+      for( i in specimens ) {
+        specimen_tag.append( option_tag( specimens[i].id, specimens[i].name ) );
+      }
+    });
+  };
+
+	$( function () {
+      var region_tag = $( "#region_id" );
+      var well_tag = $( "#well_id" );
+      var sample_tag = $( "#image_sample_id" );
+      var group_tag = $( "#group_id" );
+      var specimen_tag = $( "#image_specimen_id" );
+      <% if @image.specimen.nil? %>
+        populate_specimen_tag( specimen_tag, group_tag.select( "option:selected" ).val() ); 
+      <% end %>
+      group_tag.change( function() {
+        populate_specimen_tag( specimen_tag, group_tag.select( "option:selected" ).val() ); 
+      });
+      region_tag.change( function() {
+        populate_well_tag( well_tag, sample_tag, region_tag.select( "option:selected" ).val() ); 
+      });
+      well_tag.change( function() {
+        populate_sample_tag( sample_tag, well_tag.select( "option:selected" ).val() );
+      });
+	});
+</script>
+
+<%= form_for( @image, :html => { :multipart => true } ) do |f| %>
+  <%= f.error_messages %>
+	<fieldset>
+		<legend>Image</legend>
+  <% if @image.new_record? %>
+    <%= f.hidden_field :specimen_id %>
+		<p>
+      <%= f.file_field :image  %>
+    </p>
+  <% else %>
+		<p>
+      <%= f.label :image %>
+      <%= image_tag @image.image.url( :thumb ) %>
+    </p>
+    <% unless @image.specimen.nil? %>
+      <p>
+      <%= label_tag :group_id %>
+      <%= select_tag :group_id, options_from_collection_for_select( Group.all, :id, :name, @image.specimen.group_id ) %>
+      </p>
+      <p>
+        <%= f.label :specimen_id, 'Species' %>
+        <%= f.collection_select( :specimen_id, Specimen.order( 'name asc' ), :id, :name ) %>
+      </p>
+    <% else %>
+      <p>
+      <%= label_tag :group_id %>
+      <%= select_tag :group_id, options_from_collection_for_select( Group.all, :id, :name ) %>
+      </p>
+      <p>
+        <%= f.label :specimen_id, 'Species' %>
+        <%= f.collection_select( :specimen_id, [], :id, :name ) %>
+      </p>
+    <% end %>
+  <% end %>
+  <% unless @image.sample.nil? %>
+    <p>
+    <%= label_tag :region_id %>
+    <%= select_tag :region_id, options_from_collection_for_select( Region.all, :id, :name, @image.sample.well.region_id ),
+      {:include_blank => true} %>
+    </p>
+    <p>
+    <%= label_tag :well_id %>
+    <%= select_tag :well_id, options_from_collection_for_select( @image.sample.well.region.wells, :id, :name, @image.sample.well_id ) %>
+    </p>
+    <p>
+      <%= f.label :sample_id %>
+      <%= f.collection_select :sample_id, @image.sample.well.samples, :id, :name  %>
+    </p>
+  <% else %>
+    <p>
+    <%= label_tag :region_id %>
+    <%= select_tag :region_id, options_from_collection_for_select( Region.all, :id, :name ), {:include_blank => true} %>
+    </p>
+    <p>
+    <%= label_tag :well_id %>
+    <%= select_tag :well_id, [] %>
+    </p>
+    <p>
+      <%= f.label :sample_id %>
+      <%= f.collection_select :sample_id, [], :id, :name %>
+    </p>
+  <% end %>
+	<p>
+    <%= f.label :ef, 'EF' %>
+    <%= f.text_field :ef, :size => Image::EF_MAX_LENGTH, :maxlength => Image::EF_MAX_LENGTH %>
+  </p>
+	<p>
+    <%= f.submit 'Commit' %>
+    <% if @image.specimen.nil? %>
+      <%= link_to 'Cancel', specimens_path %>
+    <% else %>
+      <%= link_to 'Cancel', specimen_path( @image.specimen_id ) %>
+    <% end %>
+  </p>
+</fieldset>
+<% end %>
+

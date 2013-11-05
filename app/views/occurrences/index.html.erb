@@ -1,0 +1,58 @@
+<%= render_title @counting.well.name %>
+<%= render 'navigation' %>
+
+<% if @counting.manageable_by?( current_user ) %>
+	<% render_actions [['Count', edit_counting_sample_occurrences_path( @counting, @sample )]] %>
+<% end %>
+<% content_for :breadcrumb do %>
+  <%= link_to bracketize( @counting.well.region.name ), region_path( @counting.well.region ) %> - 
+  <%= link_to bracketize( @counting.well.name ), well_path( @counting.well ) %> - 
+  <%= link_to bracketize( @counting.name ), @counting %> - 
+  <%= link_to bracketize( @sample.name ), @sample %>
+<% end %>
+<%= render_heading "Counting for Sample" %>
+<% group_per_gram = @counting.group_per_gram( @sample ) %>
+<dl class="fields">
+	<dt>Counting</dt>
+  <dd><%= @counting.name %></dd>
+	<dt>Sample</dt>
+  <dd><%= @sample.name %></dd>
+  <% unless group_per_gram.nil? %>
+    <dt><%= @counting.group.name %> per gram</dt>
+    <dd><%= group_per_gram %></dd>
+  <% end %>
+	<dt>Sum</dt>
+	<dd>
+		<table>
+			<tr>
+				<th>Counted:</th>
+				<td><span id="sample-countable-sum"><%= @occurrences.countable.sum( :quantity ) %></span></td>
+			</tr>
+			<tr>
+				<th>Other:</th>
+				<td><span id="sample-uncountable-sum"><%= @occurrences.uncountable.sum( :quantity ) %></span></td>
+			</tr>
+			<tr>
+				<th>Total:</th>
+				<td><span id="sample-total-sum"><%= @occurrences.sum( :quantity ) %></span></td>
+			</tr>
+		</table>
+	</dd>
+</dl>
+<table>
+  <tr align="center">
+    <th>Species</th>
+    <th>Group</th>
+    <th>Quantity</th>
+    <th>Status</th>
+  </tr>
+<% @occurrences.each do |occurrence| %>
+	<tr>
+		<td><%= occurrence.specimen.name %></td>
+		<td>(<%= occurrence.specimen.group.name %>)</td>
+		<td><%= occurrence.quantity %></td>
+		<td><%= occurrence.status_symbol %><%= if occurrence.uncertain? then Occurrence::UNCERTAIN_SYMBOL end %></td>
+	</tr>
+<% end %>
+</table>
+

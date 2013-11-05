@@ -1,0 +1,50 @@
+<p>
+  <% if !@comment.nil? %>
+    <%= render 'comments/form' %>
+  <% end %>
+</p>
+<br />
+<p>
+<table>
+  <tr>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+<% if @commentable.nil? %>
+  <p>
+    <b>Total: </br> <%= @comments.size %>
+  </p>
+<% end %>
+<% @comments.each do |comment| %>
+  <tr>
+    <td>
+      <b><%=h comment.user.name %></b> 
+      (<%=h comment.updated_at.localtime.to_s( :long_ordinal ) %>)
+    </td>
+    <td>
+      <% if @commentable.nil? -%>
+        -&gt; <%= link_to comment.commentable_type, commentable_path( comment ) %>
+      <% end -%>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <% comment.message.split( "\n" ).each do |line| -%>
+        <%=h line %><br />
+      <% end -%>
+    </td>
+    <% if !@commentable.nil? %>
+      <% if @logged_user.author_of?( comment ) %>
+        <td><%= link_to 'Edit', edit_comment_path(comment) %></td>
+        <td><%= link_to 'Destroy', comment, :confirm => 'Are you sure?', :method => :delete %></td>
+      <% else %>
+        <td></td>
+        <td></td>
+      <% end %>
+    <% end %>
+  </tr>
+  <tr><td>&nbsp;</td></tr>
+<% end %>
+</table>
+</p>

@@ -1,0 +1,31 @@
+<% content_for :head do %>
+  <title>Editing sample specimens</title>
+<% end %>
+<table>
+<h1>Counting <%= @counting %></h1>
+<% @specimens.each do |specimen| %>
+  <tr>
+  <td id="<%= "specimen_name_#{specimen.id}" %>"> 
+    <% if @image_specimens.include? specimen.id -%>
+      *
+    <% end -%>
+    <% if @current_specimens.include?( specimen.id ) %>
+      <span style="color:gren"><b><%= specimen.name %></b></span>
+    <% else %>
+      <small><%= specimen.name %></small>
+    <% end %>
+  </td>
+  <td id="<%= "specimen_removing_#{specimen.id}" %>"> 
+    <% if @current_specimens.include?( specimen.id ) %>
+      <%= button_to_remove( specimen.id, @specimen_type, @sample.id, @counting ) %>
+    <% end %>
+  </td>
+  <td id=<%= "specimen_adding_#{specimen.id}" %>> 
+    <% if !@current_specimens.include?( specimen.id ) %>
+      <%= button_to_add( specimen.id, @specimen_type, @sample.id, @counting ) %>
+    <% end %>
+  </td>
+  </tr>
+<% end %>
+</table>
+

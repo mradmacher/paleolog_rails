@@ -1,0 +1,48 @@
+<%= form_for(@specimen) do |f| %>
+  <%= f.error_messages %>
+	<fieldset>
+		<legend>Species</legend>
+		<p>
+    <%= f.label :group_id %>
+    <%= f.collection_select( :group_id, Group.all, :id, :name ) %>
+		</p>
+		<p>
+    <%= f.label :name %>
+    <%= f.text_field :name, :size => Specimen::NAME_SIZE %>
+		</p>
+		<p>
+    <%= f.label :verified %><%= f.check_box :verified %>
+		</p>
+		<p>
+    <%= f.label :description %>
+    <%= f.text_area :description, 
+          :rows => Specimen::DESCRIPTION_ROWS,
+          :cols => Specimen::DESCRIPTION_COLS %>
+    </p>
+    <p>
+      <%= f.label :age %>
+      <%= f.text_area :age, 
+            :rows => Specimen::AGE_ROWS,
+            :cols => Specimen::AGE_COLS %>
+    </p>
+    <p>
+      <%= f.label :comparison %>
+      <%= f.text_area :comparison, 
+            :rows => Specimen::COMPARISON_ROWS,
+            :cols => Specimen::COMPARISON_COLS %>
+    </p>
+    <p>
+      <%= f.label :range, 'Stratigraphic range' %>
+      <%= f.text_area :range, 
+            :rows => Specimen::RANGE_ROWS,
+            :cols => Specimen::RANGE_COLS %>
+    </p>
+    <p>
+      <%= f.submit 'Commit' %>
+      <%= link_to 'Cancel', @specimen.new_record? ? specimens_path : specimen_path( @specimen.id ) %>
+    </p>
+  </fieldset>
+<% end %>
+
+
+

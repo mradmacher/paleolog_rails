@@ -1,0 +1,13 @@
+<%= render_title 'Regions' %>
+
+<% if current_user.admin? %>
+	<%= render_actions [['Add region', new_region_path]] %>
+<% end %>
+<%= render_heading 'Regions' %>
+
+<ul>
+	<% @regions.each do |region| %>
+		<li><%= link_to region.name, region %></li>
+	<% end %>
+</ul>
+

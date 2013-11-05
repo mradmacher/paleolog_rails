@@ -1,0 +1,24 @@
+<% preds = [] %>
+<% chart.cells.each_with_index do |column, i| %>
+  <% preds[i] = [] %>
+  <% column.each_with_index do |cell, j| %>
+    <% if cell[2].to_i > 0 %>
+      <% x = cell[0] + (cell[2].to_f.round.to_i/2) + 1 -%>
+      <% y = cell[1] - chart.col_height/2 + 1 -%>
+    <% else %>
+      <% x = cell[0] -%>
+      <% y = cell[1] - chart.col_height/2 + 1 -%>
+    <% end %>
+    <% preds[i][j] = [x, y] %>
+    <circle cx="<%= x %>" cy="<%= y %>" r="1" />
+    <% if j > 0 %>
+      <% x1 = preds[i][j-1][0] %>
+      <% x2 = preds[i][j][0] %>
+      <% y1 = preds[i][j-1][1] %>
+      <% y2 = preds[i][j][1] %>
+      <line x1="<%= x1 %>" x2="<%= x2 %>" y1="<%= y1 %>" y2="<%= y2 %>" stroke="black" />
+    <% end %>
+  <% end %>
+<% end %>
+
+

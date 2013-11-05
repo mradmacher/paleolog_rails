@@ -1,0 +1,6 @@
+<%= render_title @well.region.name %>
+<%= render 'regions/navigation' %>
+<%= render_actions [[ 'Cancel', region_path( @well.region_id ) ]] %>
+<%= render_heading 'New well' %>
+
+<%= render :partial => 'form' %>

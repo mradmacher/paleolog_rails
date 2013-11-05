@@ -1,0 +1,14 @@
+<% if items.is_a? Array -%>
+<% content_for :navigation do -%>
+<div id="navigation">
+	<table class="navigation">
+	<% items.each do |item| -%>
+		<% header, title, link = item -%>
+		<tr>
+			<th><%= header %></th>
+			<td><%= link_to( title, link ) %></td></tr>
+	<% end -%>
+	</table>
+</div>
+<% end -%>
+<% end -%>

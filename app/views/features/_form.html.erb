@@ -1,0 +1,17 @@
+<%= form_for feature do |f| %>
+  <%= f.hidden_field :specimen_id %>
+  <% if feature.new_record? %>
+    <%= f.label :choice_id, 'Unspecified' %>
+    <%= f.radio_button :choice_id, '' %>
+  <% end %>
+  <% field.choices.each do |choice| %>
+    <%= f.label :choice_id, choice.name %>
+    <%= f.radio_button :choice_id, choice.id %>
+  <% end %>
+  <%= f.submit 'Commit' %>
+  <% unless feature.new_record? %>
+    <%= link_to 'Delete', feature, :method => :delete, :confirm => 'Are you sure?' %>
+  <% end %>
+<% end %>
+
+

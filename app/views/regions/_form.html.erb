@@ -1,0 +1,15 @@
+<%= form_for(@region) do |f| %>
+  <%= f.error_messages %>
+	<fieldset>
+		<legend>Region</legend>
+		<p>
+    <%= f.label :name %>
+		<%= f.text_field :name, :size => Region::NAME_SIZE %>
+		</p>
+		<p>
+    <%= f.submit 'Save' %>
+		</p>
+</fieldset>
+<% end %>
+
+

@@ -1,0 +1,8 @@
+<%= render_title 'Home' %>
+<% content_for :navigation do %>
+  <%= render :partial => 'layouts/navigation', 
+      :locals => { :items => site_navigation_for( :index ) } %>
+<% end %>
+<h1>PaleoLog</h1>
+<p>Tool for micropaleontologists</p>
+

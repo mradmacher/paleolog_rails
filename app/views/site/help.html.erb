@@ -1,0 +1,7 @@
+<%= render_title 'Help' %>
+<% content_for :navigation do %>
+  <%= render :partial => 'layouts/navigation', 
+      :locals => { :items => site_navigation_for( :help ) } %>
+<% end %>
+<h1>Help</h1>
+<p>TODO</p>

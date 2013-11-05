@@ -1,0 +1,90 @@
+<%= render_title @specimen.name %>
+<%= render_navigation [
+	['Module', 'Species', specimens_path], 
+	navigation_for_species( @specimen.id, @specimen.name )] %>
+<% if current_user.admin? %>
+<%= render_actions [[
+	'Edit species', edit_specimen_path( @specimen )], [
+	'Delete species', specimen_path( @specimen ), {:confirm => 'Are you sure?', :method => :delete}], [
+	'Add image', new_specimen_image_path( @specimen )]] %>
+<% end %>
+<% if !@specimen.verified %>
+<p>
+  <span class="unverified">UNVERIFIED</span>
+</p>
+<% end %>
+<p>
+  <b>Name:</b>
+  <%=h @specimen.name %>
+</p>
+<p>
+<% @specimen.images.each do |image| -%>
+  <%= link_to image_tag( image.image.url( :thumb ) ), image_path( image ) %>
+<% end -%>
+</p>
+<p>
+  <table>
+    <tr>
+    <% @specimen.field_features.keys.each do |field| %>
+      <th><div class="feature-form-activation" data-field-id="<%= field.id %>"><%= field.name %></div></th>
+    <% end %>
+    </tr>
+    <tr>
+    <% @specimen.field_features.each do |field, feature| %>
+      <td>
+        <% if feature %>
+          <div><%= feature.choice.name %></div>
+        <% else %>
+          <% feature = Feature.new( :specimen_id => @specimen.id ) %>
+        <% end %>
+        <% if current_user.admin? %>
+          <div class="feature-form feature-field-<%= field.id %>" title="<%= field.name %>">
+            <%= render :partial => 'features/form', :locals => { feature: feature, field: field } %>
+          </div>
+        <% end %>
+      </td>
+    <% end %>
+    </tr>
+  </table>
+</p>
+<% if @specimen.age.present? -%>
+  <p>
+    <b>Age:</b>
+    <%= raw RedCloth.new( @specimen.age ).to_html -%>
+  </p>
+<% end -%>
+<% if @specimen.description.present? -%>
+  <p>
+    <b>Description:</b>
+    <%= raw RedCloth.new( @specimen.description ).to_html %>
+  </p>
+<% end -%>
+<% if @specimen.comparison.present? -%>
+  <p>
+    <b>Comparison:</b>
+    <%= raw RedCloth.new( @specimen.comparison ).to_html %>
+  </p>
+<% end -%>
+<% if @specimen.range.present? -%>
+  <p>
+    <b>Stratigraphic range:</b>
+    <%= raw RedCloth.new( @specimen.range ).to_html %>
+  </p>
+<% end -%>
+
+<p>
+<%= render :partial => 'comments/index' %>
+</p>
+
+<script type="text/javascript">
+  $(function() {
+    $('.feature-form').dialog({
+      autoOpen: false}
+    );
+    $('.feature-form-activation').button().click(function() {
+      field_id = $(this).attr('data-field-id');
+      $('.feature-form.feature-field-' + field_id).dialog('open');
+    });
+  });
+</script>
+

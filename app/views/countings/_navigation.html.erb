@@ -1,0 +1,20 @@
+<% content_for :navigation do %>
+  <div id="navigation">
+    <div class="navigation-section">
+      <span class="navigation-section-title">Sample</span>
+      <ul>
+        <% @counting.well.samples.each do |sample| %>
+          <li class="item"><%= link_to sample.name, counting_sample_occurrences_path( @counting, sample ) %></li>
+        <% end %>
+      </ul></div>
+    <div class="navigation-section">
+      <span class="navigation-section-title">Counting</span>
+      <ul>
+        <% @counting.well.countings.each do |counting| %>
+          <li class="<%= counting == @counting ? 'current-item' : 'item' %>"><%= link_to counting.name, counting_path( counting ) %></li>
+        <% end %>
+      </ul></div>
+  </div>
+<% end %>
+
+

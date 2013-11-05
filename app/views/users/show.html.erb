@@ -1,0 +1,17 @@
+<%= render_title 'Users' %>
+<% if current_user.admin? %>
+	<%= render_actions [[ 'Edit user', edit_user_path( @user ) ]] %>
+<% end %>
+<p>
+  <b>Name:</b>
+  <%=h @user.name %>
+</p>
+<p>
+  <b>Login:</b>
+  <%=h @user.login %>
+</p>
+<p>
+  <b>E-mail:</b>
+  <%=h @user.email %>
+</p>
+

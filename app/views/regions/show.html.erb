@@ -1,0 +1,25 @@
+<%= render_title @region.name %>
+<%= render 'navigation' %>
+
+<% if current_user.admin? %>
+	<% actions = [] << ['Add well', new_region_well_path( @region )] %> 
+	<% actions << ['Edit region', edit_region_path( @region )] %>
+	<% if @region.wells.empty? %>
+		<% actions << ['Delete region', region_path( @region ), {:confirm => 'Are you sure', :method => :delete}] %>
+	<% end %>
+	<%= render_actions actions %>
+<% end %>
+<%= render_heading 'Region' %>
+<dl class="fields">
+	<dt>Name</dt>
+	<dd><%= @region.name %></dd>
+  <dt>Wells</dt>
+  <dd>
+    <ul>
+    <% @region.wells.viewable_by( current_user ).each do |well| %>
+      <li><%= link_to well.name, well_path( well ) %>
+    <% end %>
+    </ul>
+  </dd>
+</dl>
+

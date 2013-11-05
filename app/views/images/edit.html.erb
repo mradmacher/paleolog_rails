@@ -1,0 +1,10 @@
+<% unless @image.specimen.nil? %>
+  <%= render_title @image.specimen.name %>
+  <%= render_navigation [[
+    'Module', 'Species', specimens_path],
+    navigation_for_imageable( @image )] %>
+<% end %>
+<h1>Editing image</h1>
+
+<%= render 'form' %>
+

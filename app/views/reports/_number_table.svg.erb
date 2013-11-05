@@ -1,0 +1,9 @@
+<% chart.cells.each do |column| %>
+  <% column.each do |cell| %>
+    <% if cell[2].to_s != '0' %>
+      <% x = cell[0] -%>
+      <% y = cell[1] -%>
+      <text x="<%= x %>" y="<%= y %>"><%= cell[2].to_s %></text>
+    <% end %>
+  <% end %>
+<% end %>

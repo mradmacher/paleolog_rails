@@ -1,0 +1,105 @@
+<table border="1">
+  <tr>
+    <th colspan="4" align="center">Dinoflagellates:</th>
+  </tr>
+  <tr>
+    <th></th>
+    <th colspan="2" align="center">Counting</th>
+    <% if @images_visible -%>
+      <th></th>
+    <% end -%>
+  </tr>
+  <tr>
+    <th>Name</th>
+    <th>First</th>
+    <th>Second</th>
+    <% if @images_visible -%>
+      <th></th>
+    <% end -%>
+  </tr>
+  <% @dinoflagellate_occurrences.keys.sort { |x,y| x.name <=> y.name }.each do |specimen| -%>
+    <% ocrs = @dinoflagellate_occurrences[specimen] -%>
+    <tr>
+      <td><%= specimen.name %></td>
+      <td align="center">
+        <% if !ocrs[0].nil? -%>
+          <% if ocrs[0].quantity.nil? -%>
+            unspecified 
+          <% else -%>
+            <%= ocrs[0].quantity %>
+          <% end -%>
+        <% end -%>
+      </td>
+      <td align="center">
+        <% if !ocrs[1].nil? -%>
+          <% if ocrs[1].quantity.nil? -%>
+            unspecified 
+          <% else -%>
+            <%= ocrs[1].quantity %>
+          <% end -%>
+        <% end -%>
+      </td>
+      <% if @images_visible %>
+        <td>
+        <% specimen.images.each do |image| -%>
+          <% if image.sample == @sample -%>
+            <%= resizable_image_tag image.image %>
+          <% end -%>
+        <% end -%>
+        </td>
+      <% end -%>
+    </tr>
+  <% end %>
+  <tr>
+    <th colspan="4" align="center">Others:</th>
+  </tr>
+  <tr>
+    <th></th>
+    <th colspan="2" align="center">Counting</th>
+    <% if @images_visible -%>
+      <th></th>
+    <% end -%>
+  </tr>
+  <tr>
+    <th>Name</th>
+    <th>First</th>
+    <th>Second</th>
+    <% if @images_visible -%>
+      <th></th>
+    <% end -%>
+  </tr>
+  <% @other_occurrences.keys.sort { |x,y| x.name <=> y.name }.each do |specimen| %>
+    <% ocrs = @other_occurrences[specimen] %>
+    <tr>
+      <td><%= specimen.name %></td>
+      <td align="center">
+        <% if !ocrs[0].nil? -%>
+          <% if ocrs[0].quantity.nil? -%>
+            unspecified 
+          <% else -%>
+            <%= ocrs[0].quantity %>
+          <% end -%>
+        <% end -%>
+      </td>
+      <td align="center">
+        <% if !ocrs[1].nil? -%>
+          <% if ocrs[1].quantity.nil? -%>
+            unspecified 
+          <% else -%>
+            <%= ocrs[1].quantity %>
+          <% end -%>
+        <% end -%>
+      </td>
+      <% if @images_visible %>
+        <td>
+        <% specimen.images.each do |image| -%>
+          <% if image.sample == @sample -%>
+            <%= resizable_image_tag image.image %>
+          <% end -%>
+        <% end -%>
+        </td>
+      <% end -%>
+    </tr>
+  <% end %>
+</table>
+

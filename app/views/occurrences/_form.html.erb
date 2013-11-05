@@ -1,0 +1,19 @@
+<%= form_for( occurrence ) do |f| %>
+	<fieldset>
+		<legend>Occurrence</legend>
+	<p>
+  <%= label_tag :group_id %>
+  <%= select_tag :group_id, options_from_collection_for_select( Group.all, :id, :name ) %>
+  </p>
+	<p>
+  <%= f.hidden_field :counting_id %>
+  <%= f.hidden_field :sample_id %>
+	<%= f.label( :specimen_id, 'Species' ) %>
+  <%= f.select( :specimen_id, [] ) %>
+	</p>
+	<p>
+  <%= f.submit 'Add' %>
+	</p>
+</fieldset>
+<% end %>
+

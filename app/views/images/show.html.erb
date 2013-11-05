@@ -1,0 +1,37 @@
+<%= render_title @image.specimen.name %>
+<%= render_navigation [[
+	'Module', 'Species', specimens_path],
+	navigation_for_imageable( @image )] %>
+<% if	current_user.admin? %>
+	<%= render_actions [[
+		'Show original', @image.image.url], [
+    'Edit image', edit_image_path( @image.id )] ,[
+		'Delete image', image_path( @image.id ), {:confirm => 'Are you sure?', :method => :delete}]] %>
+<% end %>
+<br />
+<small>
+<% current_index = @other_images.index @image -%>
+<% if current_index > 0 -%>
+  <%= link_to '<< Previous', image_path( @other_images[current_index-1] ) %>
+<% end -%>
+&nbsp;
+<% if current_index < @other_images.size - 1 -%>
+  <%= link_to 'Next >>', image_path( @other_images[current_index+1] ) %>
+<% end -%>
+</small>
+
+<% if current_user.admin? -%>
+  <% unless @image.sample.nil? -%>
+    <p>Region: <%= @image.sample.well.region.name %>, Well: <%= @image.sample.well.name %>, Sample: <%= @image.sample.name %></p>
+  <% end %>
+  <p>EF: <%= @image.ef %></p>
+<% end -%>
+
+<p>
+  <%= image_tag( @image.image.url( :medium ) ) %>
+</p>
+
+<p>
+  <b>Comments:</b>
+<%= render :partial => 'comments/index' %>
+</p>

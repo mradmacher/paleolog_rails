@@ -1,0 +1,38 @@
+<%= form_for(@user) do |f| %>
+  <%= f.error_messages %>
+	<fieldset>
+		<legend>User</legend>
+		<p>
+    <%= f.label :name, 'Name:' %>
+    <%= f.text_field :name, :size => User::NAME_SIZE %>
+  </p>
+	<p>
+    <%= f.label :login, 'Login:' %>
+    <%= f.text_field :login, :size => User::LOGIN_SIZE %>
+  </p>
+	<p>
+    <%= f.label :email, 'E-mail:' %>
+    <%= f.text_field :email, :size => User::EMAIL_SIZE %>
+  </p>
+	<p>
+  <% if not @user.new_record? -%>
+		<p>
+    If you do not want to change the password, leave those fields blank:
+		</p>
+  <% end -%>
+    <%= f.label :password, 'Password:' %>
+    <%= f.password_field :password, :size => User::PASSWORD_SIZE %>
+  </p>
+	<p>
+    <%= f.label :password_confirmation, 'Confirmation:' %>
+    <%= f.password_field :password_confirmation, :size => User::PASSWORD_SIZE %>
+  </p>
+	<p>
+    <%= f.submit 'Commit' %>
+		<%= link_to 'Cancel', @user.new_record? ? users_path : user_path( @user ) %>
+  </p>
+</fieldset>
+<% end %>
+
+
+

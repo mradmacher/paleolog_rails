@@ -1,0 +1,27 @@
+<%= render_title "#{@sample.well.region.name}" %>
+<%= render 'navigation' %>
+
+<% if @sample.manageable_by?( current_user ) %>
+	<% actions = [] << ['Edit sample', edit_sample_path( @sample )] %>
+	<% if @sample.can_be_destroyed? %>
+			<% actions << ['Delete sample', sample_path( @sample ), :confirm => 'Are you sure', :method => :delete ] %>
+	<% end %>
+	<%= render_actions actions %>
+<% end %>
+<% content_for :breadcrumb do %>
+  <%= link_to bracketize( @sample.well.region.name ), region_path( @sample.well.region ) %> - 
+  <%= link_to bracketize( @sample.well.name ), well_path( @sample.well ) %> - 
+  <%= link_to bracketize( @sample.name ), sample_path( @sample ) %>
+<% end %>
+<%= render_heading 'Sample' %>
+<dl class="fields">
+	<dt>Name</dt>
+	<dd><%= @sample.name %></dd>
+	<dt>Weight</dt>
+	<dd><%= @sample.weight %></dd>
+	<dt>Depth</dt>
+	<dd><%= @sample.bottom_depth %>&nbsp;-&nbsp;<%= @sample.top_depth %></dd>
+	<dt>Description</dt>
+	<dd><%= raw RedCloth.new( @sample.description || '' ).to_html %></dd>
+</dl>
+
