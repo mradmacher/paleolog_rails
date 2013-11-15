@@ -9,7 +9,7 @@
   <% column.each do |cell| %>
     <% x = cell[0] + chart.col_widths[i]/2 - 1 %>
     <% unless last_rows[i].nil? %>
-      <% y1 = -chart.col_height %> 
+      <% y1 = -chart.col_height %>
       <% y2 = last_rows[i] * chart.col_height - chart.col_widths[i]/2 %>
       <line x1="<%= x %>" x2="<%= x %>" y1="<%= y1 %>" y2="<%= y2 %>" stroke="black" stroke-dasharray="1 1" />
     <% end %>
@@ -21,16 +21,16 @@
     <% x = cell[0] + chart.col_widths[i]/2 - 1 %>
     <% y = cell[1] - chart.col_height/2 + 1 -%>
     <% unless cell[2].to_s.empty? %>
-      <% if cell[2].to_i > 50 %>
-        <circle cx="<%= x %>" cy="<%= y %>" r="3" stroke="#000000" fill="#000000" />
-      <% elsif cell[2].to_i > 30 %>
-        <circle cx="<%= x %>" cy="<%= y %>" r="2" stroke="#000000" fill="#000000" />
-      <% elsif cell[2].to_i > 10 %>
-        <circle cx="<%= x %>" cy="<%= y %>" r="2" stroke="#000000" fill="#999999" />
-      <% elsif cell[2].to_i > 5 %>
-        <circle cx="<%= x %>" cy="<%= y %>" r="2" stroke="#000000" fill="#ffffff" />
+      <% if cell[2].to_i > 150 %>
+        <circle cx="<%= x %>" cy="<%= y %>" r="4" stroke="#000000" fill="#000000" />
+      <% elsif cell[2].to_i > 80 %>
+        <circle cx="<%= x %>" cy="<%= y %>" r="3" stroke="#000000" fill="#444444" />
+      <% elsif cell[2].to_i > 20 %>
+        <circle cx="<%= x %>" cy="<%= y %>" r="3" stroke="#000000" fill="#888888" />
+      <% elsif cell[2].to_i > 4 %>
+        <circle cx="<%= x %>" cy="<%= y %>" r="3" stroke="#000000" fill="#cccccc" />
       <% elsif cell[2].to_i > 0 %>
-        <circle cx="<%= x %>" cy="<%= y %>" r="1" stroke="#000000" fill="#ffffff" />
+        <circle cx="<%= x %>" cy="<%= y %>" r="2" stroke="#000000" fill="#ffffff" />
       <% end %>
     <% end %>
   <% end %>
