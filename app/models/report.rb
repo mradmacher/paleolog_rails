@@ -1,6 +1,6 @@
 require 'csv'
 
-class Report 
+class Report
 	attr_accessor :type, :counting_id, :sample_ids, :species_ids,
     :view, :charts, :orientation, :show_symbols, :percentages,
     :column_criteria, :row_criteria
@@ -22,7 +22,7 @@ class Report
     :lines => 'Lines',
 		:points => 'Points'
 	}
-  NOLATIN = /group|bisaccate|algae|pollens?|spores?|foraminiferal|test|linnings|other|and|acritarchs?|spp\.|sp\.|cf\.|[?()]|\d/i 
+  NOLATIN = /group|bisaccate|algae|pollens?|spores?|foraminiferal|test|linnings|other|and|acritarchs?|spp\.|sp\.|cf\.|[?()]|\d/i
 
   ROUND = 1
 
@@ -51,7 +51,7 @@ class Report
 	def name
 		TYPE_NAMES[@type]
 	end
-	
+
 	def has_param?( param )
 		@params.include? param
 	end
@@ -61,75 +61,94 @@ class Report
 		@value_row
 	end
 
-  def make_column_values(column, rows, species)
-    headers = []
-    values = []
-    transposed_rows = rows.transpose
+  def filter_row( filter, samples, occurrences )
+    filtered_samples = []
+    filtered_occurrences = []
+    samples.each_with_index do |sample, index|
+      if filter['sample_ids'].include?(sample.id.to_s)
+        filtered_samples << sample
+        filtered_occurrences << occurrences[index]
+      end
+    end
+    [filtered_samples, filtered_occurrences]
+  end
 
-    if column['species_ids']
+  def filter_column( filter, species, occurrences )
+    filtered_species = []
+    filtered_occurrences = []
+
+    if filter['species_ids']
+      transposed = occurrences.transpose
       species.each_with_index do |species, i|
-        if column['species_ids'].include?(species.id.to_s)
+        if filter['species_ids'].include?(species.id.to_s)
           col = []
-          transposed_rows[i].each_with_index do |occurrence, j|
-            col[j] = 
+          transposed[i].each_with_index do |occurrence, j|
+            col[j] =
               if occurrence and occurrence.quantity and (occurrence.quantity > 0)
                 occurrence
-              else 
+              else
                 nil
               end
           end
-          headers << species.name
-          values << col
+          filtered_species << species
+          filtered_occurrences << col
         end
       end
-      values = values.transpose
+      filtered_occurrences = filtered_occurrences.transpose
+    end
+    [filtered_species, filtered_occurrences]
+  end
 
-      case self.type
-        when QUANTITY
-          values.each_with_index do |row, i|
-            row.each_with_index do |col, j|
-              if col
-                occurrence = values[i][j]
-                values[i][j] = { 
-                  occurrence: occurrence,
-                  quantity: occurrence.quantity
-                }
-              end
-            end
-          end
-        when DENSITY
-          density_map = self.counting.occurrence_density_map
-          values.each_with_index do |row, i|
-            row.each_with_index do |col, j|
-              if col
-                occurrence = values[i][j]
-                values[i][j] = { 
-                  occurrence: occurrence,
-                  quantity: density_map[occurrence] ? density_map[occurrence].round(ROUND) : 0
-                }
-              end
-            end
-          end
+  def process_column( criteria, species, occurrences )
+    headers = []
+    values = []
+    unless species.empty?
+      species.each do |s|
+        headers << s.name
       end
+      density_map = self.counting.occurrence_density_map if self.type == DENSITY
 
-      case column['merge'] 
+      occurrences.each_with_index do |row, i|
+        values[i] = []
+        row.each_with_index do |col, j|
+          if col
+            values[i][j] = {
+              occurrence: col,
+              quantity: if self.type == DENSITY
+                  density_map[col] ? density_map[col].round(ROUND) : 0
+                else
+                  col.quantity
+                end
+            }
+          else
+            values[i][j] = nil
+          end
+        end
+      end
+    end
+    [headers, values]
+  end
+
+  def merge_column( criteria, headers, values )
+    unless headers.empty?
+      case criteria['merge']
         when 'sum'
           values.each_with_index do |row, i|
             v = row.inject(0) { |sum, v| sum + ((v.nil? or v[:quantity].nil?) ? 0 : v[:quantity]) }
             values[i] = [(v.is_a?( Float ) ? v.round(ROUND) : v).to_s]
           end
-          headers = [column['header']]
+          headers = [criteria['header']]
           @splits << (@splits.last || -1) + 1
         when 'count'
           values.each_with_index do |row, i|
             values[i] = [row.inject(0) { |sum, v| sum + ((v.nil? or v[:quantity].nil?) ? 0 : 1) }.to_s]
           end
-          headers = [column['header']]
+          headers = [criteria['header']]
           @splits << (@splits.last || -1) + 1
         else
           values.each_with_index do |row, i|
             row.each_with_index do |col, j|
-              unless col.nil? 
+              unless col.nil?
                 values[i][j] = if @show_symbols.to_i > 0
                   col[:occurrence].normal?? col[:quantity] : col[:occurrence].status_symbol
                 else
@@ -142,66 +161,77 @@ class Report
           end
           @splits << (@splits.last || -1) + headers.size
       end
+    end
+    [headers, values]
+  end
 
-      @column_headers.concat headers
-      values.each_with_index do |row, i|
-        @values[i].concat row
+  def process_computed_column( criteria )
+    headers = []
+    values = []
+    if criteria['computed'].present? and @column_criteria['0']['merge'].present? and @column_criteria['1']['merge'].present?
+      a_idx = 0
+      b_idx = 1
+      if (criteria['computed'] =~ /^([ AB+\/()*-]|\d)+$/) == 0
+        @values.each_with_index do |row, i|
+          formula = criteria['computed'].dup
+          a = row[a_idx]
+          b = row[b_idx]
+
+          formula.gsub!(/A/, a.to_f.to_s)
+          formula.gsub!(/B/, b.to_f.to_s)
+          begin
+            result = eval formula
+            values[i] = [result.round(ROUND).to_s]
+          rescue ZeroDivisionError
+            values[i] = ['']
+          end
+        end
+        headers << criteria['header']
+        @splits << (@splits.last || -1) + 1
       end
+    end
+    [headers, values]
+  end
+
+  def concat_values( values )
+    unless values.empty?
+      values.each_with_index do |row, i|
+        @values[i].concat( row )
+      end
+    end
+  end
+
+  def concat_column_headers( headers )
+    unless headers.empty?
+      @column_headers.concat( headers )
     end
   end
 
 	def generate
     samples, species, occurrences = counting.summary
-    rows = []
-    @row_criteria.each_value do |row|
-      samples.each_with_index do |sample, index|
-        if row['sample_ids'].include?(sample.id.to_s)
-          @row_headers << sample.name
-          rows << occurrences[index]
-          @values << []
-        end
+
+    @row_criteria.each_value do |criteria|
+      samples, occurrences = filter_row( criteria, samples, occurrences )
+      samples.each do |sample|
+        @row_headers << sample.name
+        @values << []
       end
     end
-    @column_criteria.each_value do |column|
-      make_column_values(column, rows, species)
+
+    @column_criteria.each_value do |criteria|
+      filtered_species, filtered_occurrences = filter_column( criteria, species, occurrences )
+      headers, values = process_column( criteria, filtered_species, filtered_occurrences )
+      headers, values = merge_column( criteria, headers, values )
+
+      concat_column_headers( headers )
+      concat_values( values )
     end
 
-=begin
-    if @percentages.to_i > 0
-      @values.each_with_index do |row, index|
-        counted = row.inject(0){ |sum, e| sum + e.to_i }
-        row.each_with_index do |value, index|
-          unless value.nil? 
-            row[index] = (value.to_i*100.0/counted).round 
-          end
-        end
-      end
-    end
-=end
+    @column_criteria.each_value do |criteria|
+      headers, values = process_computed_column( criteria )
 
-    @column_criteria.each_value do |column|
-      if column['computed'].present? and @column_criteria['0']['merge'].present? and @column_criteria['1']['merge'].present?
-        a_idx = 0
-        b_idx = 1
-        if (column['computed'] =~ /^([ AB+\/()*-]|\d)+$/) == 0
-          @values.each_with_index do |row, i|
-            formula = column['computed'].dup
-            a = row[a_idx]
-            b = row[b_idx]
-
-            formula.gsub!(/A/, a.to_f.to_s)
-            formula.gsub!(/B/, b.to_f.to_s)
-            begin
-              result = eval formula
-              @values[i] << result.round(ROUND).to_s
-            rescue ZeroDivisionError
-              @values[i] << ''
-            end
-          end
-          @column_headers << column['header']
-          @splits << (@splits.last || -1) + 1
-        end
-      end
+      concat_column_headers( headers )
+      concat_values( values )
     end
 	end
 
@@ -216,7 +246,7 @@ class Report
 				begin
 					csv << [vheader].concat( self.value_row.next.map{ |i| (i.to_s == '0'? nil : i) } )
 				rescue StopIteration => e
-					csv << [vheader].concat( @column_headers.size.times.map{ |i| nil } )	
+					csv << [vheader].concat( @column_headers.size.times.map{ |i| nil } )
 				end
 			end
 		end
