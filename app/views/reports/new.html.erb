@@ -43,18 +43,20 @@
         <label>Merge
           <select name="columns[<%= index %>][merge]">
             <option value=""></option>
-            <option value="sum">Sum</option>
-            <option value="count">Count</option>
+            <option value="sum">Sum Specimens</option>
+            <option value="count">Count Species</option>
+            <option value="most_abundant">Most Abundant</option>
+            <option value="second_most_abundant">Second Most Abundant</option>
           </select>
         </label>
         <br />
         <div class="filter" data-source="species" data-filter-key="species_ids">
-          <%= select_tag "columns[#{index}][group_id]", options_from_collection_for_select( Group.all, :id, :name), include_blank: true, 
+          <%= select_tag "columns[#{index}][group_id]", options_from_collection_for_select( Group.all, :id, :name), include_blank: true,
             class: 'selection-filter-field', 'data-filter-key' => 'group_id' %>
           <br />
           <% Field.all.each do |field| %>
             <%= label_tag "columns[#{index}][choice_ids][]", field.name %>
-            <%= select_tag "columns[#{index}][choice_ids][]", 
+            <%= select_tag "columns[#{index}][choice_ids][]",
               options_from_collection_for_select( field.choices, :id, :name ), include_blank: true,
               class: 'selection-filter-field', 'data-filter-key' => 'choice_ids[]', 'data-is-collection' => 'true' %>
             <br />

@@ -15,7 +15,7 @@ class ReportTest < ActiveSupport::TestCase
       @species[i] = []
       4.times { @species[i] << Specimen.sham!( group: group ) }
     end
-      
+
     @occurrences = []
     #sample, rank, group, species
     [
@@ -24,9 +24,51 @@ class ReportTest < ActiveSupport::TestCase
       [2, 0, 0, 1], [2, 1, 0, 2], [2, 2, 1, 1], [2, 3, 1, 2]
     ].each do |value|
       @occurrences[value[0]] = [] if @occurrences[value[0]].nil?
-      @occurrences[value[0]][value[1]] = Occurrence.sham!( counting: @counting, sample: @samples[value[0]], 
+      @occurrences[value[0]][value[1]] = Occurrence.sham!( counting: @counting, sample: @samples[value[0]],
         specimen: @species[value[2]][value[3]], rank: value[1],
         status: (value[2] == 0 ? Occurrence::NORMAL : Occurrence::OUTSIDE_COUNT) )
+    end
+  end
+
+  context 'most abundant species' do
+    setup do
+      @samples_summary, @species_summary, @occurrences_summary = @counting.summary
+      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id,
+        rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
+        columns: { '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s }, 'merge' => 'most_abundant', 'header' => 'Most Abundant' } }
+      @report.generate
+    end
+
+    should 'generate proper values' do
+      expected = []
+      @occurrences_summary.each_with_index do |row, i|
+        expected[i] = row.max_by{ |o| o ? o.quantity : 0 }.quantity.to_s
+      end
+      expected.each_with_index do |v, i|
+        assert_equal v, @report.values[i][0]
+      end
+    end
+  end
+
+  context 'second most abundant species' do
+    setup do
+      @samples_summary, @species_summary, @occurrences_summary = @counting.summary
+      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id,
+        rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
+        columns: { '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s }, 'merge' => 'second_most_abundant', 'header' => 'Most Abundant' } }
+      @report.generate
+    end
+
+    should 'generate proper values' do
+      expected = []
+      @occurrences_summary.each_with_index do |row, i|
+        most_abundant = row.max_by{ |o| o ? o.quantity : 0 }
+        second_most_abundant = row.reject { |v| v == most_abundant }.max_by{ |o| o ? o.quantity : 0 }
+        expected[i] = second_most_abundant.quantity.to_s
+      end
+      expected.each_with_index do |v, i|
+        assert_equal v, @report.values[i][0]
+      end
     end
   end
 
@@ -60,7 +102,7 @@ class ReportTest < ActiveSupport::TestCase
       @samples_summary, @species_summary, @occurrences_summary = @counting.summary
       @report = Report.build type: Report::QUANTITY, counting_id: @counting.id,
         rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
-        columns: { 
+        columns: {
           '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s }, 'merge' => 'count', 'header' => 'Species Count' },
           '1' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s }, 'merge' => 'sum', 'header' => 'Species Sum' },
           '2' => { 'computed' => 'A/B', 'header' => 'Count/Sum' },
@@ -109,7 +151,7 @@ class ReportTest < ActiveSupport::TestCase
       @samples_summary.each_with_index do |sample, row|
         @occurrences_summary[row].each_with_index do |occurrence, column|
           expected = '0'
-          unless occurrence.nil? 
+          unless occurrence.nil?
             expected = occurrence.quantity.to_s
             expected = expected + Occurrence::UNCERTAIN_SYMBOL if occurrence.uncertain?
           end
@@ -130,7 +172,7 @@ class ReportTest < ActiveSupport::TestCase
         sample.save
       end
       @samples_summary, @species_summary, @occurrences_summary = @counting.summary
-      @selected_species_ids = @species_summary.select{ |s| s.group == @counting.group }.map{ |s| s.id.to_s } 
+      @selected_species_ids = @species_summary.select{ |s| s.group == @counting.group }.map{ |s| s.id.to_s }
       @report = Report.build type: Report::DENSITY, counting_id: @counting.id,
         rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
         columns: { '0' => { 'species_ids' => @selected_species_ids },
@@ -143,7 +185,7 @@ class ReportTest < ActiveSupport::TestCase
     end
 
     should 'generate proper column headers' do
-      assert_equal [@species[0][2].name, @species[0][3].name, @species[0][0].name, @species[0][1].name, 'Density'], 
+      assert_equal [@species[0][2].name, @species[0][3].name, @species[0][0].name, @species[0][1].name, 'Density'],
         @report.column_headers
     end
 
@@ -152,12 +194,12 @@ class ReportTest < ActiveSupport::TestCase
       density_map = @counting.occurrence_density_map
       @samples_summary.each_with_index do |sample, row|
         species2occurrences = {}
-        @occurrences_summary[row].each do |o| 
-          if o.present? 
-            species2occurrences[o.specimen_id.to_s] = o 
+        @occurrences_summary[row].each do |o|
+          if o.present?
+            species2occurrences[o.specimen_id.to_s] = o
           end
         end
-        expected = @selected_species_ids.map do |sid| 
+        expected = @selected_species_ids.map do |sid|
           if species2occurrences[sid]
             if density_map[species2occurrences[sid]]
               density_map[species2occurrences[sid]].round(1).to_s

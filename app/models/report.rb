@@ -129,22 +129,41 @@ class Report
     [headers, values]
   end
 
+  def get_0_or_quantity(v)
+    (v and v[:quantity]) ? v[:quantity] : 0
+  end
+
+  def get_0_or_1(v)
+    (v and v[:quantity]) ? 1 : 0
+  end
+
   def merge_column( criteria, headers, values )
     unless headers.empty?
       case criteria['merge']
         when 'sum'
           values.each_with_index do |row, i|
-            v = row.inject(0) { |sum, v| sum + ((v.nil? or v[:quantity].nil?) ? 0 : v[:quantity]) }
+            v = row.inject(0) { |sum, v| sum + get_0_or_quantity(v) }
             values[i] = [(v.is_a?( Float ) ? v.round(ROUND) : v).to_s]
           end
           headers = [criteria['header']]
-          @splits << (@splits.last || -1) + 1
         when 'count'
           values.each_with_index do |row, i|
-            values[i] = [row.inject(0) { |sum, v| sum + ((v.nil? or v[:quantity].nil?) ? 0 : 1) }.to_s]
+            values[i] = [row.inject(0) { |sum, v| sum + get_0_or_1(v) }.to_s]
           end
           headers = [criteria['header']]
-          @splits << (@splits.last || -1) + 1
+        when 'most_abundant'
+          values.each_with_index do |row, i|
+            max_value = row.max_by{ |v| get_0_or_quantity(v) }
+            values[i] = [get_0_or_quantity(max_value).to_s]
+          end
+          headers = [criteria['header']]
+        when 'second_most_abundant'
+          values.each_with_index do |row, i|
+            max_value = row.max_by{ |v| get_0_or_quantity(v) }
+            second_max_value = row.reject{ |v| v == max_value }.max_by{ |v| get_0_or_quantity(v) }
+            values[i] = [get_0_or_quantity(second_max_value).to_s]
+          end
+          headers = [criteria['header']]
         else
           values.each_with_index do |row, i|
             row.each_with_index do |col, j|
@@ -159,7 +178,6 @@ class Report
               end
             end
           end
-          @splits << (@splits.last || -1) + headers.size
       end
     end
     [headers, values]
@@ -187,7 +205,6 @@ class Report
           end
         end
         headers << criteria['header']
-        @splits << (@splits.last || -1) + 1
       end
     end
     [headers, values]
@@ -204,6 +221,12 @@ class Report
   def concat_column_headers( headers )
     unless headers.empty?
       @column_headers.concat( headers )
+    end
+  end
+
+  def concat_splits( headers )
+    unless headers.empty?
+      @splits << (@splits.last || -1) + headers.size
     end
   end
 
@@ -225,6 +248,7 @@ class Report
 
       concat_column_headers( headers )
       concat_values( values )
+      concat_splits( headers )
     end
 
     @column_criteria.each_value do |criteria|
@@ -232,6 +256,7 @@ class Report
 
       concat_column_headers( headers )
       concat_values( values )
+      concat_splits( headers )
     end
 	end
 
