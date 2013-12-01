@@ -189,14 +189,17 @@ class Report
     if criteria['computed'].present? and @column_criteria['0']['merge'].present? and @column_criteria['1']['merge'].present?
       a_idx = 0
       b_idx = 1
-      if (criteria['computed'] =~ /^([ AB+\/()*-]|\d)+$/) == 0
+      c_idx = 2
+      if (criteria['computed'] =~ /^([ ABC+\/()*-]|\d)+$/) == 0
         @values.each_with_index do |row, i|
           formula = criteria['computed'].dup
           a = row[a_idx]
           b = row[b_idx]
+          c = row[c_idx]
 
           formula.gsub!(/A/, a.to_f.to_s)
           formula.gsub!(/B/, b.to_f.to_s)
+          formula.gsub!(/C/, c.to_f.to_s)
           begin
             result = eval formula
             values[i] = [result.round(ROUND).to_s]

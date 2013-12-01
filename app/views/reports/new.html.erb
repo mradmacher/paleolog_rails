@@ -26,6 +26,7 @@
       <th>Samples</th>
       <th>Column A</th>
       <th>Column B</th>
+      <th>Column C</th>
       <th>Computed field</th>
     </tr>
 
@@ -34,7 +35,7 @@
         <div class="filter" data-source="samples" data-filter-key="sample_ids">
       </td>
 
-      <% 2.times do |index| %>
+      <% 3.times do |index| %>
       <td class="vector" data-vector="column" data-index="<%= index %>">
         <label>Header
           <input type="text" name="columns[<%= index %>][header]">
@@ -82,7 +83,7 @@
         <div class="ids"></div>
       </td>
 
-      <% 2.times do |index| %>
+      <% 3.times do |index| %>
         <td class="selection" style="vertical-align:top" data-vector="column" data-index="<%= index %>">
           <input type="checkbox" checked="checked" class="all" />
           <div class="ids"></div>
