@@ -1,5 +1,5 @@
 class Occurrence < ActiveRecord::Base
-  belongs_to :specimen 
+  belongs_to :specimen
   belongs_to :counting
   belongs_to :sample
 
@@ -25,14 +25,15 @@ class Occurrence < ActiveRecord::Base
   scope :except_specimens, lambda{ |specimens| specimens.empty? ? scoped : where( 'specimen_id not in (?)', specimens.map{ |s| s.id } ) }
   scope :from_group, lambda{ |group| joins( :specimen ).where( :specimens => { :group_id => group.id } ) }
   scope :from_sample, lambda{ |sample| where( :sample_id => sample.id ) }
+  scope :from_sample_id, lambda{ |sample_id| where( :sample_id => sample_id ) }
   scope :ordered_by_occurrence, order( :rank )
   scope :ordered_by_depth, joins( :sample ).order( 'samples.bottom_depth' )
 
   scope :viewable_by, lambda { |user| joins( :sample ).
-    joins( :sample => { :well => :research_participations } ).where( 
+    joins( :sample => { :well => :research_participations } ).where(
     :research_participations => { user_id: user.id } ) }
   scope :manageable_by, lambda { |user| joins( :sample ).
-    joins( :sample => { :well => :research_participations } ).where( 
+    joins( :sample => { :well => :research_participations } ).where(
     :research_participations => { user_id: user.id, manager: true } ) }
 
   def manageable_by?( user )

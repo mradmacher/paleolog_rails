@@ -15,13 +15,13 @@ class Counting < ActiveRecord::Base
   before_destroy do
     unless self.can_be_destroyed?
       errors[:base] << I18n.t( 'activerecord.errors.models.counting.occurrences.exist' )
-      return false 
+      return false
     end
   end
 
-  scope :viewable_by, lambda { |user| joins( :well ).joins( :well => :research_participations ).where( 
+  scope :viewable_by, lambda { |user| joins( :well ).joins( :well => :research_participations ).where(
     :research_participations => { user_id: user.id } ) }
-  scope :manageable_by, lambda { |user| joins( :well ).joins( :well => :research_participations ).where( 
+  scope :manageable_by, lambda { |user| joins( :well ).joins( :well => :research_participations ).where(
     :research_participations => { user_id: user.id, manager: true } ) }
 
   def manageable_by?( user )
@@ -37,7 +37,7 @@ class Counting < ActiveRecord::Base
   end
 
   def available_species_ids( group_id, sample_id )
-    used_ids = self.occurrences.find( :all ).collect{ |x| x.specimen_id }
+    used_ids = self.occurrences.from_sample_id( sample_id ).all.collect{ |x| x.specimen_id }
     if used_ids.empty? then used_ids << 0 end
     Specimen.where( group_id: group_id ).where( 'id not in (?)', used_ids ).order( :name ).pluck( :id )
   end
@@ -68,11 +68,11 @@ class Counting < ActiveRecord::Base
 
     species_summary = []
     species_summary = specimens_by_occurrence( samples_summary )
-    
+
     occurrences_summary = []
     samples_summary.each_with_index do |sample, row|
       occurrences_summary[row] = []
-      occrs = {} 
+      occrs = {}
       self.occurrences.from_sample( sample ).each{ |occ| occrs[occ.specimen_id] = occ }
       species_summary.each_with_index do |sp, column|
         occurrences_summary[row][column] = occrs[sp.id]

@@ -10,14 +10,14 @@ class CountingTest < ActiveSupport::TestCase
     [nil, ''].each do |name|
       counting.name = name
       refute counting.valid?
-      assert counting.errors[:name].include?( I18n.t( 'activerecord.errors.models.counting.attributes.name.blank' ) ) 
+      assert counting.errors[:name].include?( I18n.t( 'activerecord.errors.models.counting.attributes.name.blank' ) )
     end
 	end
 
   should 'not have too short name' do
     counting = Counting.sham!( :build, :name => 'a' * (Counting::NAME_MIN_LENGTH - 1) )
     refute counting.valid?
-		assert counting.errors[:name].include?( I18n.t( 'activerecord.errors.models.counting.attributes.name.too_short', 
+		assert counting.errors[:name].include?( I18n.t( 'activerecord.errors.models.counting.attributes.name.too_short',
       :count => Counting::NAME_MIN_LENGTH ) )
 
     counting = Counting.sham!( :build, :name => 'a' * Counting::NAME_MIN_LENGTH )
@@ -27,7 +27,7 @@ class CountingTest < ActiveSupport::TestCase
   should 'not have too long name' do
     counting = Counting.sham!( :build, :name => 'a' * (Counting::NAME_MAX_LENGTH + 1) )
     refute counting.valid?
-		assert counting.errors[:name].include?( I18n.t( 'activerecord.errors.models.counting.attributes.name.too_long', 
+		assert counting.errors[:name].include?( I18n.t( 'activerecord.errors.models.counting.attributes.name.too_long',
       :count => Counting::NAME_MAX_LENGTH ) )
 
     counting = Counting.sham!( :build, :name => 'a' * Counting::NAME_MAX_LENGTH )
@@ -38,7 +38,7 @@ class CountingTest < ActiveSupport::TestCase
     existing = Counting.sham!
     counting = Counting.sham!( :build, :well => existing.well, :name => existing.name )
     refute counting.valid?
-		assert counting.errors[:name].include?( I18n.t( 'activerecord.errors.models.counting.attributes.name.taken' ) ) 
+		assert counting.errors[:name].include?( I18n.t( 'activerecord.errors.models.counting.attributes.name.taken' ) )
   end
 
   should 'allow to have same name in different wells' do
@@ -50,7 +50,7 @@ class CountingTest < ActiveSupport::TestCase
   should 'belong to some well' do
     counting = Counting.sham!( :well => nil )
     refute counting.valid?
-		assert counting.errors[:well_id].include?( I18n.t( 'activerecord.errors.models.counting.attributes.well_id.blank' ) ) 
+		assert counting.errors[:well_id].include?( I18n.t( 'activerecord.errors.models.counting.attributes.well_id.blank' ) )
 	end
 
   should 'check marker count numericality' do
@@ -58,13 +58,13 @@ class CountingTest < ActiveSupport::TestCase
     ['a', '#'].each do |test|
       counting.marker_count = test
       refute counting.valid?
-      assert counting.errors[:marker_count].include?( I18n.t( 'activerecord.errors.models.counting.attributes.marker_count.not_a_number' ) ) 
+      assert counting.errors[:marker_count].include?( I18n.t( 'activerecord.errors.models.counting.attributes.marker_count.not_a_number' ) )
     end
     [1.1, '1.2'].each do |test|
       counting.marker_count = test
       refute counting.valid?
       assert counting.errors[:marker_count].include?( I18n.t(
-        'activerecord.errors.models.counting.attributes.marker_count.not_an_integer' ) ) 
+        'activerecord.errors.models.counting.attributes.marker_count.not_an_integer' ) )
     end
   end
 
@@ -73,7 +73,7 @@ class CountingTest < ActiveSupport::TestCase
     counting.marker_count = 0
     refute counting.valid?
     assert counting.errors[:marker_count].include?( I18n.t(
-      'activerecord.errors.models.counting.attributes.marker_count.greater_than', :count => 0) ) 
+      'activerecord.errors.models.counting.attributes.marker_count.greater_than', :count => 0) )
 
     [1, 2, 3, 10, 20].each do |test|
       counting.marker_count = test
@@ -139,7 +139,7 @@ class CountingTest < ActiveSupport::TestCase
       @sample.weight = 4.1234
       @counting.marker_count = ''
       assert_nil @counting.group_per_gram( @sample )
-    end 
+    end
 
     should 'get proper result' do
       @counting.group = @group
@@ -148,7 +148,7 @@ class CountingTest < ActiveSupport::TestCase
       @sample.weight = 4.1234
       Occurrence.sham!( sample: @sample, counting: @counting, specimen: @marker, quantity: 20 )
       assert_equal 25.57, @counting.group_per_gram( @sample ).round(2) #25.57
-    end 
+    end
   end
 
   context 'occurrence_density_map' do
@@ -206,7 +206,7 @@ class CountingTest < ActiveSupport::TestCase
       @counting.marker_count = ''
       assert @counting.occurrence_density_map.empty?
     end
-    
+
     should 'return proper result' do
       @counting.group = @group
       @counting.marker = @marker
@@ -240,7 +240,7 @@ class CountingTest < ActiveSupport::TestCase
         @species[i] = []
         4.times { @species[i] << Specimen.sham!( group: group ) }
       end
-        
+
       @occurrences = []
       #sample, rank, group, species
       [
@@ -252,7 +252,7 @@ class CountingTest < ActiveSupport::TestCase
         [6, 0, 0, 2]
       ].each do |value|
         @occurrences[value[0]] = [] if @occurrences[value[0]].nil?
-        @occurrences[value[0]][value[1]] = Occurrence.sham!( counting: @counting, sample: @samples[value[0]], 
+        @occurrences[value[0]][value[1]] = Occurrence.sham!( counting: @counting, sample: @samples[value[0]],
           specimen: @species[value[2]][value[3]], rank: value[1],
           status: (value[2] == 0 ? Occurrence::NORMAL : Occurrence::OUTSIDE_COUNT) )
       end
@@ -260,7 +260,7 @@ class CountingTest < ActiveSupport::TestCase
 
     context 'summary' do
       should 'return proper values' do
-        expected_species = [@species[0][2], @species[0][3], @species[1][0], @species[0][1], 
+        expected_species = [@species[0][2], @species[0][3], @species[1][0], @species[0][1],
           @species[1][1], @species[1][2], @species[0][0]]
         expected_samples = [@samples[0], @samples[1], @samples[2], @samples[3], @samples[4], @samples[5], @samples[6]]
         expected_occurrences = [
@@ -309,7 +309,7 @@ class CountingTest < ActiveSupport::TestCase
           [ nil, nil, @occurrences[5][1], @occurrences[5][0] ],
           [ nil, nil, nil, nil ]
         ]
-        samples, species, occurrences = @counting.summary( false, nil, 
+        samples, species, occurrences = @counting.summary( false, nil,
           [@species[0][1].id, @species[1][2].id, @species[0][3].id, @species[0][0].id] )
         assert_equal expected_species, species
         assert_equal expected_samples, samples
@@ -391,7 +391,7 @@ class CountingTest < ActiveSupport::TestCase
           end
           Occurrence.sham!( counting: @counting, sample: sample_depth[depth],
             rank: rank, specimen: species[rank-1] )
-          @testing_examples << { sample: sample_depth[depth], rank: rank, species: species[rank-1] } 
+          @testing_examples << { sample: sample_depth[depth], rank: rank, species: species[rank-1] }
         end
       end
     end
@@ -416,6 +416,41 @@ class CountingTest < ActiveSupport::TestCase
       received_specimens = @counting.specimens_by_occurrence( selected_samples )
       assert_equal expected_specimen_ids.size, received_specimens.size
       assert_equal expected_specimen_ids, received_specimens.map{ |s| s.id }
+    end
+  end
+
+  context 'availabe_species_ids' do
+    should 'return not used species ids in given sample' do
+      group = Group.sham!
+      species1 = Specimen.sham!( group: group )
+      species2 = Specimen.sham!( group: group )
+      species3 = Specimen.sham!( group: group )
+      other_species = Specimen.sham!
+      counting = Counting.sham!
+      sample = Sample.sham!( well: counting.well )
+      Occurrence.sham!( counting: counting, sample: sample, specimen: species1 )
+      Occurrence.sham!( counting: counting, sample: sample, specimen: species3 )
+
+      assert_equal [species2.id], counting.available_species_ids( group.id, sample.id )
+    end
+
+    should 'return all species ids for other sample' do
+      group = Group.sham!
+      species1 = Specimen.sham!( group: group )
+      species2 = Specimen.sham!( group: group )
+      species3 = Specimen.sham!( group: group )
+      other_species = Specimen.sham!
+      counting = Counting.sham!
+      sample = Sample.sham!( well: counting.well )
+      other_sample = Sample.sham!( well: counting.well )
+      Occurrence.sham!( counting: counting, sample: sample, specimen: species1 )
+      Occurrence.sham!( counting: counting, sample: sample, specimen: species3 )
+
+      tested = counting.available_species_ids( group.id, other_sample.id )
+      assert_equal 3, tested.size
+      assert tested.include? species1.id
+      assert tested.include? species2.id
+      assert tested.include? species3.id
     end
   end
 end
