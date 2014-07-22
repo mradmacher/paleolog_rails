@@ -270,7 +270,7 @@ class Report
 	def to_csv
 		CSV.generate( col_sep: "," ) do |csv|
 			csv << [nil].concat( @column_headers )
-			@column_headers.each do |vheader|
+			@row_headers.each do |vheader|
 				begin
 					csv << [vheader].concat( self.value_row.next.map{ |i| (i.to_s == '0'? nil : i) } )
 				rescue StopIteration => e
