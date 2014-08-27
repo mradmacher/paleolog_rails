@@ -1,7 +1,7 @@
 <% chart.cells.each do |column| %>
   <% column.each do |cell| %>
     <% if cell[2].to_i > 0 %>
-      <% width = (cell[2].to_f.round.to_i/2) -%>
+      <% width = ((cell[2].to_f.round.to_i + 1)/2) -%>
       <% height = chart.col_height/2 %>
       <% x = cell[0] -%>
       <% y = cell[1] - chart.col_height/2 - 1 -%>

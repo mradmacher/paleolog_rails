@@ -14,6 +14,7 @@
     <% end %>
     <input type="hidden" name="report[columns][<%= i %>][merge]" value="<%= column['merge'] %>">
     <input type="hidden" name="report[columns][<%= i %>][header]" value="<%= column['header'] %>">
+    <input type="hidden" name="report[columns][<%= i %>][percentages]" value="<%= column['percentages'] %>">
   <% end %>
   <% @report.row_criteria.each do |i, row| %>
     <% row['sample_ids'].each do |id| %>

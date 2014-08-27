@@ -161,6 +161,42 @@ class ReportTest < ActiveSupport::TestCase
     end
   end
 
+  context 'percentages' do
+    setup do
+      @samples_summary, @species_summary, @occurrences_summary = @counting.summary
+      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id,
+        rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
+        columns: {
+          '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s },
+            'percentages' => 'on'  } }
+      @report.generate
+    end
+
+    should 'generate proper row headers' do
+      assert_equal @samples_summary.map{ |s| s.name }, @report.row_headers
+    end
+
+    should 'generate proper column headers' do
+      assert_equal @species_summary.map{ |s| s.name }, @report.column_headers
+    end
+
+    should 'generate proper values' do
+      @samples_summary.each_with_index do |sample, row|
+        row_sum = @occurrences_summary[row].compact.inject(0) { |sum, occ| sum + occ.quantity }
+        perc_sum = 0
+        @occurrences_summary[row].each_with_index do |occurrence, column|
+          expected = '0'
+          unless occurrence.nil?
+            expected = (occurrence.quantity.to_f/row_sum * 100).round(2).to_s
+          end
+          perc_sum += @report.values[row][column].to_f
+          assert_equal expected, @report.values[row][column]
+        end
+        assert_equal 100.0, perc_sum
+      end
+    end
+  end
+
   context 'densities' do
     setup do
       @counting.group = @groups[0]

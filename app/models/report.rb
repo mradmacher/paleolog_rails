@@ -1,4 +1,8 @@
 require 'csv'
+require 'paleorep/field'
+require 'paleorep/textizer'
+require 'paleorep/column_group'
+require 'paleorep/report'
 
 class Report
 	attr_accessor :type, :counting_id, :sample_ids, :species_ids,
@@ -25,6 +29,87 @@ class Report
   NOLATIN = /group|bisaccate|algae|pollens?|spores?|foraminiferal|test|linnings|other|and|acritarchs?|spp\.|sp\.|cf\.|[?()]|\d/i
 
   ROUND = 1
+
+  class Value
+    attr_accessor :value, :object
+
+    def initialize(_object, _value)
+      @value = _value
+      @object = _object
+    end
+  end
+
+  class SampleTextizer
+    include Paleorep::Textizer
+    def textize(sample)
+      sample.name
+    end
+  end
+
+  class SpeciesTextizer
+    include Paleorep::Textizer
+    def textize(species)
+      species.name
+    end
+  end
+
+  class OccurrenceQuantityTextizer
+    include Paleorep::Textizer
+
+    def show_symbols?
+      @show_symbols
+    end
+
+    def initialize(show_symbols = false)
+      @show_symbols = show_symbols
+    end
+
+    def textize(occurrence)
+      unless occurrence.nil?
+        if show_symbols?
+          occurrence.normal?? occurrence.quantity : occurrence.status_symbol
+        else
+          occurrence.quantity
+        end.to_s + (occurrence.uncertain?? Occurrence::UNCERTAIN_SYMBOL : '')
+      else
+        '0'
+      end
+    end
+  end
+
+  class OccurrenceDensityTextizer
+    include Paleorep::Textizer
+
+    def initialize(density_map = {})
+      @density_map = density_map
+    end
+
+    def density_map
+      @density_map || {}
+    end
+
+    def textize(occurrence)
+      density_map[occurrence] ? density_map[occurrence].round(ROUND) : 0
+    end
+  end
+
+  class OccurrencePercentageTextizer
+    include Paleorep::Textizer
+    attr_reader :sum
+
+    def initialize(sum)
+      @sum = sum
+    end
+
+    def textize(occurrence)
+      if occurrence
+        (100*occurrence.quantity.to_f/sum).round(2)
+      else
+        ''
+      end
+    end
+  end
+
 
 	def initialize
 		@params = [:well_id, :counting]
@@ -73,7 +158,31 @@ class Report
     [filtered_samples, filtered_occurrences]
   end
 
-  def filter_column( filter, species, occurrences )
+  def filter_column( column_group, filter )
+    if filter['species_ids']
+      filtered = []
+      column_group.headers.each_with_index do |field, i|
+        unless filter['species_ids'].include?(field.object.id.to_s)
+          filtered << i
+        end
+      end
+      shift = 0
+      filtered.each do |i|
+        column_group.headers.delete_at(i - shift)
+        column_group.values.each do |row|
+          row.delete_at(i - shift)
+        end
+        shift += 1
+      end
+    else
+      column_group.headers.clear
+      column_group.values.each do |row|
+        row.clear
+      end
+    end
+  end
+
+  def filter_column_old( filter, species, occurrences )
     filtered_species = []
     filtered_occurrences = []
 
@@ -84,7 +193,7 @@ class Report
           col = []
           transposed[i].each_with_index do |occurrence, j|
             col[j] =
-              if occurrence and occurrence.quantity and (occurrence.quantity > 0)
+              if occurrence and occurrence.quantity
                 occurrence
               else
                 nil
@@ -99,91 +208,92 @@ class Report
     [filtered_species, filtered_occurrences]
   end
 
-  def process_column( criteria, species, occurrences )
-    headers = []
-    values = []
+  def process_column( column_group, species, occurrences )
     unless species.empty?
+      species_textizer = SpeciesTextizer.new
       species.each do |s|
-        headers << s.name
+        column_group.headers << Paleorep::Field.new(s, species_textizer)
       end
-      density_map = self.counting.occurrence_density_map if self.type == DENSITY
+      occurrence_textizer = if self.type == DENSITY
+          density_map = self.counting.occurrence_density_map
+          OccurrenceDensityTextizer.new(density_map)
+        else
+          OccurrenceQuantityTextizer.new(@show_symbols.to_i > 0)
+        end
 
       occurrences.each_with_index do |row, i|
-        values[i] = []
-        row.each_with_index do |col, j|
-          if col
-            values[i][j] = {
-              occurrence: col,
-              quantity: if self.type == DENSITY
-                  density_map[col] ? density_map[col].round(ROUND) : 0
-                else
-                  col.quantity
-                end
-            }
-          else
-            values[i][j] = nil
-          end
+        row.each_with_index do |occurrence, j|
+          column_group.values[i][j] = Paleorep::Field.new(occurrence, occurrence_textizer)
         end
       end
     end
-    [headers, values]
   end
 
-  def get_0_or_quantity(v)
-    (v and v[:quantity]) ? v[:quantity] : 0
+  def post_process_column( column_group, criteria )
+    if criteria['percentages'] == '1'
+      selected_group_id = criteria['group_id'].to_i
+      column_group.values.each_with_index do |row, i|
+        row_sum = row.inject(0) do |sum, v|
+          toadd = if v.nil?
+              0
+            elsif v.object.nil?
+              0
+            elsif selected_group_id == 0
+              v.object.quantity.to_i
+            elsif selected_group_id == v.object.specimen.group_id
+              v.object.quantity.to_i
+            else
+              0
+            end
+
+          sum + toadd
+        end
+        textizer = OccurrencePercentageTextizer.new(row_sum)
+        row.each do |field|
+          field.textizer = textizer if field
+        end
+      end
+    end
   end
 
-  def get_0_or_1(v)
-    (v and v[:quantity]) ? 1 : 0
+
+  def get_0_or_quantity(occurrence)
+    (occurrence and occurrence.quantity) ? occurrence.quantity : 0
   end
 
-  def merge_column( criteria, headers, values )
-    unless headers.empty?
+  def get_0_or_1(occurrence)
+    (occurrence and occurrence.quantity) ? 1 : 0
+  end
+
+  def reduce_column( column_group, criteria )
+    unless column_group.headers.empty?
       case criteria['merge']
         when 'sum'
-          values.each_with_index do |row, i|
-            v = row.inject(0) { |sum, v| sum + get_0_or_quantity(v) }
-            values[i] = [(v.is_a?( Float ) ? v.round(ROUND) : v).to_s]
+          column_group.reduce(Paleorep::Field.new(criteria['header'])) do |row|
+            v = row.inject(0) { |sum, field| sum + get_0_or_quantity(field.object) }
+            Paleorep::Field.new(v.is_a?( Float ) ? v.round(ROUND) : v)
           end
-          headers = [criteria['header']]
         when 'count'
-          values.each_with_index do |row, i|
-            values[i] = [row.inject(0) { |sum, v| sum + get_0_or_1(v) }.to_s]
+          column_group.reduce(Paleorep::Field.new(criteria['header'])) do |row|
+            v = row.inject(0) { |sum, field| sum + get_0_or_1(field.object) }
+            Paleorep::Field.new(v)
           end
-          headers = [criteria['header']]
         when 'most_abundant'
-          values.each_with_index do |row, i|
-            max_value = row.max_by{ |v| get_0_or_quantity(v) }
-            values[i] = [get_0_or_quantity(max_value).to_s]
+          column_group.reduce(Paleorep::Field.new(criteria['header'])) do |row|
+            max_value = row.max_by{ |field| get_0_or_quantity(field.object) }
+            Paleorep::Field.new(get_0_or_quantity(max_value.object))
           end
-          headers = [criteria['header']]
         when 'second_most_abundant'
-          values.each_with_index do |row, i|
-            max_value = row.max_by{ |v| get_0_or_quantity(v) }
-            second_max_value = row.reject{ |v| v == max_value }.max_by{ |v| get_0_or_quantity(v) }
-            values[i] = [get_0_or_quantity(second_max_value).to_s]
-          end
-          headers = [criteria['header']]
-        else
-          values.each_with_index do |row, i|
-            row.each_with_index do |col, j|
-              unless col.nil?
-                values[i][j] = if @show_symbols.to_i > 0
-                  col[:occurrence].normal?? col[:quantity] : col[:occurrence].status_symbol
-                else
-                  col[:quantity]
-                end.to_s + (col[:occurrence].uncertain?? Occurrence::UNCERTAIN_SYMBOL : '')
-              else
-                values[i][j] = '0'
-              end
-            end
+          column_group.reduce(Paleorep::Field.new(criteria['header'])) do |row|
+            max_value = row.max_by{ |field| get_0_or_quantity(field.object) }
+            second_max_value = row.reject{ |field| field == max_value }.max_by{ |field| get_0_or_quantity(field.object) }
+            Paleorep::Field.new(get_0_or_quantity(second_max_value.object))
           end
       end
     end
-    [headers, values]
   end
 
-  def process_computed_column( criteria )
+  def process_computed_column_old( criteria )
     headers = []
     values = []
     if criteria['computed'].present? and @column_criteria['0']['merge'].present? and @column_criteria['1']['merge'].present?
@@ -207,60 +317,112 @@ class Report
             values[i] = ['']
           end
         end
-        headers << criteria['header']
       end
     end
     [headers, values]
   end
 
-  def concat_values( values )
-    unless values.empty?
-      values.each_with_index do |row, i|
-        @values[i].concat( row )
+  def process_computed_column( report, criteria )
+    headers = []
+    values = []
+    if criteria['computed'].present?
+      a_idx = 0
+      b_idx = 1
+      c_idx = 2
+      if (criteria['computed'] =~ /^([ ABC+\/()*-]|\d)+$/) == 0
+        column_group = report.append_column_group
+        column_group.headers << Paleorep::Field.new(criteria['header'])
+        report.headers.each_with_index do |_, i|
+          formula = criteria['computed'].dup
+          cga = report.column_groups[a_idx]
+          cgb = report.column_groups[b_idx]
+          cgc = report.column_groups[c_idx]
+
+          fa = (cga ? cga.values[i].first : nil)
+          fb = (cgb ? cgb.values[i].first : nil)
+          fc = (cgc ? cgc.values[i].first : nil)
+
+          a = (fa ? fa.text : 0)
+          b = (fb ? fb.text : 0)
+          c = (fc ? fc.text : 0)
+
+          formula.gsub!(/A/, a.to_f.to_s)
+          formula.gsub!(/B/, b.to_f.to_s)
+          formula.gsub!(/C/, c.to_f.to_s)
+          begin
+            result = eval formula
+            column_group.values[i][0] = Paleorep::Field.new(result.infinite?? nil : result.round(ROUND))
+          rescue ZeroDivisionError
+            column_group.values[i][0] = Paleorep::Field.new(nil)
+          end
+        end
       end
     end
   end
 
-  def concat_column_headers( headers )
-    unless headers.empty?
-      @column_headers.concat( headers )
+  def concat_values( report )
+    @values = Array.new( report.headers.size )
+    report.column_groups.each do |column_group|
+      unless column_group.values.empty?
+        column_group.values.each_with_index do |row, i|
+          @values[i] = [] unless @values[i].is_a? Array
+          @values[i].concat( row.map(&:text) )
+        end
+      end
     end
   end
 
-  def concat_splits( headers )
-    unless headers.empty?
-      @splits << (@splits.last || -1) + headers.size
+  def concat_column_headers( report )
+    @column_headers = []
+    report.column_groups.each do |column_group|
+      unless column_group.headers.empty?
+        @column_headers.concat( column_group.headers.map(&:text) )
+      end
+    end
+  end
+
+  def concat_row_headers( report )
+    @row_headers = []
+    @row_headers.concat( report.headers.map(&:text) )
+  end
+
+  def concat_splits( report )
+    @splits = []
+    report.column_groups.each do |column_group|
+      unless column_group.headers.empty?
+        @splits << (@splits.last || -1) + column_group.headers.size
+      end
     end
   end
 
 	def generate
     samples, species, occurrences = counting.summary
 
+    report = Paleorep::Report.new
     @row_criteria.each_value do |criteria|
       samples, occurrences = filter_row( criteria, samples, occurrences )
+      sample_textizer = SampleTextizer.new
       samples.each do |sample|
-        @row_headers << sample.name
-        @values << []
+        report.add_row(Paleorep::Field.new(sample, sample_textizer))
       end
     end
 
     @column_criteria.each_value do |criteria|
-      filtered_species, filtered_occurrences = filter_column( criteria, species, occurrences )
-      headers, values = process_column( criteria, filtered_species, filtered_occurrences )
-      headers, values = merge_column( criteria, headers, values )
-
-      concat_column_headers( headers )
-      concat_values( values )
-      concat_splits( headers )
+      column_group = report.append_column_group
+      process_column( column_group, species, occurrences )
+      post_process_column( column_group, criteria )
+      filter_column( column_group, criteria )
+      reduce_column( column_group, criteria )
     end
 
     @column_criteria.each_value do |criteria|
-      headers, values = process_computed_column( criteria )
-
-      concat_column_headers( headers )
-      concat_values( values )
-      concat_splits( headers )
+      process_computed_column( report, criteria )
     end
+
+    concat_column_headers( report )
+    concat_row_headers( report )
+    concat_values( report )
+    concat_splits( report )
 	end
 
 	def self.model_name

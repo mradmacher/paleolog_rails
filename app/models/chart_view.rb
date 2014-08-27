@@ -1,5 +1,5 @@
 class ChartView
-  attr_reader :font_size, 
+  attr_reader :font_size,
     :stroke_width
 
   def initialize(report)
@@ -22,7 +22,8 @@ class ChartView
   def row_header_width
     if @row_header_width.nil?
       @row_header_width = 0
-      @report.row_headers.each do |h|
+      @report.row_headers.each do |header|
+        h = header
         computed = (h.to_s.length + 1 + (h.to_s.length/3)*0.5)*@font_size/2
         @row_header_width = computed if computed > @row_header_width
       end
@@ -33,7 +34,8 @@ class ChartView
   def column_header_height
     if @column_header_height.nil?
       @column_header_height = 0
-      @report.column_headers.flatten.each do |h|
+      @report.column_headers.flatten.each do |header|
+        h = header
         computed = h.to_s.length*@font_size/2 + @font_size
         @column_header_height = computed if computed > @column_header_height
       end
@@ -73,7 +75,7 @@ class ChartView
   def cells
     if @cells.nil?
       @cells = []
-      lines_count = 0 
+      lines_count = 0
       col_width = 0
       @report.column_headers.flatten.size.times do |i|
         @cells[i] = []
@@ -88,7 +90,7 @@ class ChartView
     end
     @cells
   end
-  
+
   def columns
     if @columns.nil?
       @columns = []
@@ -100,7 +102,7 @@ class ChartView
         y = - self.col_height
         width = self.col_widths[i]
         height = self.rows_count * self.col_height + 1
-        @columns[i] = [x, y, width, height] 
+        @columns[i] = [x, y, width, height]
 
         col_width += self.col_widths[i]
       end
@@ -140,7 +142,7 @@ class ChartView
   def cols_count
     @report.column_headers.flatten.size
   end
-  
+
   def rows_count
     @report.row_headers.size
   end
@@ -154,8 +156,8 @@ class ChartView
       @rows_header = {}
       @rows_header[:all] = [@stroke_width + 1, -self.col_height - @stroke_width - 1]
       @rows_header[:left] = [0, self.col_height]
-      @rows_header[:right] = 
-        [0, self.col_widths_sum + 2*self.row_header_width + @stroke_width * self.lines.size] 
+      @rows_header[:right] =
+        [0, self.col_widths_sum + 2*self.row_header_width + @stroke_width * self.lines.size]
     end
     @rows_header
   end
@@ -164,7 +166,7 @@ class ChartView
     if @border.nil?
       x = @stroke_width/2
       y = - self.col_height - @stroke_width/2
-      width = @stroke_width/2 + 2*self.row_header_width + self.col_widths_sum + @stroke_width * self.lines.size + 
+      width = @stroke_width/2 + 2*self.row_header_width + self.col_widths_sum + @stroke_width * self.lines.size +
         self.lines.size + 2 + @stroke_width/2 + 1
       height = self.rows_count * self.col_height + @stroke_width + 1
       @border = [x, y, width, height]
@@ -176,7 +178,7 @@ class ChartView
     if @line_positions.nil?
       @line_positions = []
       self.lines.each_with_index do |line, i|
-        x = @stroke_width + 1 + self.row_header_width + self.col_widths_sum( line ) + 
+        x = @stroke_width + 1 + self.row_header_width + self.col_widths_sum( line ) +
           @stroke_width * i + i + @stroke_width/2
         y1 = -self.col_height
         y2 = self.rows_count * self.col_height - self.col_height + @stroke_width + 1
