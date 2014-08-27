@@ -13,5 +13,9 @@ module Paleorep
     def text
       textizer.textize(object)
     end
+
+    def value
+      textizer.valuize(object)
+    end
   end
 end

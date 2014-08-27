@@ -168,7 +168,7 @@ class ReportTest < ActiveSupport::TestCase
         rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
         columns: {
           '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s },
-            'percentages' => 'on'  } }
+            'percentages' => '1'  } }
       @report.generate
     end
 
@@ -185,14 +185,14 @@ class ReportTest < ActiveSupport::TestCase
         row_sum = @occurrences_summary[row].compact.inject(0) { |sum, occ| sum + occ.quantity }
         perc_sum = 0
         @occurrences_summary[row].each_with_index do |occurrence, column|
-          expected = '0'
+          expected = ''
           unless occurrence.nil?
             expected = (occurrence.quantity.to_f/row_sum * 100).round(2).to_s
           end
           perc_sum += @report.values[row][column].to_f
           assert_equal expected, @report.values[row][column]
         end
-        assert_equal 100.0, perc_sum
+        assert_equal 100.0, perc_sum.round(1)
       end
     end
   end

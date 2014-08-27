@@ -7,6 +7,10 @@ module Paleorep
     def textize(object)
       object.to_s
     end
+
+    def valuize(object)
+      object
+    end
   end
 end
 

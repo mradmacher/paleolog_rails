@@ -44,11 +44,19 @@ class Report
     def textize(sample)
       sample.name
     end
+
+    def valuize(sample)
+      sample.name
+    end
   end
 
   class SpeciesTextizer
     include Paleorep::Textizer
     def textize(species)
+      species.name
+    end
+
+    def valuize(species)
       species.name
     end
   end
@@ -75,6 +83,10 @@ class Report
         '0'
       end
     end
+
+    def valuize(occurrence)
+      occurrence.quantity if occurrence
+    end
   end
 
   class OccurrenceDensityTextizer
@@ -89,6 +101,10 @@ class Report
     end
 
     def textize(occurrence)
+      valuize(occurrence).to_s
+    end
+
+    def valuize(occurrence)
       density_map[occurrence] ? density_map[occurrence].round(ROUND) : 0
     end
   end
@@ -102,11 +118,11 @@ class Report
     end
 
     def textize(occurrence)
-      if occurrence
-        (100*occurrence.quantity.to_f/sum).round(2)
-      else
-        ''
-      end
+      valuize(occurrence).to_s
+    end
+
+    def valuize(occurrence)
+      (100*occurrence.quantity.to_f/sum).round(2) if occurrence
     end
   end
 
@@ -182,32 +198,6 @@ class Report
     end
   end
 
-  def filter_column_old( filter, species, occurrences )
-    filtered_species = []
-    filtered_occurrences = []
-
-    if filter['species_ids']
-      transposed = occurrences.transpose
-      species.each_with_index do |species, i|
-        if filter['species_ids'].include?(species.id.to_s)
-          col = []
-          transposed[i].each_with_index do |occurrence, j|
-            col[j] =
-              if occurrence and occurrence.quantity
-                occurrence
-              else
-                nil
-              end
-          end
-          filtered_species << species
-          filtered_occurrences << col
-        end
-      end
-      filtered_occurrences = filtered_occurrences.transpose
-    end
-    [filtered_species, filtered_occurrences]
-  end
-
   def process_column( column_group, species, occurrences )
     unless species.empty?
       species_textizer = SpeciesTextizer.new
@@ -239,9 +229,9 @@ class Report
             elsif v.object.nil?
               0
             elsif selected_group_id == 0
-              v.object.quantity.to_i
+              v.value.to_i
             elsif selected_group_id == v.object.specimen.group_id
-              v.object.quantity.to_i
+              v.value.to_i
             else
               0
             end
@@ -257,12 +247,12 @@ class Report
   end
 
 
-  def get_0_or_quantity(occurrence)
-    (occurrence and occurrence.quantity) ? occurrence.quantity : 0
+  def get_0_or_value(value)
+    value ? value : 0
   end
 
-  def get_0_or_1(occurrence)
-    (occurrence and occurrence.quantity) ? 1 : 0
+  def get_0_or_1(value)
+    value ? 1 : 0
   end
 
   def reduce_column( column_group, criteria )
@@ -270,56 +260,27 @@ class Report
       case criteria['merge']
         when 'sum'
           column_group.reduce(Paleorep::Field.new(criteria['header'])) do |row|
-            v = row.inject(0) { |sum, field| sum + get_0_or_quantity(field.object) }
+            v = row.inject(0) { |sum, field| sum + get_0_or_value(field.value) }
             Paleorep::Field.new(v.is_a?( Float ) ? v.round(ROUND) : v)
           end
         when 'count'
           column_group.reduce(Paleorep::Field.new(criteria['header'])) do |row|
-            v = row.inject(0) { |sum, field| sum + get_0_or_1(field.object) }
+            v = row.inject(0) { |sum, field| sum + get_0_or_1(field.value) }
             Paleorep::Field.new(v)
           end
         when 'most_abundant'
           column_group.reduce(Paleorep::Field.new(criteria['header'])) do |row|
-            max_value = row.max_by{ |field| get_0_or_quantity(field.object) }
-            Paleorep::Field.new(get_0_or_quantity(max_value.object))
+            max_value = row.max_by{ |field| get_0_or_value(field.value) }
+            Paleorep::Field.new(get_0_or_value(max_value.value))
           end
         when 'second_most_abundant'
           column_group.reduce(Paleorep::Field.new(criteria['header'])) do |row|
-            max_value = row.max_by{ |field| get_0_or_quantity(field.object) }
-            second_max_value = row.reject{ |field| field == max_value }.max_by{ |field| get_0_or_quantity(field.object) }
-            Paleorep::Field.new(get_0_or_quantity(second_max_value.object))
+            max_value = row.max_by{ |field| get_0_or_value(field.value) }
+            second_max_value = row.reject{ |field| field == max_value }.max_by{ |field| get_0_or_value(field.value) }
+            Paleorep::Field.new(get_0_or_value(second_max_value.value))
           end
       end
     end
-  end
-
-  def process_computed_column_old( criteria )
-    headers = []
-    values = []
-    if criteria['computed'].present? and @column_criteria['0']['merge'].present? and @column_criteria['1']['merge'].present?
-      a_idx = 0
-      b_idx = 1
-      c_idx = 2
-      if (criteria['computed'] =~ /^([ ABC+\/()*-]|\d)+$/) == 0
-        @values.each_with_index do |row, i|
-          formula = criteria['computed'].dup
-          a = row[a_idx]
-          b = row[b_idx]
-          c = row[c_idx]
-
-          formula.gsub!(/A/, a.to_f.to_s)
-          formula.gsub!(/B/, b.to_f.to_s)
-          formula.gsub!(/C/, c.to_f.to_s)
-          begin
-            result = eval formula
-            values[i] = [result.round(ROUND).to_s]
-          rescue ZeroDivisionError
-            values[i] = ['']
-          end
-        end
-      end
-    end
-    [headers, values]
   end
 
   def process_computed_column( report, criteria )
@@ -342,9 +303,9 @@ class Report
           fb = (cgb ? cgb.values[i].first : nil)
           fc = (cgc ? cgc.values[i].first : nil)
 
-          a = (fa ? fa.text : 0)
-          b = (fb ? fb.text : 0)
-          c = (fc ? fc.text : 0)
+          a = (fa ? fa.value : 0)
+          b = (fb ? fb.value : 0)
+          c = (fc ? fc.value : 0)
 
           formula.gsub!(/A/, a.to_f.to_s)
           formula.gsub!(/B/, b.to_f.to_s)
@@ -436,7 +397,7 @@ class Report
 				begin
 					csv << [vheader].concat( self.value_row.next.map{ |i| (i.to_s == '0'? nil : i) } )
 				rescue StopIteration => e
-					csv << [vheader].concat( @column_headers.size.times.map{ |i| nil } )
+					csv << [vheader].concat( @row_headers.size.times.map{ |i| nil } )
 				end
 			end
 		end
