@@ -19,11 +19,11 @@ class Sample < ActiveRecord::Base
   validates :well_id, :presence => true
   validates :weight, :numericality => { :greater_than => 0 }, :allow_nil => true
 
-  default_scope order( :bottom_depth )
+  default_scope -> { order(:bottom_depth) }
 
-  scope :viewable_by, lambda { |user| joins( :well ).joins( :well => :research_participations ).where( 
+  scope :viewable_by, lambda { |user| joins( :well ).joins( :well => :research_participations ).where(
     :research_participations => { user_id: user.id } ) }
-  scope :manageable_by, lambda { |user| joins( :well ).joins( :well => :research_participations ).where( 
+  scope :manageable_by, lambda { |user| joins( :well ).joins( :well => :research_participations ).where(
     :research_participations => { user_id: user.id, manager: true } ) }
 
   def manageable_by?( user )
@@ -43,10 +43,11 @@ class Sample < ActiveRecord::Base
   end
 
   before_destroy do
-    unless can_be_destroyed?
+    if can_be_destroyed?
+      self.occurrences.destroy_all
+    else
       errors[:base] << I18n.t( 'activerecord.errors.models.sample.occurrences.exist' )
-      return false 
+      false
     end
-    self.occurrences.destroy_all
   end
 end

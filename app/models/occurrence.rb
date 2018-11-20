@@ -19,15 +19,15 @@ class Occurrence < ActiveRecord::Base
 	validates :status, :presence => true, :inclusion => { :in => [NORMAL, OUTSIDE_COUNT, CARVING, REWORKING] }
   validate :counting_and_sample_from_same_well
 
-  default_scope order( :rank )
-	scope :countable, where( 'status = ?', NORMAL )
-	scope :uncountable, where( 'status <> ?', NORMAL )
-  scope :except_specimens, lambda{ |specimens| specimens.empty? ? scoped : where( 'specimen_id not in (?)', specimens.map{ |s| s.id } ) }
+  default_scope -> { order(:rank) }
+	scope :countable, -> { where('status = ?', NORMAL) }
+	scope :uncountable, -> { where('status <> ?', NORMAL) }
+  scope :except_specimens, lambda{ |specimens| specimens.empty? ? all : where( 'specimen_id not in (?)', specimens.map{ |s| s.id } ) }
   scope :from_group, lambda{ |group| joins( :specimen ).where( :specimens => { :group_id => group.id } ) }
   scope :from_sample, lambda{ |sample| where( :sample_id => sample.id ) }
   scope :from_sample_id, lambda{ |sample_id| where( :sample_id => sample_id ) }
-  scope :ordered_by_occurrence, order( :rank )
-  scope :ordered_by_depth, joins( :sample ).order( 'samples.bottom_depth' )
+  scope :ordered_by_occurrence, -> { order(:rank) }
+  scope :ordered_by_depth, -> { joins(:sample).order('samples.bottom_depth') }
 
   scope :viewable_by, lambda { |user| joins( :sample ).
     joins( :sample => { :well => :research_participations } ).where(

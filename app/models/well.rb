@@ -3,8 +3,8 @@ class Well < ActiveRecord::Base
 	NAME_MAX_LENGTH = 32
 	NAME_RANGE = NAME_MIN_LENGTH..NAME_MAX_LENGTH
 
-  has_many :samples, :order => :bottom_depth
-	has_many :countings, :dependent => :destroy, :order => :name
+  has_many :samples, -> { order(:bottom_depth) }
+	has_many :countings, { :dependent => :destroy }, -> { order(:name) }
   has_many :users, :through => :research_participations
   has_many :research_participations, :dependent => :destroy
   belongs_to :region
@@ -15,13 +15,13 @@ class Well < ActiveRecord::Base
   before_destroy do
     unless self.samples.empty?
       errors[:base] << I18n.t( 'activerecord.errors.models.well.samples.exist' )
-      return false 
+      false
     end
   end
 
-  scope :viewable_by, lambda { |user| joins( :research_participations ).where( 
+  scope :viewable_by, lambda { |user| joins( :research_participations ).where(
     :research_participations => { user_id: user.id } ) }
-  scope :manageable_by, lambda { |user| joins( :research_participations ).where( 
+  scope :manageable_by, lambda { |user| joins( :research_participations ).where(
     :research_participations => { user_id: user.id, manager: true } ) }
 
   def manageable_by?( user )

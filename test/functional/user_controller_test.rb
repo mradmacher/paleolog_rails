@@ -3,25 +3,22 @@ require 'test_helper'
 class UserControllerTest < ActionController::TestCase
 
   test "login page" do
-    get :login
-
-    title = assigns( :title )
-    assert_equal "Login", title
+    get :show_login
 
     assert_response :success
-    assert_template 'login'
+    assert_template 'show_login'
 
-    assert_tag 'form', :attributes => { :action => '/user/login',
+    assert_select 'form', :attributes => { :action => '/user/login',
       :method => 'post' }
-    assert_tag 'input', :attributes => { :name => 'user[login]', 
-      :type => 'text', 
+    assert_select 'input', :attributes => { :name => 'user[login]',
+      :type => 'text',
       :size => User::LOGIN_SIZE,
       :maxlength => User::LOGIN_MAX_LENGTH }
-    assert_tag 'input', :attributes => { :name => 'user[password]',
+    assert_select 'input', :attributes => { :name => 'user[password]',
       :type => 'password',
       :size => User::PASSWORD_SIZE,
       :maxlength => User::PASSWORD_MAX_LENGTH }
-    assert_tag 'input', :attributes => { :type => 'submit',
+    assert_select 'input', :attributes => { :type => 'submit',
       :value => 'Login' }
   end
 
@@ -39,11 +36,11 @@ class UserControllerTest < ActionController::TestCase
 
   test "sending valid login and invalid password" do
     invalid_user = User.sham!
-    invalid_user.password += 'invalid' 
+    invalid_user.password += 'invalid'
     try_to_login( invalid_user )
     assert_response :success
 
-    assert_template 'login'
+    assert_template 'show_login'
 
     assert_nil session[:user_id]
     assert_equal 'Invalid login/password.', flash[:notice]
@@ -55,16 +52,16 @@ class UserControllerTest < ActionController::TestCase
 
   test "sending nonexistent login" do
     invalid_user = User.sham!
-    invalid_user.email += 'invalid' 
+    invalid_user.email += 'invalid'
     try_to_login( invalid_user )
     assert_response :success
 
-    assert_template 'login'
+    assert_template 'show_login'
 
     assert_nil session[:user_id]
     assert_equal 'Invalid login/password.', flash[:notice]
 
-    user = assigns( :user )
+    user = assigns(:user)
     assert_equal invalid_user.email, user.email
     assert_nil user.password
   end
@@ -83,6 +80,6 @@ class UserControllerTest < ActionController::TestCase
   private
 
   def try_to_login( user )
-    post :login, :user => { :login => user.login, :password => user.password }
+    post :login, user: { login: user.login, password: user.password }
   end
 end

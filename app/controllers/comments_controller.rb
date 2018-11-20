@@ -1,37 +1,32 @@
 class CommentsController < ApplicationController
-	before_filter :requires_user 
+	before_filter :requires_user
 
   def index
-    if !params[:image_id].nil? 
+    if !params[:image_id].nil?
       commentable_id = params[:image_id]
       commentable_type = Image.to_s
       @commentable = Image.find( commentable_id )
-    elsif !params[:specimen_id].nil? 
+    elsif !params[:specimen_id].nil?
       commentable_id = params[:specimen_id]
       commentable_type = Specimen.to_s
       @commentable = Specimen.find( commentable_id )
     elsif !params[:type].nil?
-      case params[:type] 
+      case params[:type]
         when Image.to_s
           @commentable_type = Image.to_s
         when Specimen.to_s
           @commentable_type = Specimen.to_s
       end
     end
-    if !commentable_id.nil? && !commentable_type.nil? 
-      @comments = Comment.find( :all, :conditions => {
-          :commentable_id => commentable_id, 
-          :commentable_type => commentable_type },
-        :order => 'updated_at desc' )
+    if !commentable_id.nil? && !commentable_type.nil?
+      @comments = Comment.all(:commentable_id => commentable_id, :commentable_type => commentable_type).order('updated_at desc')
       @comment = Comment.new( :commentable_id => commentable_id,
           :commentable_type => commentable_type,
           :user_id => current_user.id )
-    elsif !@commentable_type.nil? 
-      @comments = Comment.find( :all, :conditions => {
-          :commentable_type => @commentable_type },
-        :order => 'updated_at desc' )
+    elsif !@commentable_type.nil?
+      @comments = Comment.all(:commentable_type => @commentable_type).order('updated_at desc')
     else
-      @comments = Comment.find( :all, :order => 'updated_at desc' )
+      @comments = Comment.all.order('updated_at desc')
     end
   end
 
@@ -42,10 +37,10 @@ class CommentsController < ApplicationController
   def new
     @comment = Comment.new
     @comment.user = current_user
-    if !params[:image_id].nil? 
+    if !params[:image_id].nil?
       @comment.commentable_id = params[:image_id]
       @comment.commentable_type = Image.to_s
-    elsif !params[:specimen_id].nil? 
+    elsif !params[:specimen_id].nil?
       @comment.commentable_id = params[:specimen_id]
       @comment.commentable_type = Specimen.to_s
     end
@@ -56,7 +51,7 @@ class CommentsController < ApplicationController
   end
 
   def create
-    @comment = Comment.new(params[:comment])
+    @comment = Comment.new(comment_params)
 
     if @comment.save
       case @comment.commentable_type
@@ -69,14 +64,14 @@ class CommentsController < ApplicationController
       end
       #redirect_to(@comment, :notice => 'Comment was successfully created.')
     else
-      render :action => "new" 
+      render :action => "new"
     end
   end
 
   def update
     @comment = Comment.find(params[:id])
 
-    if @comment.update_attributes(params[:comment])
+    if @comment.update_attributes(comment_params)
       case @comment.commentable_type
         when Specimen.to_s
           redirect_to specimen_url( @comment.commentable_id )
@@ -104,5 +99,9 @@ class CommentsController < ApplicationController
     end
 
     #redirect_to(comments_url)
+  end
+
+  def comment_params
+    params.require(:comment).permit(:message, :commentable_id, :commentable_type, :user_id)
   end
 end

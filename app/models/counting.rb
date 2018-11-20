@@ -15,7 +15,7 @@ class Counting < ActiveRecord::Base
   before_destroy do
     unless self.can_be_destroyed?
       errors[:base] << I18n.t( 'activerecord.errors.models.counting.occurrences.exist' )
-      return false
+      false
     end
   end
 

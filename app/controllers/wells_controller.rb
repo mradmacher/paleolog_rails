@@ -1,65 +1,69 @@
 class WellsController < ApplicationController
-	before_filter :requires_user 
-
-	respond_to :html
-	respond_to :json, :only => :index
+	before_filter :requires_user
 
 	def index
-    @region = Region.find( params[:region_id] )
-		respond_with @wells = @region.wells.viewable_by( current_user )
+    @region = Region.find(params[:region_id])
+    respond_to do |format|
+      format.json do
+        render json: @wells = @region.wells.viewable_by( current_user )
+      end
+    end
 	end
 
 	def show
-    @well = Well.viewable_by( current_user ).find( params[:id] )
+    @well = Well.viewable_by(current_user).find( params[:id] )
 		@region = @well.region
 	end
 
 	def new
-    @region = Region.find( params[:region_id] )
+    @region = Region.find(params[:region_id])
     @well = Well.new
     @well.region = @region
 	end
 
 	def edit
-    @well = Well.viewable_by( current_user ).find( params[:id] )
+    @well = Well.viewable_by(current_user).find( params[:id] )
     raise User::NotAuthorized unless @well.manageable_by? current_user
 		@region = @well.region
 	end
 
 	def create
-		@well = Well.new(params[:well])
+		@well = Well.new(well_params)
     if @well.save
-      ResearchParticipation.create( well_id: @well.id, user_id: current_user.id, manager: true )
+      ResearchParticipation.create(well_id: @well.id, user_id: current_user.id, manager: true)
       flash[:notice] = 'Well was successfully created.'
       redirect_to( @well )
     else
-      render :action => "new" 
+      render :action => "new"
     end
 	end
 
 	def update
-    @well = Well.viewable_by( current_user ).find( params[:id], readonly: false )
+    @well = Well.viewable_by(current_user).find(params[:id])
     raise User::NotAuthorized unless @well.manageable_by? current_user
-    @well.assign_attributes( params[:well] )
+    @well.assign_attributes(well_params)
     if @well.save
       flash[:notice] = 'Well was successfully updated.'
       redirect_to( @well )
     else
-      render :action => "edit" 
+      render :action => "edit"
     end
 	end
 
 	def destroy
-    @well = Well.viewable_by( current_user ).find( params[:id] )
+    @well = Well.viewable_by(current_user).find(params[:id])
     raise User::NotAuthorized unless @well.manageable_by? current_user
 		if @well.samples.empty?
 			@well.destroy
 			flash[:notice] = 'Well was successfully deleted.'
-			redirect_to region_url( @well.region )
+			redirect_to region_url(@well.region)
 		else
 			flash[:notice] = 'Can not delete well with samples.'
-			redirect_to well_url( @well ) 
+			redirect_to well_url(@well)
 		end
 	end
 
+  def well_params
+    params.require(:well).permit(:name, :region_id)
+  end
 end

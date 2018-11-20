@@ -49,31 +49,31 @@ class ActiveSupport::TestCase
   end
 
 	def assert_link( path, text = nil )
-    if text.nil? 
-      assert_select "a[href=#{path}]"
+    if text.nil?
+      assert_select "a[href='#{path}']"
     else
-      assert_select "a[href=#{path}]", {:text => text}
+      assert_select "a[href='#{path}']", {:text => text}
     end
 	end
 
-	def assert_no_link( path )
-		assert_select "a[href=#{path}]", false
+	def assert_no_link(path)
+		assert_select "a[href='#{path}']", false
 	end
 
 	def assert_delete_link( path, text = nil )
     if text.nil?
-      assert_select "a[href=#{path}][data-method=delete]"
+      assert_select "a[href='#{path}'][data-method=delete]"
     else
       assert_select "a[href=#{path}][data-method=delete]", text
     end
 	end
 
-	def assert_no_delete_link( path )
-		assert_select "a[href=#{path}][data-method=delete]", false
+	def assert_no_delete_link(path)
+		assert_select "a[href='#{path}'][data-method=delete]", false
 	end
 
 	def assert_field( name, value )
-		assert_select 'dt', name do 
+		assert_select 'dt', name do
 			assert_select 'dt+dd', value
 		end
 	end
@@ -90,21 +90,21 @@ class ActiveSupport::TestCase
 	end
 	def assert_actions
 		assert_select '#actions' do
-			yield 
+			yield
 		end
 	end
 
 	def assert_navigation
 		assert_select 'div#navigation' do
-			yield 
+			yield
 		end
 	end
 	def assert_nav_item( path, header, text )
-		assert_select 'th', header 
+		assert_select 'th', header
 		assert_select 'td a[href=?]', path, text
 	end
 	def assert_nav_cur_item( path, text )
-		assert_select 'td a[href=?]', path, false 
+		assert_select 'td a[href=?]', path, false
 		assert_select 'span.navigation_item', text
 	end
 
@@ -128,25 +128,25 @@ class ActiveSupport::TestCase
 	def resource_navigation_test( action, resource )
 		nav = {}
 		foreign_id = case resource.class.to_s
-			when 'Region' 
+			when 'Region'
 				nav[:region] = {:id => resource.id, :name => resource.name}
 				:region_id
-			when 'Well' 
+			when 'Well'
 				nav[:region] = {:id => resource.region.id, :name => resource.region.name}
 				nav[:well] = {:id => resource.id, :name => resource.name}
 				:well_id
-			when 'Sample' 
+			when 'Sample'
 				nav[:region] = {:id => resource.well.region.id, :name => resource.well.region.name}
 				nav[:well] = {:id => resource.well.id, :name => resource.well.name}
 				nav[:sample] = {:id => resource.id, :name => resource.name}
 				:sample_id
-			when 'Counting' 
+			when 'Counting'
 				nav[:region] = {:id => resource.sample.well.region.id, :name => resource.sample.well.region.name}
 				nav[:well] = {:id => resource.sample.well.id, :name => resource.sample.well.name}
 				nav[:sample] = {:id => resource.sample.id, :name => resource.sample.name}
 				nav[:counting] = {:id => resource.id, :name => resource.name}
 				:counting_id
-			else 
+			else
 				nil
 			end
 		ref = if [:show, :edit].include? action then
