@@ -1,10 +1,10 @@
 <%= render_title @sample.name %>
 <%= render 'navigation' %>
-<%= render_actions [['Show counting', counting_sample_occurrences_path( @counting, @sample )]] %>  
+<%= render_actions [['Show counting', counting_sample_occurrences_path( @counting, @sample )]] %>
 <% content_for :breadcrumb do %>
-  <%= link_to bracketize( @counting.well.region.name ), region_path( @counting.well.region ) %> - 
-  <%= link_to bracketize( @counting.well.name ), well_path( @counting.well ) %> - 
-  <%= link_to bracketize( @counting.name ), @counting %> - 
+  <%= link_to bracketize( @counting.well.region.name ), region_path( @counting.well.region ) %> -
+  <%= link_to bracketize( @counting.well.name ), well_path( @counting.well ) %> -
+  <%= link_to bracketize( @counting.name ), @counting %> -
   <%= link_to bracketize( @sample.name ), @sample %>
 <% end %>
 <%= render_heading 'Sample Counting' %>
@@ -65,6 +65,7 @@
 			targetId = targetRow.find( '.reference-id' ).html();
 			$.ajax({
 				url: '/occurrences/exchange.json',
+        method: 'PUT',
 				dataType: 'json',
 				data: { id1: sourceId, id2: targetId },
 				success: function(json) {
@@ -89,7 +90,7 @@
 				case "qnt":
 					action = "set_quantity"; break;
 				case "stat":
-					action = "set_status"; 
+					action = "set_status";
 					key = "status"; break;
 				case "uncert":
 					action = "set_uncertain";
@@ -102,6 +103,7 @@
 
 			$.ajax({
 				url: '/occurrences/' + action + '.json',
+        method: 'PUT',
 				data: { id: referenceId, quantity: newValue },
 				success: function(json) {
 					elem.val( json.quantity );
@@ -159,8 +161,8 @@
       return $( "<option></option>" ).attr({ value: value }).append( text );
     };
     populate_species_tag = function( species_tag, group_id, counting_id, sample_id ) {
-      $.get("/countings/" + counting_id + "/samples/" + sample_id + "/occurrences/available.json", 
-        {group_id: group_id}, 
+      $.get("/countings/" + counting_id + "/samples/" + sample_id + "/occurrences/available.json",
+        {group_id: group_id},
         function( species ) {
           species_tag.empty();
           for( i in species ) {
@@ -175,9 +177,9 @@
 		var counting_tag = $( "#occurrence_counting_id" );
 		var sample_tag = $( "#occurrence_sample_id" );
 		species_tag.empty();
-		populate_species_tag( species_tag, group_tag.select( "option:selected" ).val(), counting_tag.val(), sample_tag.val() ); 
+		populate_species_tag( species_tag, group_tag.select( "option:selected" ).val(), counting_tag.val(), sample_tag.val() );
 		group_tag.change( function() {
-			populate_species_tag( species_tag, group_tag.select( "option:selected" ).val(), counting_tag.val(), sample_tag.val() ); 
+			populate_species_tag( species_tag, group_tag.select( "option:selected" ).val(), counting_tag.val(), sample_tag.val() );
 		});
 	});
 

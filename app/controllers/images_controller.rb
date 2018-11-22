@@ -1,5 +1,5 @@
 class ImagesController < ApplicationController
-	before_filter :requires_user 
+	before_filter :requires_user
   before_filter :requires_admin, :except => [:index, :show]
 
   def index
@@ -10,14 +10,14 @@ class ImagesController < ApplicationController
   def show
     @image = Image.find(params[:id])
     @other_images = @image.specimen.images
-    if params[:size] == 'oryginal' 
+    if params[:size] == 'oryginal'
       render 'show_oryginal', :layout => false
     end
     @commentable = @image
     @comment = Comment.new( :commentable_id => @image.id,
         :commentable_type => Image.to_s,
         :user_id => session[:user_id] )
-    @comments = @image.comments.find( :all, :order => 'updated_at desc' )
+    @comments = @image.comments.all.order('updated_at desc')
   end
 
   def new
@@ -31,7 +31,7 @@ class ImagesController < ApplicationController
   end
 
   def create
-    @image = Image.new(params[:image])
+    @image = Image.new(image_params)
 
     if @image.save
       flash[:notice] = 'Image was successfully created.'
@@ -44,7 +44,7 @@ class ImagesController < ApplicationController
   def update
     @image = Image.find(params[:id])
 
-    if @image.update_attributes(params[:image])
+    if @image.update_attributes(image_params)
       flash[:notice] = 'Image was successfully updated.'
       redirect_to image_url( @image.id )
     else
@@ -56,5 +56,9 @@ class ImagesController < ApplicationController
     @image = Image.find(params[:id])
     @image.destroy
     redirect_to specimen_url( @image.specimen_id )
+  end
+
+  def image_params
+    params.require(:image).permit(:specimen_id, :sample_id, :ef, :image)
   end
 end

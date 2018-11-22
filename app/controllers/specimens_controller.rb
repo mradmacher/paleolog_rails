@@ -1,13 +1,15 @@
 class SpecimensController < ApplicationController
-	before_filter :requires_user 
+	before_filter :requires_user
   before_filter :requires_admin, :except => [:index, :show, :search]
-
-	respond_to :html
-	respond_to :json, :only => [:index, :search]
 
   def search
     @specimens = Specimen.search(params)
-    respond_with @specimens.map{ |s| { :id => s.id, :name => s.name} }
+    respond_to do |format|
+      format.html
+      format.json do
+        render json: @specimens.map{ |s| { :id => s.id, :name => s.name} }
+      end
+    end
   end
 
   def index
@@ -21,8 +23,14 @@ class SpecimensController < ApplicationController
 		if params.has_key? :name
 			@specimens = @specimens.where( 'name like ?', '%' + @name_pattern + '%' )
 		end
-		@specimens = Specimen.where( '1<>1' ) if @specimens.nil? 
-		respond_with @specimens = @specimens.order( :name )
+		@specimens = Specimen.where( '1<>1' ) if @specimens.nil?
+    @specimens = @specimens.order(:name)
+    respond_to do |format|
+      format.html
+      format.json do
+        render json: @specimens
+      end
+    end
   end
 
   def show
@@ -31,7 +39,7 @@ class SpecimensController < ApplicationController
     @comment = Comment.new( :commentable_id => @specimen.id,
         :commentable_type => Specimen.to_s,
         :user_id => session[:user_id] )
-    @comments = @specimen.comments.find( :all, :order => 'updated_at desc' )
+    @comments = @specimen.comments.all.order('updated_at desc')
   end
 
   def new
@@ -43,7 +51,7 @@ class SpecimensController < ApplicationController
   end
 
   def create
-    @specimen = Specimen.new(params[:specimen])
+    @specimen = Specimen.new(specimen_params)
 
     if @specimen.save
       flash[:notice] = 'Specimen was successfully created.'
@@ -55,7 +63,7 @@ class SpecimensController < ApplicationController
 
   def update
     @specimen = Specimen.find(params[:id])
-    if @specimen.update_attributes(params[:specimen])
+    if @specimen.update_attributes(specimen_params)
       flash[:notice] = 'Specimen was successfully updated.'
       redirect_to(@specimen)
     else
@@ -69,5 +77,15 @@ class SpecimensController < ApplicationController
     redirect_to specimens_url
   end
 
+  def specimen_params
+    params.require(:specimen).permit(
+      :name,
+      :verified,
+      :description,
+      :age,
+      :comparison,
+      :range,
+      :group_id
+    )
+  end
 end
-

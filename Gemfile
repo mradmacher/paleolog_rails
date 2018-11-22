@@ -1,12 +1,14 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.2.11'
+gem 'rails', '~> 4.0'
 
-gem 'sqlite3-ruby', :require => 'sqlite3'
+# gem 'sqlite3-ruby', :require => 'sqlite3'
+gem 'sqlite3'
 gem 'RedCloth'
 gem 'paperclip'
 gem 'dynamic_form'
 gem 'pdfkit'
+gem 'unicorn'
 
 group :test do
   gem 'sham'

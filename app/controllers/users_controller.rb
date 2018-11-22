@@ -15,7 +15,7 @@ class UsersController < ApplicationController
   end
 
   def index
-    @users = User.all( :order => 'name asc' )
+    @users = User.all.order(:name)
   end
 
   def show
@@ -50,7 +50,7 @@ class UsersController < ApplicationController
       params[:user][:role_ids].delete_if { |k, v| v == '0' }
       params[:user][:role_ids] = params[:user][:role_ids].keys
     end
-    if params[:user][:password].blank? then 
+    if params[:user][:password].blank? then
       params[:user][:password] = @user.password
       params[:user][:password_confirmation] = @user.password
     end

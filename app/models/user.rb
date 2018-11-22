@@ -6,8 +6,8 @@ class User < ActiveRecord::Base
   class NotInResearch < StandardError
   end
 
-	attr_accessible :name, :email, :login, :password, :password_confirmation
-	attr_accessible :admin, :as => :admin
+	# attr_accessible :name, :email, :login, :password, :password_confirmation
+	# attr_accessible :admin, :as => :admin
 
   has_many :comments
   has_many :account_participations
@@ -30,11 +30,11 @@ class User < ActiveRecord::Base
   PASSWORD_MAX_LENGTH = 40
   EMAIL_MAX_LENGTH = 50
   NAME_RANGE = NAME_MIN_LENGTH..NAME_MAX_LENGTH
-  PASSWORD_RANGE = PASSWORD_MIN_LENGTH..PASSWORD_MAX_LENGTH 
+  PASSWORD_RANGE = PASSWORD_MIN_LENGTH..PASSWORD_MAX_LENGTH
   EMAIL_SIZE = 20
   NAME_SIZE = 20
   PASSWORD_SIZE = 20
-  
+
   validates_confirmation_of :password
   validates_presence_of :password
   validates_length_of :password, :within => PASSWORD_RANGE
@@ -44,8 +44,8 @@ class User < ActiveRecord::Base
   validates_length_of :email, :maximum => EMAIL_MAX_LENGTH
   validates_presence_of :login
   validates_presence_of :name
-  validates_format_of :email, 
-    :with => /^[A-Z0-9._-]+@([A-Z0-9-]+\.)+[A-Z]{2,4}$/i,
+  validates_format_of :email,
+    :with => /\A[A-Z0-9._-]+@([A-Z0-9-]+\.)+[A-Z]{2,4}\z/i,
     :unless => Proc.new { |a| a.email.blank? }
 
   def author_of?( object )

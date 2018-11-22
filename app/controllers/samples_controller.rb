@@ -1,11 +1,13 @@
 class SamplesController < ApplicationController
-	before_filter :requires_user 
-
-	respond_to :json, :only => :index
+	before_filter :requires_user
 
 	def index
     @well = Well.find( params[:well_id] )
-		respond_with @samples = @well.samples.viewable_by( current_user )
+    respond_to do |format|
+      format.json do
+        render json: @samples = @well.samples.viewable_by(current_user)
+      end
+    end
 	end
 
 	def show
@@ -27,25 +29,25 @@ class SamplesController < ApplicationController
 	end
 
 	def create
-		@sample = Sample.new(params[:sample])
+		@sample = Sample.new(sample_params)
     raise User::NotAuthorized unless @sample.manageable_by? current_user
     if @sample.save
       flash[:notice] = 'Sample was successfully created.'
       redirect_to( @sample )
     else
-      render :action => "new" 
+      render :action => "new"
     end
 	end
 
 	def update
-    @sample = Sample.viewable_by( current_user ).find( params[:id], readonly: false )
+    @sample = Sample.viewable_by( current_user ).find(params[:id])
     raise User::NotAuthorized unless @sample.manageable_by? current_user
-    @sample.assign_attributes( params[:sample] )
+    @sample.assign_attributes(sample_params)
     if @sample.save
       flash[:notice] = 'Sample was successfully updated.'
       redirect_to( @sample )
     else
-      render :action => "edit" 
+      render :action => "edit"
     end
 	end
 
@@ -58,8 +60,11 @@ class SamplesController < ApplicationController
 			redirect_to well_url( @sample.well )
 		else
 			flash[:notice] = 'Can not delete sample with sample countings.'
-			redirect_to sample_url( @sample ) 
+			redirect_to sample_url( @sample )
 		end
 	end
-  
+
+  def sample_params
+    params.require(:sample).permit(:name, :well_id, :bottom_depth, :top_depth, :description, :weight)
+  end
 end
