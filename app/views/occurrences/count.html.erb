@@ -84,17 +84,23 @@
 			key = "quantity";
 			switch( action ) {
 				case "inc":
-					action = "increase_quantity"; break;
+					action = "increase_quantity";
+          break;
 				case "dec":
-					action = "decrease_quantity"; break;
+					action = "decrease_quantity";
+          break;
 				case "qnt":
-					action = "set_quantity"; break;
+					action = "set_quantity";
+          break;
 				case "stat":
 					action = "set_status";
-					key = "status"; break;
+					key = "status";
+          break;
 				case "uncert":
 					action = "set_uncertain";
-					key = "uncertain"; break; }
+					key = "uncertain";
+          break;
+      }
 			var elem = $( "#occurrence-" + key + "-" + referenceId );
 			var newValue = elem.val();
 			if( key == "uncertain" ) {
@@ -121,8 +127,10 @@
 						$( "#sample-total-sum" ).html( json.countable + json.uncountable );
 					}
 				},
-				failure: function(json) {
-					alert( 'I am sorry. Please try again.' ); }
+				error: function(json) {
+          alert( 'The value was not updated. Please try again.' );
+          location.reload(true);
+        }
 			});
 		}
 
