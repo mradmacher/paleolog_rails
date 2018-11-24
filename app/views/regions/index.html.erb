@@ -1,9 +1,9 @@
-<%= render_title 'Regions' %>
+<%= render_title 'Projects' %>
 
 <% if current_user.admin? %>
-	<%= render_actions [['Add region', new_region_path]] %>
+	<%= render_actions [['Add project', new_region_path]] %>
 <% end %>
-<%= render_heading 'Regions' %>
+<%= render_heading 'Projects' %>
 
 <ul>
 	<% @regions.each do |region| %>

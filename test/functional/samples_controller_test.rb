@@ -14,8 +14,8 @@ class SamplesControllerTest < ActionController::TestCase
     end
 
     should 'refute to GET show' do
-      assert_raise( User::NotAuthorized ) do 
-        get :show, id: @sample.id 
+      assert_raise( User::NotAuthorized ) do
+        get :show, id: @sample.id
       end
     end
 
@@ -26,25 +26,25 @@ class SamplesControllerTest < ActionController::TestCase
     end
 
     should 'refute to GET new' do
-      assert_raise( User::NotAuthorized ) do 
-        get :new, well_id: @well.id 
+      assert_raise( User::NotAuthorized ) do
+        get :new, well_id: @well.id
       end
     end
 
     should 'refute to PUT update' do
-      assert_raise( User::NotAuthorized ) do 
-        put :update, id: @sample.id, sample: @sample.attributes 
+      assert_raise( User::NotAuthorized ) do
+        put :update, id: @sample.id, sample: @sample.attributes
       end
-    end 
+    end
 
     should 'refute to POST create' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         post :create, sample: Sample.sham!( :build, well: @well ).attributes
       end
     end
 
     should 'refute to DELETE destroy' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         delete :destroy, id: @sample.id
       end
     end
@@ -66,7 +66,7 @@ class SamplesControllerTest < ActionController::TestCase
 
     context 'GET show' do
       should 'not find record' do
-        assert_raise( ActiveRecord::RecordNotFound ) do 
+        assert_raise( ActiveRecord::RecordNotFound ) do
           get :show, id: @sample.id
         end
       end
@@ -74,7 +74,7 @@ class SamplesControllerTest < ActionController::TestCase
 
     context 'GET edit' do
       should 'not find record' do
-        assert_raise( ActiveRecord::RecordNotFound ) do 
+        assert_raise( ActiveRecord::RecordNotFound ) do
           get :edit, id: @sample.id
         end
       end
@@ -82,7 +82,7 @@ class SamplesControllerTest < ActionController::TestCase
 
     context 'GET new' do
       should 'refute access' do
-        assert_raise( User::NotAuthorized ) do 
+        assert_raise( User::NotAuthorized ) do
           get :new, well_id: @well.id
         end
       end
@@ -90,15 +90,15 @@ class SamplesControllerTest < ActionController::TestCase
 
     context 'PUT update' do
       should 'not find record' do
-        assert_raise( ActiveRecord::RecordNotFound ) do 
+        assert_raise( ActiveRecord::RecordNotFound ) do
           put :update, id: @sample.id, sample: @sample.attributes
         end
-      end 
+      end
     end
 
     context 'POST create' do
       should 'refute access' do
-        assert_raise( User::NotAuthorized ) do 
+        assert_raise( User::NotAuthorized ) do
           post :create, sample: Sample.sham!( :build, well: @well ).attributes
         end
       end
@@ -106,7 +106,7 @@ class SamplesControllerTest < ActionController::TestCase
 
     context 'DELETE destroy' do
       should 'not find record' do
-        assert_raise( ActiveRecord::RecordNotFound ) do 
+        assert_raise( ActiveRecord::RecordNotFound ) do
           assert_no_difference( 'Sample.count' ) do
             delete :destroy, id: @sample.id
           end
@@ -118,7 +118,7 @@ class SamplesControllerTest < ActionController::TestCase
   context 'for user in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!( user: @user, well: @well, manager: false )
+      ResearchParticipation.sham!(user: @user, region: @well.region, manager: false)
       login( @user )
     end
 
@@ -146,7 +146,7 @@ class SamplesControllerTest < ActionController::TestCase
 
     context 'GET edit' do
       should 'refute access' do
-        assert_raise( User::NotAuthorized ) do 
+        assert_raise( User::NotAuthorized ) do
           get :edit, id: @sample.to_param
         end
       end
@@ -154,7 +154,7 @@ class SamplesControllerTest < ActionController::TestCase
 
     context 'GET new' do
       should 'refute access' do
-        assert_raise( User::NotAuthorized ) do 
+        assert_raise( User::NotAuthorized ) do
           get :new, well_id: @well.id
         end
       end
@@ -162,15 +162,15 @@ class SamplesControllerTest < ActionController::TestCase
 
     context 'PUT update' do
       should 'refute access' do
-        assert_raise( User::NotAuthorized ) do 
+        assert_raise( User::NotAuthorized ) do
           put :update, id: @sample.id, sample: @sample.attributes
         end
-      end 
+      end
     end
 
     context 'POST create' do
       should 'refute access' do
-        assert_raise( User::NotAuthorized ) do 
+        assert_raise( User::NotAuthorized ) do
           post :create, sample: Sample.sham!( :build, well: @well ).attributes
         end
       end
@@ -178,7 +178,7 @@ class SamplesControllerTest < ActionController::TestCase
 
     context 'DELETE destroy' do
       should 'refute access' do
-        assert_raise( User::NotAuthorized ) do 
+        assert_raise( User::NotAuthorized ) do
           assert_no_difference( 'Sample.count' ) do
             delete :destroy, id: @sample.id
           end
@@ -190,13 +190,13 @@ class SamplesControllerTest < ActionController::TestCase
   context 'for manager in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!( user: @user, well: @well, manager: true )
+      ResearchParticipation.sham!(user: @user, region: @well.region, manager: true)
       login( @user )
     end
 
     context 'GET show' do
       should 'show proper action for sample with occurrences' do
-        Occurrence.sham!( :sample => @sample, :counting => Counting.sham!( well: @well ) )
+        Occurrence.sham!(sample: @sample, counting: Counting.sham!(region: @well.region))
         get :show, :id => @sample.id
         assert_link edit_sample_path( @sample )
         assert_no_delete_link sample_path( @sample )
@@ -233,7 +233,7 @@ class SamplesControllerTest < ActionController::TestCase
       should 'be successful' do
         put :update, id: @sample.id, sample: @sample.attributes
         assert_redirected_to sample_path( id: @sample.to_param )
-      end 
+      end
     end
 
     context 'POST create' do

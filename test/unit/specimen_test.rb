@@ -9,7 +9,7 @@ class SpecimenTest < ActiveSupport::TestCase
     specimen = Specimen.sham!( :build, :name => 'a' * (Specimen::NAME_MIN_LENGTH - 1) )
     refute specimen.valid?
 		assert specimen.invalid?( :name )
-		assert specimen.errors[:name].include?( I18n.t( 'activerecord.errors.models.specimen.attributes.name.too_short', 
+		assert specimen.errors[:name].include?( I18n.t( 'activerecord.errors.models.specimen.attributes.name.too_short',
       :count => Specimen::NAME_MIN_LENGTH ) )
   end
 
@@ -22,7 +22,7 @@ class SpecimenTest < ActiveSupport::TestCase
     specimen = Specimen.sham!( :build, :name => 'a' * (Specimen::NAME_MAX_LENGTH + 1) )
     refute specimen.valid?
 		assert specimen.invalid?( :name )
-		assert specimen.errors[:name].include?( I18n.t( 'activerecord.errors.models.specimen.attributes.name.too_long', 
+		assert specimen.errors[:name].include?( I18n.t( 'activerecord.errors.models.specimen.attributes.name.too_long',
       :count => Specimen::NAME_MAX_LENGTH ) )
   end
 
@@ -145,42 +145,76 @@ class SpecimenTest < ActiveSupport::TestCase
 
     context 'counting' do
       setup do
-        @counting1 = Counting.sham!
-        @counting2 = Counting.sham!
+        region = Region.sham!
+        @counting1 = Counting.sham!(region: region)
+        @counting2 = Counting.sham!(region: region)
 
-        @species11 = Specimen.sham!
-        @species12 = Specimen.sham!
-        @species21 = Specimen.sham!
-        @species22 = Specimen.sham!
+        @well1 = Well.sham!(region: region)
+        @well2 = Well.sham!(region: region)
+        @well3 = Well.sham!(region: region)
+        @well4 = Well.sham!(region: region)
 
-        Occurrence.sham!( counting: @counting1, sample: Sample.sham!( well: @counting1.well ), specimen: @species11 )
-        Occurrence.sham!( counting: @counting1, sample: Sample.sham!( well: @counting1.well ), specimen: @species12 )
-        @species1 = [@species11, @species12]
-        Occurrence.sham!( counting: @counting2, sample: Sample.sham!( well: @counting2.well ), specimen: @species21 ) 
-        Occurrence.sham!( counting: @counting2, sample: Sample.sham!( well: @counting2.well ), specimen: @species22 )
-        @species2 = [@species21, @species22]
+        @species1 = Specimen.sham!
+        @species2 = Specimen.sham!
+        @species3 = Specimen.sham!
+        @species4 = Specimen.sham!
+        @species5 = Specimen.sham!
+        @species6 = Specimen.sham!
+        @species7 = Specimen.sham!
+        @species8 = Specimen.sham!
+
+        Occurrence.sham!( counting: @counting1, sample: Sample.sham!( well: @well1 ), specimen: @species1 )
+        Occurrence.sham!( counting: @counting1, sample: Sample.sham!( well: @well1 ), specimen: @species2 )
+        Occurrence.sham!( counting: @counting1, sample: Sample.sham!( well: @well2 ), specimen: @species3 )
+        Occurrence.sham!( counting: @counting1, sample: Sample.sham!( well: @well2 ), specimen: @species4 )
+
+        Occurrence.sham!( counting: @counting2, sample: Sample.sham!( well: @well1 ), specimen: @species5 )
+        Occurrence.sham!( counting: @counting2, sample: Sample.sham!( well: @well1 ), specimen: @species6 )
+        Occurrence.sham!( counting: @counting2, sample: Sample.sham!( well: @well2 ), specimen: @species7 )
+        Occurrence.sham!( counting: @counting2, sample: Sample.sham!( well: @well2 ), specimen: @species8 )
       end
 
       should 'return all for nil filter' do
         result = Specimen.search
-        assert_equal @species1.size + @species2.size, result.size
-        (@species1 + @species2).each do |species|
+        expected = [@species1, @species2, @species3, @species4, @species5, @species6, @species7, @species8]
+        assert_equal expected.size, result.size
+        expected.each do |species|
           assert result.include?( species )
         end
       end
 
       should 'return all for blank filter' do
         result = Specimen.search( counting_id: '' )
-        assert_equal @species1.size + @species2.size, result.size
-        (@species1 + @species2).each do |species|
+        expected = [@species1, @species2, @species3, @species4, @species5, @species6, @species7, @species8]
+        assert_equal expected.size, result.size
+        expected.each do |species|
           assert result.include?( species )
         end
       end
 
       should 'return only for given counting' do
-        result = Specimen.search( counting_id: @counting1.id )
-        assert_equal @species1.size, result.size
-        @species1.each do |species|
+        result = Specimen.search(counting_id: @counting1.id)
+        expected = [@species1, @species2, @species3, @species4]
+        assert_equal expected.size, result.size
+        expected.each do |species|
+          assert result.include?(species)
+        end
+      end
+
+      should 'return only for given well' do
+        result = Specimen.search(well_id: @well1.id)
+        expected = [@species1, @species2, @species5, @species6]
+        assert_equal expected.size, result.size
+        expected.each do |species|
+          assert result.include?( species )
+        end
+      end
+
+      should 'return only for given well and counting' do
+        result = Specimen.search(well_id: @well1.id, counting_id: @counting1.id)
+        expected = [@species1, @species2]
+        assert_equal expected.size, result.size
+        expected.each do |species|
           assert result.include?( species )
         end
       end
@@ -199,14 +233,14 @@ class SpecimenTest < ActiveSupport::TestCase
 
         @species11 = Specimen.sham!( group: @group )
         @species12 = Specimen.sham!( group: @group )
-        Feature.sham!( choice: @choice1, specimen: @species11 ) 
-        Feature.sham!( choice: @choice1, specimen: @species12 ) 
-        Feature.sham!( choice: @other_choice1, specimen: @species11 ) 
+        Feature.sham!( choice: @choice1, specimen: @species11 )
+        Feature.sham!( choice: @choice1, specimen: @species12 )
+        Feature.sham!( choice: @other_choice1, specimen: @species11 )
 
         @species21 = Specimen.sham!( group: @group )
         @species22 = Specimen.sham!( group: @group )
-        Feature.sham!( choice: @choice2, specimen: @species21 ) 
-        Feature.sham!( choice: @choice2, specimen: @species22 ) 
+        Feature.sham!( choice: @choice2, specimen: @species21 )
+        Feature.sham!( choice: @choice2, specimen: @species22 )
 
         @species1 = [@species11, @species12]
         @species2 = [@species21, @species22]
@@ -251,14 +285,14 @@ class SpecimenTest < ActiveSupport::TestCase
 
         @species11 = Specimen.sham!( group: @group )
         @species12 = Specimen.sham!( group: @group )
-        Feature.sham!( choice: @choice1, specimen: @species11 ) 
-        Feature.sham!( choice: @choice1, specimen: @species12 ) 
-        Feature.sham!( choice: @other_choice1, specimen: @species11 ) 
+        Feature.sham!( choice: @choice1, specimen: @species11 )
+        Feature.sham!( choice: @choice1, specimen: @species12 )
+        Feature.sham!( choice: @other_choice1, specimen: @species11 )
 
         @species21 = Specimen.sham!( group: @group )
         @species22 = Specimen.sham!( group: @group )
-        Feature.sham!( choice: @choice2, specimen: @species21 ) 
-        Feature.sham!( choice: @choice2, specimen: @species22 ) 
+        Feature.sham!( choice: @choice2, specimen: @species21 )
+        Feature.sham!( choice: @choice2, specimen: @species22 )
 
         @species1 = [@species11, @species12]
         @species2 = [@species21, @species22]

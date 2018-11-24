@@ -43,18 +43,18 @@ class Specimen < ActiveRecord::Base
 
   def self.search( params = {} )
     specimens = Specimen.all
-    specimens = specimens.where( :group_id => params[:group_id] ) unless params[:group_id].blank?
-    specimens = specimens.joins( :occurrences ).
-      where( 'occurrences.counting_id' => params[:counting_id] ).uniq unless params[:counting_id].blank?
-    specimens = specimens.joins( :features ).where( 'features.choice_id' => params[:choice_id] ) unless params[:choice_id].blank?
+    specimens = specimens.where(group_id: params[:group_id]) unless params[:group_id].blank?
+    specimens = specimens.joins(occurrences: :sample).where('samples.well_id' => params[:well_id]) unless params[:well_id].blank?
+    specimens = specimens.joins(:features).where('features.choice_id' => params[:choice_id]) unless params[:choice_id].blank?
+    specimens = specimens.joins(:occurrences).
+      where('occurrences.counting_id' => params[:counting_id]).uniq unless params[:counting_id].blank?
     unless params[:choice_ids].blank?
       choice_ids = params[:choice_ids].delete_if { |c| c.blank? }
       unless choice_ids.empty?
-        specimen_ids = Specimen.joins( :features ).where( 'features.choice_id' => choice_ids ).
+        specimen_ids = Specimen.joins(:features).where('features.choice_id' => choice_ids).
           select( 'specimens.id, count(features.id)').
-          group('specimens.id').having( 'count(features.id) >= ?',
-          choice_ids.size ).map(&:id)
-        specimens = specimens.where( id: specimen_ids )
+          group('specimens.id').having('count(features.id) >= ?', choice_ids.size ).map(&:id)
+        specimens = specimens.where(id: specimen_ids)
       end
     end
     specimens

@@ -14,8 +14,8 @@ class WellsControllerTest < ActionController::TestCase
     end
 
     should 'refute to GET show' do
-      assert_raise( User::NotAuthorized ) do 
-        get :show, id: @well.id 
+      assert_raise( User::NotAuthorized ) do
+        get :show, id: @well.id
       end
     end
 
@@ -26,25 +26,25 @@ class WellsControllerTest < ActionController::TestCase
     end
 
     should 'refute to GET new' do
-      assert_raise( User::NotAuthorized ) do 
-        get :new, region_id: @region.id 
+      assert_raise( User::NotAuthorized ) do
+        get :new, region_id: @region.id
       end
     end
 
     should 'refute to PUT update' do
-      assert_raise( User::NotAuthorized ) do 
-        put :update, id: @well.id, well: @well.attributes 
+      assert_raise( User::NotAuthorized ) do
+        put :update, id: @well.id, well: @well.attributes
       end
-    end 
+    end
 
     should 'refute to POST create' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         post :create, well: Well.sham!( :build, region: @region ).attributes
       end
     end
 
     should 'refute to DELETE destroy' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         delete :destroy, id: @well.id
       end
     end
@@ -70,7 +70,7 @@ class WellsControllerTest < ActionController::TestCase
 
     context 'GET show' do
       should 'not find record' do
-        assert_raise( ActiveRecord::RecordNotFound ) do 
+        assert_raise( ActiveRecord::RecordNotFound ) do
           get :show, id: @well.id
         end
       end
@@ -78,7 +78,7 @@ class WellsControllerTest < ActionController::TestCase
 
     context 'GET edit' do
       should 'not find record' do
-        assert_raise( ActiveRecord::RecordNotFound ) do 
+        assert_raise( ActiveRecord::RecordNotFound ) do
           get :edit, id: @well.id
         end
       end
@@ -106,15 +106,15 @@ class WellsControllerTest < ActionController::TestCase
 
     context 'PUT update' do
       should 'not find record' do
-        assert_raise( ActiveRecord::RecordNotFound ) do 
+        assert_raise( ActiveRecord::RecordNotFound ) do
           put :update, id: @well.id, well: @well.attributes
         end
-      end 
+      end
     end
 
     context 'DELETE destroy' do
       should 'not find record' do
-        assert_raise( ActiveRecord::RecordNotFound ) do 
+        assert_raise( ActiveRecord::RecordNotFound ) do
           assert_no_difference( 'Well.count' ) do
             delete :destroy, id: @well.id
           end
@@ -126,7 +126,7 @@ class WellsControllerTest < ActionController::TestCase
   context 'for user in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!( user: @user, well: @well, manager: false )
+      ResearchParticipation.sham!(user: @user, region: @well.region, manager: false)
       login @user
     end
 
@@ -155,13 +155,12 @@ class WellsControllerTest < ActionController::TestCase
         assert_no_link new_well_sample_path( @well )
         assert_no_link edit_well_path( @well )
         assert_no_delete_link well_path( @well )
-        assert_link well_research_participations_path( @well.id )
       end
     end
 
     context 'GET edit' do
       should 'refute access' do
-        assert_raise( User::NotAuthorized ) do 
+        assert_raise( User::NotAuthorized ) do
           get :edit, id: @well.to_param
         end
       end
@@ -189,15 +188,15 @@ class WellsControllerTest < ActionController::TestCase
 
     context 'PUT update' do
       should 'refute access' do
-        assert_raise( User::NotAuthorized ) do 
+        assert_raise( User::NotAuthorized ) do
           put :update, id: @well.id, well: @well.attributes
         end
-      end 
+      end
     end
 
     context 'DELETE destroy' do
       should 'refute access for user in research' do
-        assert_raise( User::NotAuthorized ) do 
+        assert_raise( User::NotAuthorized ) do
           assert_no_difference( 'Well.count' ) do
             delete :destroy, id: @well.id
           end
@@ -209,7 +208,7 @@ class WellsControllerTest < ActionController::TestCase
   context 'for manager in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!( user: @user, well: @well, manager: true )
+      ResearchParticipation.sham!(user: @user, region: @well.region, manager: true)
       login @user
     end
 
@@ -220,7 +219,6 @@ class WellsControllerTest < ActionController::TestCase
         assert_link new_well_sample_path( @well )
         assert_link edit_well_path( @well )
         assert_no_delete_link well_path( @well )
-        assert_link well_research_participations_path( @well.id )
       end
 
       should 'show proper links for well without samples' do
@@ -228,7 +226,6 @@ class WellsControllerTest < ActionController::TestCase
         assert_link new_well_sample_path( @well )
         assert_link edit_well_path( @well )
         assert_delete_link well_path( @well )
-        assert_link well_research_participations_path( @well.id )
       end
     end
 
@@ -246,7 +243,7 @@ class WellsControllerTest < ActionController::TestCase
       should 'be successful for manager in research' do
         put :update, id: @well.id, well: @well.attributes
         assert_redirected_to well_path( id: @well.to_param )
-      end 
+      end
     end
 
     context 'DELETE destroy' do

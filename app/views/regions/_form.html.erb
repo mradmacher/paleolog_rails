@@ -1,7 +1,7 @@
 <%= form_for(@region) do |f| %>
   <%= f.error_messages %>
 	<fieldset>
-		<legend>Region</legend>
+		<legend>Project</legend>
 		<p>
     <%= f.label :name %>
 		<%= f.text_field :name, :size => Region::NAME_SIZE %>
@@ -11,5 +11,3 @@
 		</p>
 </fieldset>
 <% end %>
-
-

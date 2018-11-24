@@ -2,6 +2,7 @@
 *.sassc
 .sass-cache
 capybara-*.html
+.ruby-gemset
 .rspec
 .rvmrc
 /.bundle

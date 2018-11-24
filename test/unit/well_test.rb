@@ -53,39 +53,12 @@ class WellTest < ActiveSupport::TestCase
     assert well.destroy
   end
 
-  def test_it_should_not_destroy_countings_while_destroying_well_with_samples
+  def test_if_samples_orderd_by_bottom_depth_asc
     well = Well.sham!
-    sample = Sample.sham!( :well => well )
-    counting = Counting.sham!( :well => well )
-    refute well.destroy
-    assert Counting.where( :id => counting.id ).exists?
-    assert well.errors[:base].include?( I18n.t( 'activerecord.errors.models.well.samples.exist' ) )
-  end
-
-  def test_if_destroying_well_destroyes_its_countings
-    well = Well.sham!
-    countings = []
-    5.times { |i| countings << Counting.sham!( :well => well ) }
-    countings.each{ |c| assert Counting.exists?( c.id ) }
-    assert well.destroy
-    countings.each{ |c| refute Counting.exists?( c.id ) }
-  end
-
-  def test_if_destroying_well_destroyes_its_research_participations
-    well = Well.sham!
-    participations = []
-    5.times { |i| participations << ResearchParticipation.sham!( well: well ) }
-    participations.each{ |c| assert ResearchParticipation.exists?( c.id ) }
-    assert well.destroy
-    participations.each{ |c| refute ResearchParticipation.exists?( c.id ) }
-  end
-
-  def test_id_samples_orderd_by_bottom_depth_asc
-    well = Well.sham!
-    Sample.sham!( :well => well, :bottom_depth => 100.0, :top_depth => 80.0 )
-    Sample.sham!( :well => well, :bottom_depth => 50.0, :top_depth => 20.0 )
-    Sample.sham!( :well => well, :bottom_depth => 20.0, :top_depth => 10.0 )
-    Sample.sham!( :well => well, :bottom_depth => 70.0, :top_depth => 50.0 )
+    Sample.sham!(:well => well, :bottom_depth => 100.0, :top_depth => 80.0)
+    Sample.sham!(:well => well, :bottom_depth => 50.0, :top_depth => 20.0)
+    Sample.sham!(:well => well, :bottom_depth => 20.0, :top_depth => 10.0)
+    Sample.sham!(:well => well, :bottom_depth => 70.0, :top_depth => 50.0)
     previous_depth = nil
     well.samples.each do |s|
       unless previous_depth.nil?
@@ -100,13 +73,15 @@ class WellTest < ActiveSupport::TestCase
     user = User.sham!
     expected = []
     5.times do
-      expected << ResearchParticipation.sham!( user: user ).well
+      region = ResearchParticipation.sham!(user: user).region
+      expected << Well.sham!(region: region)
     end
     3.times do
-      ResearchParticipation.sham!( user: User.sham! )
+      region = ResearchParticipation.sham!(user: User.sham!).region
+      Well.sham!(region: region)
     end
 
-    received = Well.viewable_by user
+    received = Well.viewable_by(user)
     assert_equal expected.size, received.size
     expected.each { |e| assert received.include?( e ) }
   end
@@ -115,13 +90,16 @@ class WellTest < ActiveSupport::TestCase
     user = User.sham!
     expected = []
     3.times do
-      expected << ResearchParticipation.sham!( user: user, manager: true ).well
+      region = ResearchParticipation.sham!(user: user, manager: true).region
+      expected << Well.sham!(region: region)
     end
     3.times do
-      ResearchParticipation.sham!( user: user, manager: false ).well
+      region = ResearchParticipation.sham!( user: user, manager: false).region
+      Well.sham!(region: region)
     end
     3.times do
-      ResearchParticipation.sham!( user: User.sham! )
+      region = ResearchParticipation.sham!(user: User.sham!).region
+      Well.sham!(region: region)
     end
 
     received = Well.manageable_by user

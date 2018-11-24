@@ -1,12 +1,15 @@
 <%= render_title 'Research Users' %>
 <%= render 'navigation' %>
+<% content_for :breadcrumb do %>
+  <%= link_to bracketize(@region.name), region_path(@region) %>
+<% end %>
 <h1>Research Users</h1>
 <ul>
-<% show_actions = @well.manageable_by?( current_user ) %>
+<% show_actions = @region.manageable_by?(current_user) %>
 <% @research_participations.each do |research_participation| %>
   <li><%= research_participation.user.name %>
     <% if show_actions && research_participation.user != current_user %>
-      <%= link_to 'Remove from research', research_participation_path( research_participation ), :method => :delete %></li>
+      <%= link_to 'Remove from research', research_participation_path(research_participation), method: :delete %></li>
     <% end %>
 <% end %>
 </ul>
@@ -15,9 +18,7 @@
   <% @other_users.each do |user| %>
     <li><%= user.name %>
       <%= render partial: 'form',
-        locals: { research_participation: ResearchParticipation.new( user_id: user.id, well_id: @well.id ) } %>
+        locals: { research_participation: ResearchParticipation.new(user_id: user.id, region_id: @region.id) } %>
   <% end %>
 <% end %>
 </ul>
-
-

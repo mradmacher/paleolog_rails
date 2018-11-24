@@ -1,19 +1,35 @@
 <% content_for :navigation do %>
   <div id="navigation">
     <div class="navigation-section">
+      <span class="navigation-section-title">Project</span>
+      <ul>
+        <% Region.viewable_by(current_user).each do |region| %>
+          <li class="<%= region == @region ? 'current-item' : 'item' %>"><%= link_to region.name, region_path(region) %></li>
+        <% end %>
+      </ul>
+    </div>
+    <div class="navigation-section">
+      <span class="navigation-section-title">Well</span>
+      <ul>
+        <% @sample.well.region.wells.each do |well| %>
+          <li class="<%= well == @well ? 'current-item' : 'item' %>"><%= link_to well.name, well_path(well) %></li>
+        <% end %>
+      </ul>
+    </div>
+    <div class="navigation-section">
     <span class="navigation-section-title">Sample</span>
     <ul>
-      <% @counting.well.samples.all.each do |sample| %>
+      <% @sample.well.samples.all.each do |sample| %>
         <li class="<%= sample == @sample ? 'current-item' : 'item' %>">
-          <%= link_to sample.name, counting_sample_occurrences_path( @counting, sample ) %>
+          <%= link_to sample.name, counting_sample_occurrences_path(@counting, sample) %>
         </li>
       <% end %>
     </ul></div>
     <div class="navigation-section">
       <span class="navigation-section-title">Counting</span>
       <ul>
-        <% @counting.well.countings.each do |counting| %>
-          <li class="<%= counting == @counting ? 'current-item' : 'item' %>"><%= link_to counting.name, counting_path( counting ) %></li>
+        <% @counting.region.countings.each do |counting| %>
+          <li class="<%= counting == @counting ? 'current-item' : 'item' %>"><%= link_to counting.name, counting_sample_occurrences_path(counting, @sample) %></li>
         <% end %>
       </ul></div>
   </div>

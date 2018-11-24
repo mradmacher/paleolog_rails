@@ -1,9 +1,8 @@
 class RegionsController < ApplicationController
 	before_filter :requires_user
-  before_filter :requires_admin, :except => [:index, :show]
 
 	def index
-    @regions = Region.all
+    @regions = Region.viewable_by(current_user)
     respond_to do |format|
       format.html
       format.json do
@@ -13,7 +12,7 @@ class RegionsController < ApplicationController
 	end
 
 	def show
-    @region = Region.find(params[:id])
+    @region = Region.viewable_by(current_user).find(params[:id])
 	end
 
 	def new
@@ -21,12 +20,14 @@ class RegionsController < ApplicationController
 	end
 
 	def edit
-    @region = Region.find(params[:id])
+    @region = Region.viewable_by(current_user).find(params[:id])
+    raise User::NotAuthorized unless @region.manageable_by?(current_user)
 	end
 
 	def create
     @region = Region.new(region_params)
     if @region.save
+      ResearchParticipation.create(region_id: @region.id, user_id: current_user.id, manager: true)
 			flash[:notice] = 'Region was successfully created.'
 			redirect_to(@region)
 		else
@@ -35,7 +36,8 @@ class RegionsController < ApplicationController
 	end
 
 	def update
-    @region = Region.find(params[:id])
+    @region = Region.viewable_by(current_user).find(params[:id])
+    raise User::NotAuthorized unless @region.manageable_by?(current_user)
 		@region.assign_attributes(region_params)
     if @region.save
 			flash[:notice] = 'Region was successfully updated.'
@@ -46,7 +48,8 @@ class RegionsController < ApplicationController
 	end
 
 	def destroy
-    @region = Region.find(params[:id])
+    @region = Region.viewable_by(current_user).find(params[:id])
+    raise User::NotAuthorized unless @region.manageable_by?(current_user)
 		if @region.wells.empty?
 			@region.destroy
 			flash[:notice] = 'Region was successfully deleted.'

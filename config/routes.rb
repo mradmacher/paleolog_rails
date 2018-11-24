@@ -15,10 +15,12 @@ Taxa::Application.routes.draw do
   put 'occurrences/set_uncertain' => 'occurrences#set_uncertain', :as => :set_uncertain
 
   resources :account_participations, :only => [:index, :create, :destroy]
-  resources :research_participations, :only => [:create, :destroy]
+  resources :research_participations, :only => [:show, :create, :destroy]
 
   resources :regions do
     resources :wells, :only => [:index, :new]
+    resources :countings, :only => :new
+    resources :research_participations, :only => [:new]
   end
 
   resources :countings, :except => :new do
@@ -29,8 +31,6 @@ Taxa::Application.routes.draw do
 
   resources :wells, :except => :new do
     resources :samples, :only => [:index, :new]
-    resources :countings, :only => :new
-    resources :research_participations, :only => :index
   end
 
   resources :samples, :except => :new

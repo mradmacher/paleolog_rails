@@ -1,12 +1,21 @@
 <% content_for :navigation do %>
   <div id="navigation">
     <div class="navigation-section">
+      <span class="navigation-section-title">Project</span>
+      <ul>
+        <% Region.viewable_by(current_user).each do |region| %>
+          <li class="<%= region == @region ? 'current-item' : 'item' %>"><%= link_to region.name, region_path(region) %></li>
+        <% end %>
+      </ul>
+    </div>
+    <div class="navigation-section">
       <span class="navigation-section-title">Well</span>
       <ul>
-        <% @well.region.wells.viewable_by( current_user ).each do |well| %>
-          <li class="<%= well == @well ? 'current-item' : 'item' %>"><%= link_to well.name, well_path( well ) %></li>
+        <% @well.region.wells.each do |well| %>
+          <li class="<%= well == @well ? 'current-item' : 'item' %>"><%= link_to well.name, well_path(well) %></li>
         <% end %>
-      </ul></div>
+      </ul>
+    </div>
   </div>
 <% end %>
 

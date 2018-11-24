@@ -2,20 +2,20 @@ require 'test_helper'
 
 class CountingsControllerTest < ActionController::TestCase
   setup do
-    @well = Well.sham!
-    @counting = Counting.sham!( well: @well )
+    @region = Region.sham!
+    @counting = Counting.sham!(region: @region)
   end
 
   context 'for guest' do
     should 'refute access to GET index' do
       assert_raise( User::NotAuthorized ) do
-        get :index, well_id: @well.id
+        get :index, region_id: @region.id
       end
     end
 
     should 'refute to GET show' do
-      assert_raise( User::NotAuthorized ) do 
-        get :show, id: @counting.id 
+      assert_raise( User::NotAuthorized ) do
+        get :show, id: @counting.id
       end
     end
 
@@ -24,27 +24,27 @@ class CountingsControllerTest < ActionController::TestCase
         get :edit, id: @counting.id
       end
     end
-    
+
     should 'refute to GET new' do
-      assert_raise( User::NotAuthorized ) do 
-        get :new, well_id: @well.id 
+      assert_raise( User::NotAuthorized ) do
+        get :new, region_id: @region.id
       end
     end
 
     should 'refute to PUT update' do
-      assert_raise( User::NotAuthorized ) do 
-        put :update, id: @counting.id, counting: @counting.attributes 
+      assert_raise( User::NotAuthorized ) do
+        put :update, id: @counting.id, counting: @counting.attributes
       end
-    end 
+    end
 
     should 'refute to POST create' do
-      assert_raise( User::NotAuthorized ) do 
-        post :create, counting: Counting.sham!( :build, well: @well ).attributes
+      assert_raise( User::NotAuthorized ) do
+        post :create, counting: Counting.sham!(:build, region: @region).attributes
       end
     end
 
     should 'refute to DELETE destroy' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         delete :destroy, id: @counting.id
       end
     end
@@ -53,20 +53,20 @@ class CountingsControllerTest < ActionController::TestCase
   context 'for user not in research' do
     setup do
       @user = User.sham!
-      login( @user )
+      login(@user)
     end
 
     context 'GET index' do
       should 'not find record' do
-        assert_raise( ActiveRecord::RecordNotFound ) do 
-          get :index, format: :json, well_id: @well.to_param
+        assert_raise( ActiveRecord::RecordNotFound ) do
+          get :index, format: :json, region_id: @region.to_param
         end
       end
     end
 
     context 'GET show' do
       should 'not find record' do
-        assert_raise( ActiveRecord::RecordNotFound ) do 
+        assert_raise( ActiveRecord::RecordNotFound ) do
           get :show, id: @counting.id
         end
       end
@@ -74,7 +74,7 @@ class CountingsControllerTest < ActionController::TestCase
 
     context 'GET edit' do
       should 'not find record' do
-        assert_raise( ActiveRecord::RecordNotFound ) do 
+        assert_raise( ActiveRecord::RecordNotFound ) do
           get :edit, id: @counting.id
         end
       end
@@ -82,31 +82,31 @@ class CountingsControllerTest < ActionController::TestCase
 
     context 'GET new' do
       should 'refute access' do
-        assert_raise( User::NotAuthorized ) do 
-          get :new, well_id: @well.id
+        assert_raise( User::NotAuthorized ) do
+          get :new, region_id: @region.id
         end
       end
     end
 
     context 'PUT update' do
       should 'not find record' do
-        assert_raise( ActiveRecord::RecordNotFound ) do 
+        assert_raise( ActiveRecord::RecordNotFound ) do
           put :update, id: @counting.id, counting: @counting.attributes
         end
-      end 
+      end
     end
 
     context 'POST create' do
       should 'refute access' do
-        assert_raise( User::NotAuthorized ) do 
-          post :create, counting: Counting.sham!( :build, well: @well ).attributes
+        assert_raise( User::NotAuthorized ) do
+          post :create, counting: Counting.sham!(:build, region: @region).attributes
         end
       end
     end
 
     context 'DELETE destroy' do
       should 'not find record' do
-        assert_raise( ActiveRecord::RecordNotFound ) do 
+        assert_raise( ActiveRecord::RecordNotFound ) do
           assert_no_difference( 'Counting.count' ) do
             delete :destroy, id: @counting.id
           end
@@ -118,13 +118,13 @@ class CountingsControllerTest < ActionController::TestCase
   context 'for user in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!( user: @user, well: @well, manager: false )
-      login( @user )
+      ResearchParticipation.sham!(user: @user, region: @region, manager: false)
+      login(@user)
     end
 
     context 'GET index' do
       should 'be successful' do
-        get :index, format: :json, well_id: @well.to_param
+        get :index, format: :json, region_id: @region.to_param
         assert_response :success
         assert_equal [@counting], assigns( :countings )
       end
@@ -147,7 +147,7 @@ class CountingsControllerTest < ActionController::TestCase
 
     context 'GET edit' do
       should 'refute access' do
-        assert_raise( User::NotAuthorized ) do 
+        assert_raise( User::NotAuthorized ) do
           get :edit, id: @counting.to_param
         end
       end
@@ -155,31 +155,31 @@ class CountingsControllerTest < ActionController::TestCase
 
     context 'GET new' do
       should 'refute access' do
-        assert_raise( User::NotAuthorized ) do 
-          get :new, well_id: @well.id
+        assert_raise( User::NotAuthorized ) do
+          get :new, region_id: @region.id
         end
       end
     end
 
     context 'PUT update' do
       should 'refute access' do
-        assert_raise( User::NotAuthorized ) do 
+        assert_raise( User::NotAuthorized ) do
           put :update, id: @counting.id, counting: @counting.attributes
         end
-      end 
+      end
     end
 
     context 'POST create' do
       should 'refute access for user in research' do
-        assert_raise( User::NotAuthorized ) do 
-          post :create, counting: Counting.sham!( :build, well: @well ).attributes
+        assert_raise( User::NotAuthorized ) do
+          post :create, counting: Counting.sham!(:build, region: @region).attributes
         end
       end
     end
 
     context 'DELETE destroy' do
       should 'refute access for user in research' do
-        assert_raise( User::NotAuthorized ) do 
+        assert_raise( User::NotAuthorized ) do
           assert_no_difference( 'Counting.count' ) do
             delete :destroy, id: @counting.id
           end
@@ -191,7 +191,7 @@ class CountingsControllerTest < ActionController::TestCase
   context 'for manager in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!( user: @user, well: @well, manager: true )
+      ResearchParticipation.sham!(user: @user, region: @region, manager: true)
       login( @user )
     end
 
@@ -204,10 +204,10 @@ class CountingsControllerTest < ActionController::TestCase
       end
 
       should 'show proper actions for counting with occurrences' do
-        Occurrence.sham!( :sample => Sample.sham!( well: @well ), :counting => @counting )
-        get :show, :id => @counting.id
-        assert_link edit_counting_path( @counting )
-        assert_no_delete_link counting_path( @counting )
+        Occurrence.sham!(sample: Sample.sham!(well: Well.sham!(region: @region)), counting: @counting)
+        get :show, id: @counting.id
+        assert_link edit_counting_path(@counting)
+        assert_no_delete_link counting_path(@counting)
       end
     end
 
@@ -223,11 +223,11 @@ class CountingsControllerTest < ActionController::TestCase
 
     context 'GET new' do
       should 'be successful' do
-        get :new, well_id: @well.id
+        get :new, region_id: @region.id
         assert_response :success
-        assert_equal @well, assigns( :counting ).well
+        assert_equal @region, assigns(:counting).region
 
-        assert_link well_path( @well )
+        assert_link region_path(@region)
       end
     end
 
@@ -235,12 +235,12 @@ class CountingsControllerTest < ActionController::TestCase
       should 'be successful' do
         put :update, id: @counting.id, counting: @counting.attributes
         assert_redirected_to counting_path( id: @counting.to_param )
-      end 
+      end
     end
 
     context 'POST create' do
       should 'be successful' do
-        counting = Counting.sham!( :build, well: @well )
+        counting = Counting.sham!(:build, region: @region)
         assert_difference( 'Counting.count' ) do
           post :create, counting: counting.attributes
         end
@@ -253,9 +253,8 @@ class CountingsControllerTest < ActionController::TestCase
         assert_difference( 'Counting.count', -1 ) do
           delete :destroy, id: @counting.id
         end
-        assert_redirected_to well_path( id: @well.to_param )
+        assert_redirected_to region_path(id: @region.to_param)
       end
     end
   end
 end
-

@@ -11,8 +11,8 @@ class Field < ActiveRecord::Base
   validates :group_id, :presence => true
 
   before_destroy do
-    if Feature.joins( :choice ).where( choices: { field_id: self.id } ).exists?
-      errors[:base] << I18n.t( 'activerecord.errors.models.field.feature.exists' )
+    if Feature.joins(:choice).where(choices: { field_id: self.id }).exists?
+      errors[:base] << I18n.t('activerecord.errors.models.field.feature.exists')
       false
     end
   end

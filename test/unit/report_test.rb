@@ -3,17 +3,17 @@ require 'test_helper'
 class ReportTest < ActiveSupport::TestCase
   setup do
     @well = Well.sham!
-    @counting = Counting.sham!( well: @well )
+    @counting = Counting.sham!(region: @well.region)
     @samples = []
     [100, 200, 300].each do |depth|
-      @samples << Sample.sham!( well: @well, bottom_depth: depth )
+      @samples << Sample.sham!(well: @well, bottom_depth: depth)
     end
     @groups = [Group.sham!, Group.sham!]
 
     @species = []
     @groups.each_with_index do |group, i|
       @species[i] = []
-      4.times { @species[i] << Specimen.sham!( group: group ) }
+      4.times { @species[i] << Specimen.sham!(group: group) }
     end
 
     @occurrences = []
@@ -32,8 +32,8 @@ class ReportTest < ActiveSupport::TestCase
 
   context 'most abundant species' do
     setup do
-      @samples_summary, @species_summary, @occurrences_summary = @counting.summary
-      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id,
+      @samples_summary, @species_summary, @occurrences_summary = @counting.summary(@well)
+      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id, well_id: @well.id,
         rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
         columns: { '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s }, 'merge' => 'most_abundant', 'header' => 'Most Abundant' } }
       @report.generate
@@ -52,8 +52,8 @@ class ReportTest < ActiveSupport::TestCase
 
   context 'second most abundant species' do
     setup do
-      @samples_summary, @species_summary, @occurrences_summary = @counting.summary
-      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id,
+      @samples_summary, @species_summary, @occurrences_summary = @counting.summary(@well)
+      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id, well_id: @well.id,
         rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
         columns: { '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s }, 'merge' => 'second_most_abundant', 'header' => 'Most Abundant' } }
       @report.generate
@@ -74,8 +74,8 @@ class ReportTest < ActiveSupport::TestCase
 
   context 'count' do
     setup do
-      @samples_summary, @species_summary, @occurrences_summary = @counting.summary
-      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id,
+      @samples_summary, @species_summary, @occurrences_summary = @counting.summary(@well)
+      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id, well_id: @well.id,
         rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
         columns: { '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s }, 'merge' => 'count', 'header' => 'Species' } }
       @report.generate
@@ -99,8 +99,8 @@ class ReportTest < ActiveSupport::TestCase
 
   context 'computed' do
     setup do
-      @samples_summary, @species_summary, @occurrences_summary = @counting.summary
-      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id,
+      @samples_summary, @species_summary, @occurrences_summary = @counting.summary(@well)
+      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id, well_id: @well.id,
         rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
         columns: {
           '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s }, 'merge' => 'count', 'header' => 'Species Count' },
@@ -132,8 +132,8 @@ class ReportTest < ActiveSupport::TestCase
 
   context 'quantities' do
     setup do
-      @samples_summary, @species_summary, @occurrences_summary = @counting.summary
-      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id,
+      @samples_summary, @species_summary, @occurrences_summary = @counting.summary(@well)
+      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id, well_id: @well.id,
         rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
         columns: { '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s } } }
       @report.generate
@@ -163,8 +163,8 @@ class ReportTest < ActiveSupport::TestCase
 
   context 'percentages' do
     setup do
-      @samples_summary, @species_summary, @occurrences_summary = @counting.summary
-      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id,
+      @samples_summary, @species_summary, @occurrences_summary = @counting.summary(@well)
+      @report = Report.build type: Report::QUANTITY, counting_id: @counting.id, well_id: @well.id,
         rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
         columns: {
           '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s },
@@ -207,9 +207,9 @@ class ReportTest < ActiveSupport::TestCase
         sample.weight = 10.0
         sample.save
       end
-      @samples_summary, @species_summary, @occurrences_summary = @counting.summary
+      @samples_summary, @species_summary, @occurrences_summary = @counting.summary(@well)
       @selected_species_ids = @species_summary.select{ |s| s.group == @counting.group }.map{ |s| s.id.to_s }
-      @report = Report.build type: Report::DENSITY, counting_id: @counting.id,
+      @report = Report.build type: Report::DENSITY, counting_id: @counting.id, well_id: @well.id,
         rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
         columns: { '0' => { 'species_ids' => @selected_species_ids },
           '1' => { 'species_ids' => @selected_species_ids, 'merge' => 'sum', 'header' => 'Density' } }
@@ -227,7 +227,7 @@ class ReportTest < ActiveSupport::TestCase
 
     should 'generate proper values' do
       species = [@species[0][2], @species[0][3], @species[0][0], @species[0][1]]
-      density_map = @counting.occurrence_density_map
+      density_map = @counting.occurrence_density_map(@well)
       @samples_summary.each_with_index do |sample, row|
         species2occurrences = {}
         @occurrences_summary[row].each do |o|
@@ -245,7 +245,7 @@ class ReportTest < ActiveSupport::TestCase
           else
             '0'
           end
-        end + [@counting.group_per_gram( sample ).round(1).to_s]
+        end + [@counting.group_per_gram(sample).round(1).to_s]
         assert_equal expected, @report.values[row]
       end
     end

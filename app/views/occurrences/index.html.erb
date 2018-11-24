@@ -1,14 +1,14 @@
-<%= render_title @counting.well.name %>
+<%= render_title @counting.region.name %>
 <%= render 'navigation' %>
 
 <% if @counting.manageable_by?( current_user ) %>
 	<% render_actions [['Count', edit_counting_sample_occurrences_path( @counting, @sample )]] %>
 <% end %>
 <% content_for :breadcrumb do %>
-  <%= link_to bracketize( @counting.well.region.name ), region_path( @counting.well.region ) %> - 
-  <%= link_to bracketize( @counting.well.name ), well_path( @counting.well ) %> - 
-  <%= link_to bracketize( @counting.name ), @counting %> - 
-  <%= link_to bracketize( @sample.name ), @sample %>
+  <%= link_to bracketize( @counting.region.name ), region_path( @counting.region ) %> -
+  <%= link_to bracketize( @sample.well.name ), well_path(@sample.well) %> -
+  <%= link_to bracketize( @sample.name ), @sample %> |
+  <%= link_to bracketize( @counting.name ), @counting %>
 <% end %>
 <%= render_heading "Counting for Sample" %>
 <% group_per_gram = @counting.group_per_gram( @sample ) %>

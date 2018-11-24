@@ -1,5 +1,5 @@
 #TODO counting and sample should have the same well
-class Sample < ActiveRecord::Base
+ class Sample < ActiveRecord::Base
   NAME_MIN_LENGTH = 1
 	NAME_MAX_LENGTH = 32
 	NAME_RANGE = NAME_MIN_LENGTH..NAME_MAX_LENGTH
@@ -15,23 +15,21 @@ class Sample < ActiveRecord::Base
   has_many :images
   has_many :occurrences
 
-  validates :name, :uniqueness => { :scope => :well_id }, :presence => true, :length => { :within => NAME_RANGE }
+  validates :name, uniqueness: { scope: :well_id }, presence: true, length: { within: NAME_RANGE }
   validates :well_id, :presence => true
-  validates :weight, :numericality => { :greater_than => 0 }, :allow_nil => true
+  validates :weight, :numericality => { :greater_than => 0 }, allow_nil: true
 
   default_scope -> { order(:bottom_depth) }
 
-  scope :viewable_by, lambda { |user| joins( :well ).joins( :well => :research_participations ).where(
-    :research_participations => { user_id: user.id } ) }
-  scope :manageable_by, lambda { |user| joins( :well ).joins( :well => :research_participations ).where(
-    :research_participations => { user_id: user.id, manager: true } ) }
+  scope :viewable_by, lambda { |user| joins(well: { region: :research_participations }).where(research_participations: { user_id: user.id }) }
+  scope :manageable_by, lambda { |user| joins(well: { region: :research_participations }).where(research_participations: { user_id: user.id, manager: true }) }
 
   def manageable_by?( user )
-    !self.well.nil? && self.well.research_participations.where( user_id: user.id, manager: true ).exists?
+    !self.well.nil? && self.well.manageable_by?(user)
   end
 
   def viewable_by?( user )
-    !self.well.nil? && self.well.research_participations.where( user_id: user.id ).exists?
+    !self.well.nil? && self.well.viewable_by?(user)
   end
 
   def full_name

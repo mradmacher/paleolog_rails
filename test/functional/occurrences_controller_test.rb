@@ -2,86 +2,87 @@ require 'test_helper'
 
 class OccurrencesControllerTest < ActionController::TestCase
   setup do
-    @well = Well.sham!
-    @counting = Counting.sham!( well: @well )
-    @sample = Sample.sham!( well: @well )
+    @region = Region.sham!
+    @well = Well.sham!(region: @region)
+    @counting = Counting.sham!(region: @region)
+    @sample = Sample.sham!(well: @well)
     @specimen = Specimen.sham!
-    @occurrence = Occurrence.sham!( sample: @sample, counting: @counting, specimen: @specimen )
+    @occurrence = Occurrence.sham!(sample: @sample, counting: @counting, specimen: @specimen)
   end
 
   context 'for guest' do
     should 'refute to GET index' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :index, sample_id: @sample.id, counting_id: @counting.id
       end
-    end 
+    end
 
     should 'refute to GET count' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :count, sample_id: @sample.id, counting_id: @counting.id
       end
-    end 
+    end
 
     should 'refute to PUT update' do
-      assert_raise( User::NotAuthorized ) do 
-        put :update, id: @occurrence.id, occurrence: @occurrence.attributes 
+      assert_raise( User::NotAuthorized ) do
+        put :update, id: @occurrence.id, occurrence: @occurrence.attributes
       end
-    end 
+    end
 
     should 'refute to POST create' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         post :create, occurrence: Occurrence.sham!( :build, sample: @sample, counting: @counting, specimen: @specimen ).attributes
       end
     end
 
     should 'refute to DELETE destroy' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         delete :destroy, id: @occurrence.id
       end
     end
 
     should 'refute to GET exchange' do
       occ = Occurrence.sham!( sample: @sample, counting: @counting, specimen: Specimen.sham! )
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :exchange, :format => :json, id1: @occurrence.id, id2: occ.id
       end
-    end 
+    end
 
     should 'refute to GET increase_quantity' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :increase_quantity, :format => :json, id: @occurrence.id
       end
-    end 
+    end
 
     should 'refute to GET decrease_quantity' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :decrease_quantity, :format => :json, id: @occurrence.id
       end
-    end 
+    end
 
     should 'refute to GET set_uncertain' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :set_uncertain, :format => :json, id: @occurrence.id
       end
-    end 
+    end
 
     should 'refute to GET set_status' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :set_status, :format => :json, id: @occurrence.id
       end
-    end 
+    end
 
     should 'refute to GET set_quantity' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :set_quantity, :format => :json, id: @occurrence.id
       end
-    end 
+    end
 
     should 'refute to GET available' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :available, :format => :json, sample_id: @sample.id, counting_id: @counting.id
       end
-    end 
+    end
   end
 
   context 'for user not in research' do
@@ -89,33 +90,33 @@ class OccurrencesControllerTest < ActionController::TestCase
       @user = User.sham!
       login( @user )
     end
-   
+
     should 'not find record for GET index' do
-      assert_raise( ActiveRecord::RecordNotFound ) do 
+      assert_raise( ActiveRecord::RecordNotFound ) do
         get :index, sample_id: @sample.id, counting_id: @counting.id
       end
-    end 
+    end
 
     should 'not find record for GET count' do
-      assert_raise( ActiveRecord::RecordNotFound ) do 
+      assert_raise( ActiveRecord::RecordNotFound ) do
         get :count, sample_id: @sample.id, counting_id: @counting.id
       end
-    end 
+    end
 
     should 'not find record for GET available' do
-      assert_raise( ActiveRecord::RecordNotFound ) do 
+      assert_raise( ActiveRecord::RecordNotFound ) do
         get :available, :format => :json, sample_id: @sample.id, counting_id: @counting.id
       end
-    end 
+    end
 
     should 'not find record for PUT update' do
-      assert_raise( ActiveRecord::RecordNotFound ) do 
+      assert_raise( ActiveRecord::RecordNotFound ) do
         put :update, id: @occurrence.id, occurrence: @occurrence.attributes
       end
-    end 
+    end
 
     should 'not find record for DELETE destroy' do
-      assert_raise( ActiveRecord::RecordNotFound ) do 
+      assert_raise( ActiveRecord::RecordNotFound ) do
         assert_no_difference( 'Occurrence.count' ) do
           delete :destroy, id: @occurrence.id
         end
@@ -124,79 +125,79 @@ class OccurrencesControllerTest < ActionController::TestCase
 
     should 'not find record for GET exchange' do
       occ = Occurrence.sham!( sample: @sample, counting: @counting, specimen: Specimen.sham! )
-      assert_raise( ActiveRecord::RecordNotFound ) do 
+      assert_raise( ActiveRecord::RecordNotFound ) do
         get :exchange, :format => :json, id1: @occurrence.id, id2: occ.id
       end
-    end 
+    end
 
     should 'not find record for GET increase_quantity' do
-      assert_raise( ActiveRecord::RecordNotFound ) do 
+      assert_raise( ActiveRecord::RecordNotFound ) do
         get :increase_quantity, :format => :json, id: @occurrence.id
       end
-    end 
+    end
 
     should 'not find record for GET set_uncertain' do
-      assert_raise( ActiveRecord::RecordNotFound ) do 
+      assert_raise( ActiveRecord::RecordNotFound ) do
         get :set_uncertain, :format => :json, id: @occurrence.id
       end
-    end 
+    end
 
     should 'not find record for GET decrease_quantity' do
-      assert_raise( ActiveRecord::RecordNotFound ) do 
+      assert_raise( ActiveRecord::RecordNotFound ) do
         get :decrease_quantity, :format => :json, id: @occurrence.id
       end
-    end 
+    end
 
     should 'not find record for GET set_quantity' do
-      assert_raise( ActiveRecord::RecordNotFound ) do 
+      assert_raise( ActiveRecord::RecordNotFound ) do
         get :set_quantity, :format => :json, id: @occurrence.id
       end
-    end 
+    end
 
     should 'not find record for GET set_status' do
-      assert_raise( ActiveRecord::RecordNotFound ) do 
+      assert_raise( ActiveRecord::RecordNotFound ) do
         get :set_status, :format => :json, id: @occurrence.id
       end
-    end 
+    end
   end
 
   context 'for user in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!( user: @user, well: @well, manager: false )
+      ResearchParticipation.sham!(user: @user, region: @well.region, manager: false)
       login( @user )
     end
 
     should 'successfully GET index' do
       get :index, sample_id: @sample.id, counting_id: @counting.id
       assert_response :success
-    end 
+    end
 
     should 'refute to GET count' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :count, sample_id: @sample.id, counting_id: @counting.id
       end
-    end 
+    end
 
     should 'successfully GET available' do
       get :available, :format => :json, sample_id: @sample.id, counting_id: @counting.id
       assert_response :success
-    end 
+    end
 
     should 'refute to PUT update' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         put :update, id: @occurrence.id, occurrence: @occurrence.attributes
       end
-    end 
+    end
 
     should 'refute to POST create' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         post :create, occurrence: Occurrence.sham!( :build, sample: @sample, counting: @counting, specimen: @specimen ).attributes
       end
     end
 
     should 'refute to DELETE destroy' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         assert_no_difference( 'Occurrence.count' ) do
           delete :destroy, id: @occurrence.id
         end
@@ -205,46 +206,46 @@ class OccurrencesControllerTest < ActionController::TestCase
 
     should 'refute to GET exchange' do
       occ = Occurrence.sham!( sample: @sample, counting: @counting )
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :exchange, :format => :json, id1: @occurrence.id, id2: occ.id
       end
-    end 
+    end
 
     should 'refute to GET increase_quantity' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :increase_quantity, :format => :json, id: @occurrence.id
       end
-    end 
+    end
 
     should 'refute to GET decrease_quantity' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :decrease_quantity, :format => :json, id: @occurrence.id
       end
-    end 
+    end
 
     should 'refute to GET set_quantity' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :set_quantity, :format => :json, id: @occurrence.id
       end
-    end 
+    end
 
     should 'refute to GET set_status' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :set_status, :format => :json, id: @occurrence.id
       end
-    end 
+    end
 
     should 'refute to GET set_uncertain' do
-      assert_raise( User::NotAuthorized ) do 
+      assert_raise( User::NotAuthorized ) do
         get :set_uncertain, :format => :json, id: @occurrence.id
       end
-    end 
+    end
   end
 
   context 'for manager in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!( user: @user, well: @well, manager: true )
+      ResearchParticipation.sham!(user: @user, region: @well.region, manager: true)
       login( @user )
     end
 
@@ -253,20 +254,20 @@ class OccurrencesControllerTest < ActionController::TestCase
         get :index, sample_id: @sample.id, counting_id: @counting.id
         assert_response :success
       end
-    end 
+    end
 
-    context 'GET count' do 
+    context 'GET count' do
       should 'be successful' do
         get :count, sample_id: @sample.id, counting_id: @counting.id
         assert_response :success
-      end 
+      end
     end
 
     context 'PUT update' do
       should 'be successful' do
         put :update, id: @occurrence.id, occurrence: @occurrence.attributes
         #assert_redirected_to occurrence_sample_counting_path( subdomain: @account.subdomain, id: @occurrence.to_param )
-      end 
+      end
     end
 
     context 'POST create' do
@@ -293,51 +294,49 @@ class OccurrencesControllerTest < ActionController::TestCase
         get :available, :format => :json, sample_id: @sample.id, counting_id: @counting.id
         assert_response :success
       end
-    end 
+    end
 
     context 'GET exchange' do
       should 'be successful' do
         occ = Occurrence.sham!( sample: @sample, counting: @counting, specimen: Specimen.sham! )
         get :exchange, :format => :json, id1: @occurrence.id, id2: occ.id
         assert_response :success
-      end 
+      end
     end
 
     context 'GET increase_quantity' do
       should 'be successful' do
         get :increase_quantity, :format => :json, id: @occurrence.id
         assert_response :success
-      end 
+      end
     end
 
     context 'GET decrease_quantity' do
       should 'be successful' do
         get :decrease_quantity, :format => :json, id: @occurrence.id
         assert_response :success
-      end 
+      end
     end
 
     context 'GET set_quantity' do
       should 'be successful' do
         get :set_quantity, :format => :json, id: @occurrence.id
         assert_response :success
-      end 
+      end
     end
 
     context 'GET set_status' do
       should 'be successful' do
         get :set_status, :format => :json, id: @occurrence.id
         assert_response :success
-      end 
+      end
     end
 
     context 'GET set_uncertain' do
       should 'be successful' do
         get :set_uncertain, :format => :json, id: @occurrence.id
         assert_response :success
-      end 
+      end
     end
   end
-
 end
-

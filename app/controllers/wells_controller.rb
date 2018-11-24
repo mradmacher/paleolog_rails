@@ -11,8 +11,12 @@ class WellsController < ApplicationController
 	end
 
 	def show
-    @well = Well.viewable_by(current_user).find( params[:id] )
+    @well = Well.viewable_by(current_user).find(params[:id])
 		@region = @well.region
+    @countings = @region.countings
+    @samples = @well.samples
+    @counted_samples = Occurrence.where(counting_id: @countings.map(&:id), sample_id: @samples.map(&:id))
+      .select(:counting_id, :sample_id).distinct.map { |o| [o.counting_id, o.sample_id] }
 	end
 
 	def new
@@ -30,7 +34,6 @@ class WellsController < ApplicationController
 	def create
 		@well = Well.new(well_params)
     if @well.save
-      ResearchParticipation.create(well_id: @well.id, user_id: current_user.id, manager: true)
       flash[:notice] = 'Well was successfully created.'
       redirect_to( @well )
     else

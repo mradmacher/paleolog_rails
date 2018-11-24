@@ -1,6 +1,6 @@
-<%= form_for( research_participation ) do |f| %>
-  <%= f.hidden_field :user_id %>
-  <%= f.hidden_field :well_id %>
+<%= form_for(@research_participation) do |f| %>
+  <%= f.label :user_id %>
+  <%= f.collection_select :user_id, @other_users, :id, :name %>
+  <%= f.hidden_field :region_id %>
   <%= f.submit 'Add' %>
 <% end %>
-

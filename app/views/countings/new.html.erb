@@ -1,7 +1,6 @@
-<%= render_title @counting.well.region.name %>
-<%= render 'wells/navigation' %>
-<%= render_actions [[ 'Cancel', well_path( @counting.well_id ) ]] %>
+<%= render_title @counting.region.name %>
+<%= render 'regions/navigation' %>
+<%= render_actions [['Cancel', region_path(@counting.region_id)]] %>
 <%= render_heading 'New counting' %>
 
 <%= render :partial => 'form' %>
-

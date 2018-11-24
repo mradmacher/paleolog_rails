@@ -23,7 +23,7 @@
       var group_tag = $( "#marker_group_id" );
       var specimen_tag = $( "#counting_marker_id" );
       group_tag.change( function() {
-        populate_specimen_tag( specimen_tag, group_tag.select( "option:selected" ).val() ); 
+        populate_specimen_tag( specimen_tag, group_tag.select( "option:selected" ).val() );
       });
 	});
 </script>
@@ -34,14 +34,14 @@
     <input type="hidden" value="put" name="_method">
   <% end %>
 
-  <input type="hidden" name="counting[well_id]" value="<%= @counting.well_id %>">
+  <input type="hidden" name="counting[region_id]" value="<%= @counting.region_id %>">
   <p>
     <label for="counting_name">Name</label>
     <input type="text" id="counting_name" name="counting[name]" value="<%= @counting.name %>">
   </p>
   <fieldset>
     <legend>Computings</legend>
-    <label for="counting_group_id">Counted Group</label> 
+    <label for="counting_group_id">Counted Group</label>
     <select id="counting_group_id" name="counting[group_id]">
       <option value=""></option>
       <% Group.all.each do |group| %>
@@ -55,7 +55,7 @@
 
     <fieldset>
       <legend>Marker</legend>
-      <label for="marker_group_id">Group</label> 
+      <label for="marker_group_id">Group</label>
       <select id="marker_group_id" name="group_id">
       <% if @counting.marker.nil? %>
         <option value="" selected="selected"></option>
@@ -73,7 +73,7 @@
         <% end %>
       <% end %>
       </select>
-      <label for="counting_marker_id">Species</label> 
+      <label for="counting_marker_id">Species</label>
       <select id="counting_marker_id" name="counting[marker_id]">
         <% unless @counting.marker.nil? %>
           <% @counting.marker.group.specimens.each do |specimen| %>
@@ -85,7 +85,7 @@
           <% end %>
         <% end %>
       </select>
-      <label for="counting_marker_count">Count</label> 
+      <label for="counting_marker_count">Count</label>
       <input type="number" name="counting[marker_count]" value="<%= @counting.marker_count %>">
     </fieldset>
   </fieldset>

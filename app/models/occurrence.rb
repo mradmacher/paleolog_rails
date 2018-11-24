@@ -12,12 +12,12 @@ class Occurrence < ActiveRecord::Base
 	STATUSES = { NORMAL => '', OUTSIDE_COUNT => '+', CARVING => 'c', REWORKING => 'r' }
 	UNCERTAIN_SYMBOL = '?'
 
-  validates :rank, :presence => true, :uniqueness => { :scope => [:sample_id, :counting_id] }
-  validates :specimen_id, :presence => true, :uniqueness => { :scope => [:sample_id, :counting_id] }
-  validates :counting_id, :presence => true
-  validates :sample_id, :presence => true
-	validates :status, :presence => true, :inclusion => { :in => [NORMAL, OUTSIDE_COUNT, CARVING, REWORKING] }
-  validate :counting_and_sample_from_same_well
+  validates :rank, presence: true, uniqueness: { scope: [:sample_id, :counting_id] }
+  validates :specimen_id, presence: true, uniqueness: { scope: [:sample_id, :counting_id] }
+  validates :counting_id, presence: true
+  validates :sample_id, presence: true
+	validates :status, presence: true, inclusion: { in: [NORMAL, OUTSIDE_COUNT, CARVING, REWORKING] }
+  validate :counting_and_sample_from_same_region
 
   default_scope -> { order(:rank) }
 	scope :countable, -> { where('status = ?', NORMAL) }
@@ -29,19 +29,15 @@ class Occurrence < ActiveRecord::Base
   scope :ordered_by_occurrence, -> { order(:rank) }
   scope :ordered_by_depth, -> { joins(:sample).order('samples.bottom_depth') }
 
-  scope :viewable_by, lambda { |user| joins( :sample ).
-    joins( :sample => { :well => :research_participations } ).where(
-    :research_participations => { user_id: user.id } ) }
-  scope :manageable_by, lambda { |user| joins( :sample ).
-    joins( :sample => { :well => :research_participations } ).where(
-    :research_participations => { user_id: user.id, manager: true } ) }
+  scope :viewable_by, lambda { |user| joins(sample: { well: { region: :research_participations }} ).where(research_participations: { user_id: user.id }) }
+  scope :manageable_by, lambda { |user| joins(sample: { well: { region: :research_participations }} ).where(research_participations: { user_id: user.id, manager: true }) }
 
   def manageable_by?( user )
-    !self.counting.nil? && self.counting.well.research_participations.where( user_id: user.id, manager: true ).exists?
+    !sample.nil? && sample.manageable_by?(user)
   end
 
   def viewable_by?( user )
-    !self.counting.nil? && self.counting.well.research_participations.where( user_id: user.id ).exists?
+    !sample.nil? && sample.viewable_by?(user)
   end
 
 	def status? stat
@@ -66,8 +62,9 @@ class Occurrence < ActiveRecord::Base
 	end
 
   private
-  def counting_and_sample_from_same_well
-    self.errors[:sample_id] << I18n.t( 'activerecord.errors.models.occurrence.attributes.sample_id.invalid' ) if
-      self.counting && self.sample && self.counting.well_id != self.sample.well_id
+
+  def counting_and_sample_from_same_region
+    self.errors[:sample_id] << I18n.t('activerecord.errors.models.occurrence.attributes.sample_id.invalid') if
+      self.counting && self.sample && self.counting.region_id != self.sample.well.region_id
   end
 end

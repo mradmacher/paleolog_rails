@@ -26,7 +26,7 @@ class FieldTest < ActiveSupport::TestCase
     field.name = 'a' * (Field::NAME_MAX_LENGTH + 1)
     refute field.valid?
     refute field.errors[:name].empty?
-    assert field.errors[:name].include?( I18n.t( 'activerecord.errors.models.field.attributes.name.too_long', 
+    assert field.errors[:name].include?( I18n.t( 'activerecord.errors.models.field.attributes.name.too_long',
       count: Field::NAME_MAX_LENGTH ) )
 
     field.name = 'a' * Field::NAME_MAX_LENGTH
@@ -43,8 +43,7 @@ class FieldTest < ActiveSupport::TestCase
   should 'not be destroyed when used in a feature' do
     feature = Feature.sham!
     field = feature.choice.field
-    refute field.destroy
-    assert field.errors[:base].include?( I18n.t( 'activerecord.errors.models.field.feature.exists' ) )
+    assert_raise(ActiveRecord::RecordNotDestroyed) { field.destroy }
   end
 
   should 'destroy dependent choices' do

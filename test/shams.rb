@@ -35,8 +35,9 @@ end
 
 Sham.config( ResearchParticipation ) do |c|
   c.attributes do
-    { :user => Sham::Nested.new( User ),
-      :well => Sham::Nested.new( Well ),
+    {
+      :user => Sham::Nested.new( User ),
+      :region => Sham::Nested.new(Region),
       :manager => false
     }
   end
@@ -66,17 +67,19 @@ Sham.config( Well ) do |c|
   end
 end
 
-Sham.config( Counting ) do |c|
+Sham.config(Counting) do |c|
   c.attributes do
-    { :name => fake_string( Counting, :name, Counting::NAME_MIN_LENGTH, Counting::NAME_MAX_LENGTH ),
-      :well => Sham::Nested.new( Well )
+    {
+      :name => fake_string(Counting, :name, Counting::NAME_MIN_LENGTH, Counting::NAME_MAX_LENGTH),
+      :region => Sham::Nested.new(Region)
     }
   end
 end
 
-Sham.config( Sample ) do |c|
+Sham.config(Sample) do |c|
   c.attributes do
-    { :name => fake_string( Sample, :name, Sample::NAME_MIN_LENGTH, Sample::NAME_MAX_LENGTH ),
+    {
+      :name => fake_string( Sample, :name, Sample::NAME_MIN_LENGTH, Sample::NAME_MAX_LENGTH ),
       :well => Sham::Nested.new( Well ),
       :top_depth => -20.0,
       :bottom_depth => -45.5
@@ -84,16 +87,16 @@ Sham.config( Sample ) do |c|
   end
 end
 
-Sham.config( Occurrence ) do |c|
+Sham.config(Occurrence) do |c|
   well = Well.sham!
 
   c.attributes do
     { :specimen => Sham::Nested.new( Specimen ),
       :quantity => (1..100).to_a.sample,
-      :rank => Occurrence.maximum( :rank ).nil? ? 0 : Occurrence.maximum( :rank ) + 1,
+      :rank => Occurrence.maximum(:rank).nil? ? 0 : Occurrence.maximum(:rank) + 1,
       :status => Occurrence::NORMAL,
-      :sample => Sham::Nested.new( Sample, well: well ),
-      :counting => Sham::Nested.new( Counting, well: well )
+      :sample => Sham::Nested.new(Sample, well: well),
+      :counting => Sham::Nested.new(Counting, region: well.region)
     }
   end
 end
