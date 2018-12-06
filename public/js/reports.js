@@ -27,20 +27,20 @@ $(function() {
     });
   }
 
-  get_sections = function(region_id, callback) {
-		$.get("/sections.json", { region_id: region_id }, function(sections) {
+  get_sections = function(project_id, callback) {
+		$.get("/sections.json", { project_id: project_id }, function(sections) {
       callback(sections);
     });
   }
 
-  get_countings = function(region_id, callback) {
-		$.get( "/countings.json", { region_id: region_id }, function(countings) {
+  get_countings = function(project_id, callback) {
+		$.get( "/countings.json", { project_id: project_id }, function(countings) {
       callback(countings);
     });
   }
 
-  get_region_tag = function() {
-    return $("#region_id");
+  get_project_tag = function() {
+    return $("#project_id");
   }
 
   get_section_tag = function() {
@@ -51,8 +51,8 @@ $(function() {
     return $("#counting_id");
   }
 
-  get_selected_region = function() {
-    return get_region_tag().select("option:selected").val();
+  get_selected_project = function() {
+    return get_project_tag().select("option:selected").val();
   }
 
   get_selected_section = function() {
@@ -64,14 +64,14 @@ $(function() {
   }
 
   load_sections = function() {
-    get_sections(get_selected_region(), function(sections) {
+    get_sections(get_selected_project(), function(sections) {
       populate_section_tag(sections);
       populate_selections('samples');
     });
   }
 
   load_countings = function() {
-    get_countings(get_selected_region(), function(countings) {
+    get_countings(get_selected_project(), function(countings) {
       populate_counting_tag(countings);
       populate_selections('species');
     });
@@ -167,7 +167,7 @@ $(function() {
       populate_tag(source, vector, index, get_selected_section(), get_selected_counting());
     });
 
-    get_region_tag().change( function() {
+    get_project_tag().change( function() {
       load_sections();
       load_countings();
     });
