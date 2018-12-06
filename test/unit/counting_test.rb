@@ -34,23 +34,23 @@ class CountingTest < ActiveSupport::TestCase
     assert counting.valid?
 	end
 
-  should 'have a name unique in region' do
+  should 'have a name unique in project' do
     existing = Counting.sham!
-    counting = Counting.sham!(:build, :region => existing.region, :name => existing.name )
+    counting = Counting.sham!(:build, :project => existing.project, :name => existing.name )
     refute counting.valid?
 		assert counting.errors[:name].include?( I18n.t( 'activerecord.errors.models.counting.attributes.name.taken' ) )
   end
 
-  should 'allow to have same name in different regions' do
-    existing = Counting.sham!(region: Region.sham!)
-    counting = Counting.sham!(:build, region: Region.sham!, name: existing.name)
+  should 'allow to have same name in different projects' do
+    existing = Counting.sham!(project: Project.sham!)
+    counting = Counting.sham!(:build, project: Project.sham!, name: existing.name)
 		assert counting.valid?
 	end
 
-  should 'belong to some region' do
-    counting = Counting.sham!(:region => nil )
+  should 'belong to some project' do
+    counting = Counting.sham!(:project => nil )
     refute counting.valid?
-		assert counting.errors[:region_id].include?( I18n.t( 'activerecord.errors.models.counting.attributes.region_id.blank' ) )
+		assert counting.errors[:project_id].include?( I18n.t( 'activerecord.errors.models.counting.attributes.project_id.blank' ) )
 	end
 
   should 'check marker count numericality' do
@@ -98,7 +98,7 @@ class CountingTest < ActiveSupport::TestCase
   context 'group_per_gram' do
     setup do
       section = Section.sham!
-      @counting = Counting.sham! region: section.region
+      @counting = Counting.sham! project: section.project
       @sample = Sample.sham! section: section
       @group = Group.sham!
       @marker = Specimen.sham!
@@ -154,7 +154,7 @@ class CountingTest < ActiveSupport::TestCase
   context 'occurrence_density_map' do
     setup do
       @section = Section.sham!
-      @counting = Counting.sham!(region: @section.region)
+      @counting = Counting.sham!(project: @section.project)
       @sample = Sample.sham!(section: @section)
       @group = Group.sham!
       @marker = Specimen.sham!
@@ -228,7 +228,7 @@ class CountingTest < ActiveSupport::TestCase
   context 'for samples/species/occurrences' do
     setup do
       @section = Section.sham!
-      @counting = Counting.sham!(region: @section.region)
+      @counting = Counting.sham!(project: @section.project)
       @samples = []
       [100, 200, 300, 400, 500, 600, 700].each do |depth|
         @samples << Sample.sham!( section: @section, bottom_depth: depth )
@@ -373,7 +373,7 @@ class CountingTest < ActiveSupport::TestCase
   context 'specimens_by_occurrence' do
     setup do
       @section = Section.sham!
-      @counting = Counting.sham!(region: @section.region)
+      @counting = Counting.sham!(project: @section.project)
 
       sample_depth = {}
       @samples = []
@@ -427,7 +427,7 @@ class CountingTest < ActiveSupport::TestCase
       species3 = Specimen.sham!( group: group )
       other_species = Specimen.sham!
       section = Section.sham!
-      counting = Counting.sham!(region: section.region)
+      counting = Counting.sham!(project: section.project)
       sample = Sample.sham!(section: section)
       Occurrence.sham!(counting: counting, sample: sample, specimen: species1)
       Occurrence.sham!(counting: counting, sample: sample, specimen: species3)
@@ -442,7 +442,7 @@ class CountingTest < ActiveSupport::TestCase
       species3 = Specimen.sham!( group: group )
       other_species = Specimen.sham!
       section = Section.sham!
-      counting = Counting.sham!(region: section.region)
+      counting = Counting.sham!(project: section.project)
       sample = Sample.sham!(section: section)
       other_sample = Sample.sham!(section: section)
       Occurrence.sham!( counting: counting, sample: sample, specimen: species1 )

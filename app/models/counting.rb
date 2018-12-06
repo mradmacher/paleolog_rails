@@ -3,13 +3,13 @@ class Counting < ActiveRecord::Base
 	NAME_MAX_LENGTH = 32
 	NAME_RANGE = NAME_MIN_LENGTH..NAME_MAX_LENGTH
 
-  belongs_to :region
+  belongs_to :project
   belongs_to :group
   belongs_to :marker, :class_name => 'Specimen'
   has_many :occurrences
 
-	validates :name, presence: true, uniqueness: { scope: :region_id }, length: { within: NAME_RANGE }
-	validates :region_id, presence: true
+	validates :name, presence: true, uniqueness: { scope: :project_id }, length: { within: NAME_RANGE }
+	validates :project_id, presence: true
   validates :marker_count, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
 
   before_destroy do
@@ -19,15 +19,15 @@ class Counting < ActiveRecord::Base
     end
   end
 
-  scope :viewable_by, lambda { |user| joins(region: :research_participations).where(research_participations: { user_id: user.id }) }
-  scope :manageable_by, lambda { |user| joins(region: :research_participations).where(research_participations: { user_id: user.id, manager: true }) }
+  scope :viewable_by, lambda { |user| joins(project: :research_participations).where(research_participations: { user_id: user.id }) }
+  scope :manageable_by, lambda { |user| joins(project: :research_participations).where(research_participations: { user_id: user.id, manager: true }) }
 
   def manageable_by?(user)
-    !region.nil? && region.manageable_by?(user)
+    !project.nil? && project.manageable_by?(user)
   end
 
   def viewable_by?(user)
-    !region.nil? && region.viewable_by?(user)
+    !project.nil? && project.viewable_by?(user)
   end
 
   def can_be_destroyed?

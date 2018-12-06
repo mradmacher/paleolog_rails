@@ -1,6 +1,6 @@
-<%= render_title @counting.region.name %>
-<%= render 'regions/navigation' %>
-<%= render_actions [['Cancel', region_path(@counting.region_id)]] %>
+<%= render_title @counting.project.name %>
+<%= render 'projects/navigation' %>
+<%= render_actions [['Cancel', project_path(@counting.project_id)]] %>
 <%= render_heading 'New counting' %>
 
 <%= render :partial => 'form' %>

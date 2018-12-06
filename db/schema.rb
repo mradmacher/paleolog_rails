@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181206173645) do
+ActiveRecord::Schema.define(version: 20181206182343) do
 
   create_table "choices", force: :cascade do |t|
     t.string  "name"
@@ -32,10 +32,10 @@ ActiveRecord::Schema.define(version: 20181206173645) do
     t.integer "group_id"
     t.integer "marker_id"
     t.integer "marker_count"
-    t.integer "region_id"
+    t.integer "project_id"
   end
 
-  add_index "countings", ["region_id"], name: "index_countings_on_region_id"
+  add_index "countings", ["project_id"], name: "index_countings_on_project_id"
 
   create_table "dinos", force: :cascade do |t|
     t.string   "name"
@@ -79,7 +79,7 @@ ActiveRecord::Schema.define(version: 20181206173645) do
     t.integer "counting_id"
   end
 
-  create_table "regions", force: :cascade do |t|
+  create_table "projects", force: :cascade do |t|
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -90,10 +90,10 @@ ActiveRecord::Schema.define(version: 20181206173645) do
     t.boolean  "manager",    default: false
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
-    t.integer  "region_id"
+    t.integer  "project_id"
   end
 
-  add_index "research_participations", ["region_id"], name: "index_research_participations_on_region_id"
+  add_index "research_participations", ["project_id"], name: "index_research_participations_on_project_id"
 
   create_table "sample_specimens", force: :cascade do |t|
     t.integer "specimen_id"
@@ -117,7 +117,7 @@ ActiveRecord::Schema.define(version: 20181206173645) do
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "region_id"
+    t.integer  "project_id"
   end
 
   create_table "specimens", force: :cascade do |t|

@@ -118,7 +118,7 @@ class SamplesControllerTest < ActionController::TestCase
   context 'for user in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!(user: @user, region: @section.region, manager: false)
+      ResearchParticipation.sham!(user: @user, project: @section.project, manager: false)
       login( @user )
     end
 
@@ -190,13 +190,13 @@ class SamplesControllerTest < ActionController::TestCase
   context 'for manager in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!(user: @user, region: @section.region, manager: true)
+      ResearchParticipation.sham!(user: @user, project: @section.project, manager: true)
       login( @user )
     end
 
     context 'GET show' do
       should 'show proper action for sample with occurrences' do
-        Occurrence.sham!(sample: @sample, counting: Counting.sham!(region: @section.region))
+        Occurrence.sham!(sample: @sample, counting: Counting.sham!(project: @section.project))
         get :show, :id => @sample.id
         assert_link edit_sample_path( @sample )
         assert_no_delete_link sample_path( @sample )

@@ -14,7 +14,7 @@ class OccurrencesController < ApplicationController
     @counting = Counting.viewable_by(current_user).find(params[:counting_id])
     @sample = Sample.find(params[:sample_id])
     @section = @sample.section
-    @region = @section.region
+    @project = @section.project
     @occurrences = Occurrence.where(counting_id: params[:counting_id], sample_id: params[:sample_id])
   end
 
@@ -23,7 +23,7 @@ class OccurrencesController < ApplicationController
     raise User::NotAuthorized unless @counting.manageable_by? current_user
     @sample = Sample.find( params[:sample_id] )
     @section = @sample.section
-    @region = @section.region
+    @project = @section.project
     @occurrences = Occurrence.where( sample_id: @sample.id, counting_id: @counting.id ).ordered_by_occurrence
 		@occurrence = Occurrence.new( sample: @sample, counting: @counting )
 	end

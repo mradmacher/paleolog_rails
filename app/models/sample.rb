@@ -21,8 +21,8 @@
 
   default_scope -> { order(:bottom_depth) }
 
-  scope :viewable_by, lambda { |user| joins(section: { region: :research_participations }).where(research_participations: { user_id: user.id }) }
-  scope :manageable_by, lambda { |user| joins(section: { region: :research_participations }).where(research_participations: { user_id: user.id, manager: true }) }
+  scope :viewable_by, lambda { |user| joins(section: { project: :research_participations }).where(research_participations: { user_id: user.id }) }
+  scope :manageable_by, lambda { |user| joins(section: { project: :research_participations }).where(research_participations: { user_id: user.id, manager: true }) }
 
   def manageable_by?( user )
     !self.section.nil? && self.section.manageable_by?(user)

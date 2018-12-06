@@ -17,7 +17,7 @@ en:
             user_id:
               blank: can't be blank
               taken: has already been taken
-            region_id:
+            project_id:
               blank: can't be blank
             manager:
               inclusion: is not included in the list
@@ -75,9 +75,9 @@ en:
               taken: has already been taken
             specimen_id:
               blank: can't be blank
-        region:
+        project:
           sections:
-            exist: can't delete region with sections
+            exist: can't delete project with sections
           attributes:
             account_id:
               blank: can't be blank
@@ -88,14 +88,14 @@ en:
               taken: has already been taken
         section:
           samples:
-            exist: can't delete region with samples
+            exist: can't delete project with samples
           attributes:
             name:
               blank: can't be blank
               too_short: is too short (minimum is %{count} characters)
               too_long: is too long (maximum is %{count} characters)
               taken: has already been taken
-            region_id:
+            project_id:
               blank: can't be blank
         counting:
           occurrences:
@@ -106,7 +106,7 @@ en:
               too_short: is too short (minimum is %{count} characters)
               too_long: is too long (maximum is %{count} characters)
               taken: has already been taken
-            region_id:
+            project_id:
               blank: can't be blank
             marker_count:
               not_an_integer: should be an integer

@@ -1,6 +1,6 @@
-<%= render_title @region.name %>
+<%= render_title @project.name %>
 <%= render 'navigation' %>
-<%= render_actions [['Cancel', region_path( @region )]] %>
+<%= render_actions [['Cancel', project_path( @project )]] %>
 <%= render_heading 'Editing project' %>
 
 <%= render :partial => 'form' %>

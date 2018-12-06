@@ -1,10 +1,10 @@
-<%= form_for(@region) do |f| %>
+<%= form_for(@project) do |f| %>
   <%= f.error_messages %>
 	<fieldset>
 		<legend>Project</legend>
 		<p>
     <%= f.label :name %>
-		<%= f.text_field :name, :size => Region::NAME_SIZE %>
+		<%= f.text_field :name, :size => Project::NAME_SIZE %>
 		</p>
 		<p>
     <%= f.submit 'Save' %>

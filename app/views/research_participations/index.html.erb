@@ -1,11 +1,11 @@
 <%= render_title 'Research Users' %>
 <%= render 'navigation' %>
 <% content_for :breadcrumb do %>
-  <%= link_to bracketize(@region.name), region_path(@region) %>
+  <%= link_to bracketize(@project.name), project_path(@project) %>
 <% end %>
 <h1>Research Users</h1>
 <ul>
-<% show_actions = @region.manageable_by?(current_user) %>
+<% show_actions = @project.manageable_by?(current_user) %>
 <% @research_participations.each do |research_participation| %>
   <li><%= research_participation.user.name %>
     <% if show_actions && research_participation.user != current_user %>
@@ -18,7 +18,7 @@
   <% @other_users.each do |user| %>
     <li><%= user.name %>
       <%= render partial: 'form',
-        locals: { research_participation: ResearchParticipation.new(user_id: user.id, region_id: @region.id) } %>
+        locals: { research_participation: ResearchParticipation.new(user_id: user.id, project_id: @project.id) } %>
   <% end %>
 <% end %>
 </ul>

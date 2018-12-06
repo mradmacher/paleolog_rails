@@ -4,14 +4,14 @@ class ResearchParticipationsController < ApplicationController
 	def show
     @research_participation = ResearchParticipation.find(params[:id])
     raise User::NotAuthorized unless @research_participation.viewable_by?(current_user)
-		@region = @research_participation.region
+		@project = @research_participation.project
 	end
 
 	def new
-    @region = Region.find(params[:region_id])
-    raise User::NotAuthorized unless @region.manageable_by?(current_user)
-    @research_participation = ResearchParticipation.new(region: @region)
-    @other_users = User.where('users.id not in (?)', @region.research_participations.map{ |rc| rc.user_id })
+    @project = Project.find(params[:project_id])
+    raise User::NotAuthorized unless @project.manageable_by?(current_user)
+    @research_participation = ResearchParticipation.new(project: @project)
+    @other_users = User.where('users.id not in (?)', @project.research_participations.map{ |rc| rc.user_id })
 	end
 
 	def create
@@ -19,10 +19,10 @@ class ResearchParticipationsController < ApplicationController
     raise User::NotAuthorized unless @research_participation.manageable_by?( current_user )
     if @research_participation.save
 			flash[:notice] = 'User added to research.'
-      redirect_to region_url(@research_participation.region)
+      redirect_to project_url(@research_participation.project)
     else
 			flash[:notice] = 'User can\'t be added to research.'
-      redirect_to region_url(@research_participation.region)
+      redirect_to project_url(@research_participation.project)
     end
 	end
 
@@ -32,14 +32,14 @@ class ResearchParticipationsController < ApplicationController
 
 	  if @research_participation.destroy
 			flash[:notice] = 'User removed from research.'
-      redirect_to region_url(@research_participation.region)
+      redirect_to project_url(@research_participation.project)
 		else
 			flash[:notice] = 'User can\'t be removed from account.'
-      redirect_to region_url(@research_participation.region)
+      redirect_to project_url(@research_participation.project)
 		end
   end
 
   def research_participation_params
-    params.require(:research_participation).permit(:region_id, :user_id, :manager)
+    params.require(:research_participation).permit(:project_id, :user_id, :manager)
   end
 end

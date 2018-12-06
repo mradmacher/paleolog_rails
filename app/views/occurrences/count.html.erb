@@ -2,7 +2,7 @@
 <%= render 'navigation' %>
 <%= render_actions [['Show counting', counting_sample_occurrences_path( @counting, @sample )]] %>
 <% content_for :breadcrumb do %>
-  <%= link_to bracketize( @counting.region.name ), region_path(@counting.region) %> -
+  <%= link_to bracketize( @counting.project.name ), project_path(@counting.project) %> -
   <%= link_to bracketize( @sample.section.name ), section_path(@sample.section) %> -
   <%= link_to bracketize( @sample.name ), @sample %> |
   <%= link_to bracketize( @counting.name ), @counting %>

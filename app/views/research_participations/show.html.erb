@@ -1,4 +1,4 @@
-<%= render_title @research_participation.region.name %>
+<%= render_title @research_participation.project.name %>
 <%= render 'navigation' %>
 
 <% actions = [] %>
@@ -7,7 +7,7 @@
 <% end %>
 <%= render_actions actions %>
 <% content_for :breadcrumb do %>
-  <%= link_to bracketize(@research_participation.region.name), region_path(@research_participation.region) %> |
+  <%= link_to bracketize(@research_participation.project.name), project_path(@research_participation.project) %> |
   <%= link_to bracketize(@research_participation.user.name), research_participation_path(@research_participation) %>
 <% end %>
 <%= render_heading "Researcher" %>

@@ -145,14 +145,14 @@ class SpecimenTest < ActiveSupport::TestCase
 
     context 'counting' do
       setup do
-        region = Region.sham!
-        @counting1 = Counting.sham!(region: region)
-        @counting2 = Counting.sham!(region: region)
+        project = Project.sham!
+        @counting1 = Counting.sham!(project: project)
+        @counting2 = Counting.sham!(project: project)
 
-        @section1 = Section.sham!(region: region)
-        @section2 = Section.sham!(region: region)
-        @section3 = Section.sham!(region: region)
-        @section4 = Section.sham!(region: region)
+        @section1 = Section.sham!(project: project)
+        @section2 = Section.sham!(project: project)
+        @section3 = Section.sham!(project: project)
+        @section4 = Section.sham!(project: project)
 
         @species1 = Specimen.sham!
         @species2 = Specimen.sham!

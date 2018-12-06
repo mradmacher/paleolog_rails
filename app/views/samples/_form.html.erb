@@ -5,7 +5,7 @@
 		<% if @sample.occurrences.empty? %>
 		<p>
 		<%= f.label :section_id %>	
-		<%= f.collection_select :section_id, @sample.section.region.sections, :id, :name %>
+		<%= f.collection_select :section_id, @sample.section.project.sections, :id, :name %>
 		</p>
 		<% end %>
 		<p>

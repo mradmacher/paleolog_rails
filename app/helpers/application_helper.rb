@@ -25,8 +25,8 @@ module ApplicationHelper
     menu = case controller
       when 'specimens'
         specimen_content_menu_for action
-      when 'regions'
-        region_content_menu_for action
+      when 'projects'
+        project_content_menu_for action
       when 'sections'
         section_content_menu_for action
       when 'images'
@@ -58,8 +58,8 @@ module ApplicationHelper
         site_navigation_for action
       when 'specimens'
         specimen_navigation_for action
-      when 'regions'
-        region_navigation_for action
+      when 'projects'
+        project_navigation_for action
       when 'sections'
         section_navigation_for action
       when 'images'

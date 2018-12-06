@@ -26,7 +26,7 @@ class UserControllerTest < ActionController::TestCase
     user = User.sham!
     try_to_login( user )
     assert_response :redirect
-    assert_redirected_to regions_url
+    assert_redirected_to projects_url
 
     assert_not_nil session[:user_id]
     assert_equal 'You are logged in.', flash[:notice]

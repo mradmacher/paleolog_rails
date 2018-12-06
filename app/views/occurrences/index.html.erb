@@ -1,11 +1,11 @@
-<%= render_title @counting.region.name %>
+<%= render_title @counting.project.name %>
 <%= render 'navigation' %>
 
 <% if @counting.manageable_by?( current_user ) %>
 	<% render_actions [['Count', edit_counting_sample_occurrences_path( @counting, @sample )]] %>
 <% end %>
 <% content_for :breadcrumb do %>
-  <%= link_to bracketize( @counting.region.name ), region_path( @counting.region ) %> -
+  <%= link_to bracketize( @counting.project.name ), project_path( @counting.project ) %> -
   <%= link_to bracketize( @sample.section.name ), section_path(@sample.section) %> -
   <%= link_to bracketize( @sample.name ), @sample %> |
   <%= link_to bracketize( @counting.name ), @counting %>

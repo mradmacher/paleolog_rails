@@ -17,7 +17,7 @@ Taxa::Application.routes.draw do
   resources :account_participations, :only => [:index, :create, :destroy]
   resources :research_participations, :only => [:show, :create, :destroy]
 
-  resources :regions do
+  resources :projects do
     resources :sections, :only => [:index, :new]
     resources :countings, :only => :new
     resources :research_participations, :only => [:new]

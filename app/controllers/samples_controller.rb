@@ -13,13 +13,13 @@ class SamplesController < ApplicationController
 	def show
     @sample = Sample.viewable_by(current_user).find(params[:id])
 		@section = @sample.section
-    @region = @section.region
+    @project = @section.project
 	end
 
 	def new
     @section = Section.find( params[:section_id] )
     raise User::NotAuthorized unless @section.manageable_by?(current_user)
-    @region = @section.region
+    @project = @section.project
     @sample = Sample.new
     @sample.section = @section
 	end

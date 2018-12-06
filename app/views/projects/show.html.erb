@@ -1,0 +1,51 @@
+<%= render_title @project.name %>
+<%= render 'navigation' %>
+
+<% actions = [] %>
+<% if @project.manageable_by?(current_user) %>
+	<% actions << ['Add section', new_project_section_path(@project)] <<
+    ['Add counting', new_project_counting_path(@project)] <<
+    ['Add researcher', new_project_research_participation_path(@project.id)] %>
+	<% actions << ['Edit project', edit_project_path(@project)] %>
+	<% if @project.sections.empty? %>
+		<% actions << ['Delete project', project_path(@project), { confirm: 'Are you sure', method: :delete }] %>
+	<% end %>
+<% end %>
+<%= render_actions actions %>
+<%= render_heading 'Project' %>
+
+<dl class="fields">
+	<dt>Name</dt>
+	<dd><%= @project.name %></dd>
+</dl>
+
+<table>
+  <tr>
+    <th>Sections</th>
+    <th>Countings</th>
+    <th>Researchers</th>
+  </tr>
+  <tr>
+    <td>
+      <ul>
+      <% @project.sections.each do |section| %>
+        <li><%= link_to section.name, section_path(section) %>
+      <% end %>
+      </ul>
+    </td>
+    <td>
+      <ul>
+      <% @project.countings.each do |counting| %>
+        <li><%= link_to counting.name, counting_path(counting) %>
+      <% end %>
+      </ul>
+    </td>
+    <td>
+      <ul>
+      <% @project.research_participations.each do |participation| %>
+        <li><%= link_to participation.user.name, research_participation_path(participation) %>
+      <% end %>
+      </ul>
+    </td>
+  </tr>
+</table>

@@ -6,7 +6,7 @@
     section_tag.empty();
     sample_tag.empty();
     if( parent_id != '' ) {
-      $.get( "/sections.json", { region_id: parent_id }, function( sections ) {
+      $.get( "/sections.json", { project_id: parent_id }, function( sections ) {
         for( i in sections ) {
           section_tag.append( option_tag( sections[i].id, sections[i].name ) );
         }
@@ -46,7 +46,7 @@
   };
 
 	$( function () {
-      var region_tag = $( "#region_id" );
+      var project_tag = $( "#project_id" );
       var section_tag = $( "#section_id" );
       var sample_tag = $( "#image_sample_id" );
       var group_tag = $( "#group_id" );
@@ -57,8 +57,8 @@
       group_tag.change( function() {
         populate_specimen_tag( specimen_tag, group_tag.select( "option:selected" ).val() ); 
       });
-      region_tag.change( function() {
-        populate_section_tag( section_tag, sample_tag, region_tag.select( "option:selected" ).val() ); 
+      project_tag.change( function() {
+        populate_section_tag( section_tag, sample_tag, project_tag.select( "option:selected" ).val() ); 
       });
       section_tag.change( function() {
         populate_sample_tag( sample_tag, section_tag.select( "option:selected" ).val() );
@@ -102,13 +102,13 @@
   <% end %>
   <% unless @image.sample.nil? %>
     <p>
-    <%= label_tag :region_id %>
-    <%= select_tag :region_id, options_from_collection_for_select( Region.all, :id, :name, @image.sample.section.region_id ),
+    <%= label_tag :project_id %>
+    <%= select_tag :project_id, options_from_collection_for_select( Project.all, :id, :name, @image.sample.section.project_id ),
       {:include_blank => true} %>
     </p>
     <p>
     <%= label_tag :section_id %>
-    <%= select_tag :section_id, options_from_collection_for_select( @image.sample.section.region.sections, :id, :name, @image.sample.section_id ) %>
+    <%= select_tag :section_id, options_from_collection_for_select( @image.sample.section.project.sections, :id, :name, @image.sample.section_id ) %>
     </p>
     <p>
       <%= f.label :sample_id %>
@@ -116,8 +116,8 @@
     </p>
   <% else %>
     <p>
-    <%= label_tag :region_id %>
-    <%= select_tag :region_id, options_from_collection_for_select( Region.all, :id, :name ), {:include_blank => true} %>
+    <%= label_tag :project_id %>
+    <%= select_tag :project_id, options_from_collection_for_select( Project.all, :id, :name ), {:include_blank => true} %>
     </p>
     <p>
     <%= label_tag :section_id %>

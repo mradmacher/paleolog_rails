@@ -3,15 +3,15 @@
     <div class="navigation-section">
       <span class="navigation-section-title">Project</span>
       <ul>
-        <% Region.viewable_by(current_user).each do |region| %>
-          <li class="<%= region == @region ? 'current-item' : 'item' %>"><%= link_to region.name, region_path(region) %></li>
+        <% Project.viewable_by(current_user).each do |project| %>
+          <li class="<%= project == @project ? 'current-item' : 'item' %>"><%= link_to project.name, project_path(project) %></li>
         <% end %>
       </ul>
     </div>
     <div class="navigation-section">
       <span class="navigation-section-title">Counting</span>
       <ul>
-        <% @counting.region.countings.each do |counting| %>
+        <% @counting.project.countings.each do |counting| %>
           <li class="<%= counting == @counting ? 'current-item' : 'item' %>"><%= link_to counting.name, counting_path(counting) %></li>
         <% end %>
       </ul></div>

@@ -37,7 +37,7 @@ Sham.config( ResearchParticipation ) do |c|
   c.attributes do
     {
       :user => Sham::Nested.new( User ),
-      :region => Sham::Nested.new(Region),
+      :project => Sham::Nested.new(Project),
       :manager => false
     }
   end
@@ -53,16 +53,16 @@ Sham.config( Specimen ) do |c|
   end
 end
 
-Sham.config( Region ) do |c|
+Sham.config(Project) do |c|
   c.attributes do
-    { :name => fake_string( Region, :name, Region::NAME_MIN_LENGTH, Region::NAME_MAX_LENGTH ) }
+    { :name => fake_string(Project, :name, Project::NAME_MIN_LENGTH, Project::NAME_MAX_LENGTH ) }
   end
 end
 
 Sham.config(Section) do |c|
   c.attributes do
     { :name => fake_string(Section, :name, Section::NAME_MIN_LENGTH, Section::NAME_MAX_LENGTH ),
-      :region => Sham::Nested.new( Region )
+      :project => Sham::Nested.new(Project)
     }
   end
 end
@@ -71,7 +71,7 @@ Sham.config(Counting) do |c|
   c.attributes do
     {
       :name => fake_string(Counting, :name, Counting::NAME_MIN_LENGTH, Counting::NAME_MAX_LENGTH),
-      :region => Sham::Nested.new(Region)
+      :project => Sham::Nested.new(Project)
     }
   end
 end
@@ -96,7 +96,7 @@ Sham.config(Occurrence) do |c|
       :rank => Occurrence.maximum(:rank).nil? ? 0 : Occurrence.maximum(:rank) + 1,
       :status => Occurrence::NORMAL,
       :sample => Sham::Nested.new(Sample, section: section),
-      :counting => Sham::Nested.new(Counting, region: section.region)
+      :counting => Sham::Nested.new(Counting, project: section.project)
     }
   end
 end

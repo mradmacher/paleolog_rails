@@ -6,8 +6,8 @@
 	<fieldset>
 	<legend>New Report</legend>
 	<p>
-  <%= label_tag :region_id %>
-  <%= select_tag :region_id, options_from_collection_for_select( Region.all, :id, :name ) %>
+  <%= label_tag :project_id %>
+  <%= select_tag :project_id, options_from_collection_for_select( Project.all, :id, :name ) %>
   <%= label_tag :counting_id %>
   <%= select_tag :counting_id, [] %>
   <%= label_tag :section_id %>

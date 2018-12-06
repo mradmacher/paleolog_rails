@@ -19,24 +19,24 @@ class SectionTest < ActiveSupport::TestCase
 	  assert section.errors[ :name ].include?( I18n.t( 'activerecord.errors.models.section.attributes.name.blank' ) )
   end
 
-  def test_region_presence
-    section = Section.sham!( :build, :region => nil )
+  def test_project_presence
+    section = Section.sham!( :build, :project => nil )
     refute section.valid?
-	  assert section.invalid?( :region_id )
-	  assert section.errors[ :region_id ].include?( I18n.t( 'activerecord.errors.models.section.attributes.region_id.blank' ) )
+	  assert section.invalid?( :project_id )
+	  assert section.errors[ :project_id ].include?( I18n.t( 'activerecord.errors.models.section.attributes.project_id.blank' ) )
   end
 
-  def test_name_uniqueness_in_region
+  def test_name_uniqueness_in_project
     existing_section = Section.sham!
-    section = Section.sham!( :build, :region => existing_section.region, :name => existing_section.name )
+    section = Section.sham!( :build, :project => existing_section.project, :name => existing_section.name )
     refute section.valid?
 	  assert section.invalid?( :name )
 	  assert section.errors[ :name ].include?( I18n.t( 'activerecord.errors.models.section.attributes.name.taken' ) )
   end
 
-  def test_should_allow_same_names_in_different_regions
-    existing_section = Section.sham!( :build, :region => Region.sham! )
-    section = Section.sham!( :build, :region => Region.sham!, :name => existing_section.name )
+  def test_should_allow_same_names_in_different_projects
+    existing_section = Section.sham!( :build, :project => Project.sham! )
+    section = Section.sham!( :build, :project => Project.sham!, :name => existing_section.name )
     assert section.valid?
   end
 
@@ -73,12 +73,12 @@ class SectionTest < ActiveSupport::TestCase
     user = User.sham!
     expected = []
     5.times do
-      region = ResearchParticipation.sham!(user: user).region
-      expected << Section.sham!(region: region)
+      project = ResearchParticipation.sham!(user: user).project
+      expected << Section.sham!(project: project)
     end
     3.times do
-      region = ResearchParticipation.sham!(user: User.sham!).region
-      Section.sham!(region: region)
+      project = ResearchParticipation.sham!(user: User.sham!).project
+      Section.sham!(project: project)
     end
 
     received = Section.viewable_by(user)
@@ -90,16 +90,16 @@ class SectionTest < ActiveSupport::TestCase
     user = User.sham!
     expected = []
     3.times do
-      region = ResearchParticipation.sham!(user: user, manager: true).region
-      expected << Section.sham!(region: region)
+      project = ResearchParticipation.sham!(user: user, manager: true).project
+      expected << Section.sham!(project: project)
     end
     3.times do
-      region = ResearchParticipation.sham!( user: user, manager: false).region
-      Section.sham!(region: region)
+      project = ResearchParticipation.sham!( user: user, manager: false).project
+      Section.sham!(project: project)
     end
     3.times do
-      region = ResearchParticipation.sham!(user: User.sham!).region
-      Section.sham!(region: region)
+      project = ResearchParticipation.sham!(user: User.sham!).project
+      Section.sham!(project: project)
     end
 
     received = Section.manageable_by user

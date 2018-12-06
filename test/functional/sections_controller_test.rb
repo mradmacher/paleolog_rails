@@ -2,14 +2,14 @@ require 'test_helper'
 
 class SectionsControllerTest < ActionController::TestCase
   setup do
-    @region = Region.sham!
-    @section = Section.sham!( region: @region )
+    @project = Project.sham!
+    @section = Section.sham!( project: @project )
   end
 
   context 'for guest' do
     should 'refute to GET index' do
       assert_raise( User::NotAuthorized ) do
-        get :index, region_id: @region.id
+        get :index, project_id: @project.id
       end
     end
 
@@ -27,7 +27,7 @@ class SectionsControllerTest < ActionController::TestCase
 
     should 'refute to GET new' do
       assert_raise( User::NotAuthorized ) do
-        get :new, region_id: @region.id
+        get :new, project_id: @project.id
       end
     end
 
@@ -39,7 +39,7 @@ class SectionsControllerTest < ActionController::TestCase
 
     should 'refute to POST create' do
       assert_raise( User::NotAuthorized ) do
-        post :create, section: Section.sham!( :build, region: @region ).attributes
+        post :create, section: Section.sham!( :build, project: @project ).attributes
       end
     end
 
@@ -58,12 +58,12 @@ class SectionsControllerTest < ActionController::TestCase
 
     context 'GET index' do
       should 'be successful' do
-        get :index, format: :json, region_id: @region.to_param
+        get :index, format: :json, project_id: @project.to_param
         assert_response :success
       end
 
       should 'not assign sections' do
-        get :index, format: :json, region_id: @region.to_param
+        get :index, format: :json, project_id: @project.to_param
         assert assigns( :sections ).empty?
       end
     end
@@ -86,17 +86,17 @@ class SectionsControllerTest < ActionController::TestCase
 
     context 'GET new' do
       should 'be successful' do
-        get :new, region_id: @region.id
+        get :new, project_id: @project.id
         assert_response :success
-        assert_equal @region, assigns( :section ).region
+        assert_equal @project, assigns( :section ).project
 
-        assert_link region_path( @region )
+        assert_link project_path( @project )
       end
     end
 
     context 'POST create' do
       should 'be successful' do
-        section = Section.sham!( :build, region: @region )
+        section = Section.sham!( :build, project: @project )
         assert_difference( 'Section.count' ) do
           post :create, section: section.attributes
         end
@@ -126,18 +126,18 @@ class SectionsControllerTest < ActionController::TestCase
   context 'for user in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!(user: @user, region: @section.region, manager: false)
+      ResearchParticipation.sham!(user: @user, project: @section.project, manager: false)
       login @user
     end
 
     context 'GET index' do
       should 'be successful' do
-        get :index, format: :json, region_id: @region.to_param
+        get :index, format: :json, project_id: @project.to_param
         assert_response :success
       end
 
       should 'assign sections for user in research' do
-        get :index, format: :json, region_id: @region.to_param
+        get :index, format: :json, project_id: @project.to_param
         assert_response :success
         assert_equal [@section], assigns( :sections )
       end
@@ -168,17 +168,17 @@ class SectionsControllerTest < ActionController::TestCase
 
     context 'GET new' do
       should 'be successful' do
-        get :new, region_id: @region.id
+        get :new, project_id: @project.id
         assert_response :success
-        assert_equal @region, assigns( :section ).region
+        assert_equal @project, assigns( :section ).project
 
-        assert_link region_path( @region )
+        assert_link project_path( @project )
       end
     end
 
     context 'POST create' do
       should 'be successful' do
-        section = Section.sham!( :build, region: @region )
+        section = Section.sham!( :build, project: @project )
         assert_difference( 'Section.count' ) do
           post :create, section: section.attributes
         end
@@ -208,7 +208,7 @@ class SectionsControllerTest < ActionController::TestCase
   context 'for manager in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!(user: @user, region: @section.region, manager: true)
+      ResearchParticipation.sham!(user: @user, project: @section.project, manager: true)
       login @user
     end
 
@@ -251,7 +251,7 @@ class SectionsControllerTest < ActionController::TestCase
         assert_difference( 'Section.count', -1 ) do
           delete :destroy, id: @section.id
         end
-        assert_redirected_to region_path( id: @region.to_param )
+        assert_redirected_to project_path( id: @project.to_param )
       end
     end
   end

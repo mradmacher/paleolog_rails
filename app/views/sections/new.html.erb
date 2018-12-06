@@ -1,6 +1,6 @@
-<%= render_title @section.region.name %>
-<%= render 'regions/navigation' %>
-<%= render_actions [[ 'Cancel', region_path( @section.region_id ) ]] %>
+<%= render_title @section.project.name %>
+<%= render 'projects/navigation' %>
+<%= render_actions [[ 'Cancel', project_path( @section.project_id ) ]] %>
 <%= render_heading 'New section' %>
 
 <%= render :partial => 'form' %>

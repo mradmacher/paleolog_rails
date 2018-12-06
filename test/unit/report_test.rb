@@ -3,7 +3,7 @@ require 'test_helper'
 class ReportTest < ActiveSupport::TestCase
   setup do
     @section = Section.sham!
-    @counting = Counting.sham!(region: @section.region)
+    @counting = Counting.sham!(project: @section.project)
     @samples = []
     [100, 200, 300].each do |depth|
       @samples << Sample.sham!(section: @section, bottom_depth: depth)

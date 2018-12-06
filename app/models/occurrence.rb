@@ -17,7 +17,7 @@ class Occurrence < ActiveRecord::Base
   validates :counting_id, presence: true
   validates :sample_id, presence: true
 	validates :status, presence: true, inclusion: { in: [NORMAL, OUTSIDE_COUNT, CARVING, REWORKING] }
-  validate :counting_and_sample_from_same_region
+  validate :counting_and_sample_from_same_project
 
   default_scope -> { order(:rank) }
 	scope :countable, -> { where('status = ?', NORMAL) }
@@ -29,8 +29,8 @@ class Occurrence < ActiveRecord::Base
   scope :ordered_by_occurrence, -> { order(:rank) }
   scope :ordered_by_depth, -> { joins(:sample).order('samples.bottom_depth') }
 
-  scope :viewable_by, lambda { |user| joins(sample: { section: { region: :research_participations }} ).where(research_participations: { user_id: user.id }) }
-  scope :manageable_by, lambda { |user| joins(sample: { section: { region: :research_participations }} ).where(research_participations: { user_id: user.id, manager: true }) }
+  scope :viewable_by, lambda { |user| joins(sample: { section: { project: :research_participations }} ).where(research_participations: { user_id: user.id }) }
+  scope :manageable_by, lambda { |user| joins(sample: { section: { project: :research_participations }} ).where(research_participations: { user_id: user.id, manager: true }) }
 
   def manageable_by?( user )
     !sample.nil? && sample.manageable_by?(user)
@@ -63,8 +63,8 @@ class Occurrence < ActiveRecord::Base
 
   private
 
-  def counting_and_sample_from_same_region
+  def counting_and_sample_from_same_project
     self.errors[:sample_id] << I18n.t('activerecord.errors.models.occurrence.attributes.sample_id.invalid') if
-      self.counting && self.sample && self.counting.region_id != self.sample.section.region_id
+      self.counting && self.sample && self.counting.project_id != self.sample.section.project_id
   end
 end

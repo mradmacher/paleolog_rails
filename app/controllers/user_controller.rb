@@ -9,7 +9,7 @@ class UserController < ApplicationController
     if user
       session[:user_id] = user.id
       flash[:notice] = 'You are logged in.'
-      redirect_to regions_url
+      redirect_to projects_url
     else
       session[:user_id] = nil
       @user.password = nil

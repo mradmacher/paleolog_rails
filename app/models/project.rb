@@ -1,4 +1,4 @@
-class Region < ActiveRecord::Base
+class Project < ActiveRecord::Base
 	has_many :sections
 
 	NAME_MIN_LENGTH = 1
@@ -17,7 +17,7 @@ class Region < ActiveRecord::Base
 
   before_destroy do
     unless self.sections.empty?
-      errors[:base] << I18n.t('activerecord.errors.models.region.sections.exist')
+      errors[:base] << I18n.t('activerecord.errors.models.project.sections.exist')
       false
     end
   end

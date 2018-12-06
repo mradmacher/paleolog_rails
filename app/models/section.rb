@@ -5,13 +5,13 @@ class Section < ActiveRecord::Base
 
   has_many :samples, -> { order(:bottom_depth) }
   has_many :users, :through => :research_participations
-  belongs_to :region
+  belongs_to :project
 
-  validates :name, :presence => true, :length => { :within => NAME_RANGE }, :uniqueness => { :scope => :region_id }
-  validates :region_id, :presence => true
+  validates :name, :presence => true, :length => { :within => NAME_RANGE }, :uniqueness => { :scope => :project_id }
+  validates :project_id, :presence => true
 
-  scope :viewable_by, lambda { |user| joins(region: :research_participations).where(research_participations: { user_id: user.id }) }
-  scope :manageable_by, lambda { |user| joins(region: :research_participations).where(research_participations: { user_id: user.id, manager: true }) }
+  scope :viewable_by, lambda { |user| joins(project: :research_participations).where(research_participations: { user_id: user.id }) }
+  scope :manageable_by, lambda { |user| joins(project: :research_participations).where(research_participations: { user_id: user.id, manager: true }) }
 
   before_destroy do
     unless self.samples.empty?
@@ -21,11 +21,11 @@ class Section < ActiveRecord::Base
   end
 
   def manageable_by?(user)
-    !self.region.nil? && self.region.research_participations.where(user_id: user.id, manager: true).exists?
+    !self.project.nil? && self.project.research_participations.where(user_id: user.id, manager: true).exists?
   end
 
   def viewable_by?(user)
-    !self.region.nil? && self.region.research_participations.where(user_id: user.id).exists?
+    !self.project.nil? && self.project.research_participations.where(user_id: user.id).exists?
   end
 
   def ordered_samples

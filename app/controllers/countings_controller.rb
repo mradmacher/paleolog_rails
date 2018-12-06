@@ -12,30 +12,30 @@ class CountingsController < ApplicationController
   end
 
   def index
-    @region = Region.viewable_by(current_user).find(params[:region_id])
+    @project = Project.viewable_by(current_user).find(params[:project_id])
     respond_to do |format|
       format.json do
-        render json: @countings = @region.countings
+        render json: @countings = @project.countings
       end
     end
   end
 
   def show
     @counting = Counting.viewable_by(current_user).find(params[:id])
-		@region = @counting.region
+		@project = @counting.project
   end
 
   def edit
     @counting = Counting.viewable_by(current_user).find(params[:id])
     raise User::NotAuthorized unless @counting.manageable_by? current_user
-		@region = @counting.region
+		@project = @counting.project
   end
 
   def new
-    @region = Region.find(params[:region_id])
-    raise User::NotAuthorized unless @region.manageable_by?(current_user)
+    @project = Project.find(params[:project_id])
+    raise User::NotAuthorized unless @project.manageable_by?(current_user)
     @counting = Counting.new
-    @counting.region = @region
+    @counting.project = @project
   end
 
   def create
@@ -66,10 +66,10 @@ class CountingsController < ApplicationController
     raise User::NotAuthorized unless @counting.manageable_by? current_user
 		@counting.destroy
     flash[:notice] = 'Counting was successfully deleted.'
-    redirect_to region_url(@counting.region)
+    redirect_to project_url(@counting.project)
   end
 
   def counting_params
-    params.require(:counting).permit(:name, :region_id, :group_id, :marker_id, :marker_count)
+    params.require(:counting).permit(:name, :project_id, :group_id, :marker_id, :marker_count)
   end
 end
