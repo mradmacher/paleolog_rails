@@ -59,9 +59,9 @@ Sham.config( Region ) do |c|
   end
 end
 
-Sham.config( Well ) do |c|
+Sham.config(Section) do |c|
   c.attributes do
-    { :name => fake_string( Well, :name, Well::NAME_MIN_LENGTH, Well::NAME_MAX_LENGTH ),
+    { :name => fake_string(Section, :name, Section::NAME_MIN_LENGTH, Section::NAME_MAX_LENGTH ),
       :region => Sham::Nested.new( Region )
     }
   end
@@ -79,24 +79,24 @@ end
 Sham.config(Sample) do |c|
   c.attributes do
     {
-      :name => fake_string( Sample, :name, Sample::NAME_MIN_LENGTH, Sample::NAME_MAX_LENGTH ),
-      :well => Sham::Nested.new( Well ),
-      :top_depth => -20.0,
-      :bottom_depth => -45.5
+      name: fake_string( Sample, :name, Sample::NAME_MIN_LENGTH, Sample::NAME_MAX_LENGTH ),
+      section: Sham::Nested.new(Section),
+      top_depth: -20.0,
+      bottom_depth: -45.5
     }
   end
 end
 
 Sham.config(Occurrence) do |c|
-  well = Well.sham!
+  section = Section.sham!
 
   c.attributes do
     { :specimen => Sham::Nested.new( Specimen ),
       :quantity => (1..100).to_a.sample,
       :rank => Occurrence.maximum(:rank).nil? ? 0 : Occurrence.maximum(:rank) + 1,
       :status => Occurrence::NORMAL,
-      :sample => Sham::Nested.new(Sample, well: well),
-      :counting => Sham::Nested.new(Counting, region: well.region)
+      :sample => Sham::Nested.new(Sample, section: section),
+      :counting => Sham::Nested.new(Counting, region: section.region)
     }
   end
 end

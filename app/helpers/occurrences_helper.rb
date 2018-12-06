@@ -33,8 +33,8 @@ module OccurrencesHelper
 
   def occurrence_navigation_for( view )
     menu = Menu.new
-    menu.add( 'Wells', wells_path )
-    menu.add( @counting.sample.well.name, well_path( @counting.sample.well_id ) )
+    menu.add( 'Sections', sections_path )
+    menu.add( @counting.sample.section.name, section_path( @counting.sample.section_id ) )
     menu.add( @counting.sample.name, sample_path( @counting.sample_id ) )
     case view
       when 'edit_specimens'

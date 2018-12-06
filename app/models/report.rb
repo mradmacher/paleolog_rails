@@ -5,7 +5,7 @@ require 'paleorep/column_group'
 require 'paleorep/report'
 
 class Report
-	attr_accessor :type, :counting_id, :well_id, :sample_ids, :species_ids,
+	attr_accessor :type, :counting_id, :section_id, :sample_ids, :species_ids,
     :view, :charts, :orientation, :show_symbols, :percentages,
     :column_criteria, :row_criteria
 	attr_reader :column_headers, :row_headers, :values, :splits, :title
@@ -128,7 +128,7 @@ class Report
 
 
 	def initialize
-		@params = [:well_id, :counting]
+		@params = [:section_id, :counting]
 		@row_headers = []
 		@column_headers = []
 		@values = []
@@ -140,7 +140,7 @@ class Report
     @report.type = params[:type]
     @report.view = params[:view]
 		@report.counting_id = params[:counting_id]
-		@report.well_id = params[:well_id]
+		@report.section_id = params[:section_id]
     @report.show_symbols = params[:show_symbols]
     @report.orientation = params[:orientation]
     @report.percentages = params[:percentages]
@@ -206,7 +206,7 @@ class Report
         column_group.headers << Paleorep::Field.new(s, species_textizer)
       end
       occurrence_textizer = if self.type == DENSITY
-          density_map = self.counting.occurrence_density_map(well)
+          density_map = self.counting.occurrence_density_map(section)
           OccurrenceDensityTextizer.new(density_map)
         else
           OccurrenceQuantityTextizer.new(@show_symbols.to_i > 0)
@@ -358,7 +358,7 @@ class Report
   end
 
 	def generate
-    samples, species, occurrences = counting.summary(well)
+    samples, species, occurrences = counting.summary(section)
 
     report = Paleorep::Report.new
     @row_criteria.each_value do |criteria|
@@ -409,9 +409,9 @@ class Report
     @counting
   end
 
-  def well
-    @well = Well.find(self.well_id) if @well.nil? && self.well_id
-    @well
+  def section
+    @section = Section.find(self.section_id) if @section.nil? && self.section_id
+    @section
   end
 
 end

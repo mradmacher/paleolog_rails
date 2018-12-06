@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181127184453) do
+ActiveRecord::Schema.define(version: 20181206173645) do
 
   create_table "choices", force: :cascade do |t|
     t.string  "name"
@@ -104,13 +104,20 @@ ActiveRecord::Schema.define(version: 20181127184453) do
 
   create_table "samples", force: :cascade do |t|
     t.string   "name"
-    t.integer  "well_id"
+    t.integer  "section_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.decimal  "bottom_depth"
     t.decimal  "top_depth"
     t.text     "description"
     t.decimal  "weight"
+  end
+
+  create_table "sections", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "region_id"
   end
 
   create_table "specimens", force: :cascade do |t|
@@ -133,13 +140,6 @@ ActiveRecord::Schema.define(version: 20181127184453) do
     t.datetime "updated_at"
     t.string   "login"
     t.boolean  "admin",      default: false
-  end
-
-  create_table "wells", force: :cascade do |t|
-    t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "region_id"
   end
 
 end

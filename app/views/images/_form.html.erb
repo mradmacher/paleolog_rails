@@ -2,17 +2,17 @@
 	option_tag = function( value, text ) {
 		return $( "<option></option>" ).attr({ value: value }).append( text );
 	};
-	populate_well_tag = function( well_tag, sample_tag, parent_id ) {
-    well_tag.empty();
+	populate_section_tag = function( section_tag, sample_tag, parent_id ) {
+    section_tag.empty();
     sample_tag.empty();
     if( parent_id != '' ) {
-      $.get( "/wells.json", { region_id: parent_id }, function( wells ) {
-        for( i in wells ) {
-          well_tag.append( option_tag( wells[i].id, wells[i].name ) );
+      $.get( "/sections.json", { region_id: parent_id }, function( sections ) {
+        for( i in sections ) {
+          section_tag.append( option_tag( sections[i].id, sections[i].name ) );
         }
-        var well_id = well_tag.select( "option:selected" ).val();
-        if( well_id != '' ) {
-          populate_sample_tag( sample_tag, well_id );
+        var section_id = section_tag.select( "option:selected" ).val();
+        if( section_id != '' ) {
+          populate_sample_tag( sample_tag, section_id );
         }
       });
     } else {
@@ -20,10 +20,10 @@
     }
 	};
 
-  populate_sample_tag = function( sample_tag, well_id ) {
+  populate_sample_tag = function( sample_tag, section_id ) {
     sample_tag.empty();
-    if( well_id != '' ) {
-      $.get( '/samples.json', { well_id: well_id }, function( samples ) {
+    if( section_id != '' ) {
+      $.get( '/samples.json', { section_id: section_id }, function( samples ) {
         for( i in samples ) {
           sample_tag.append( option_tag( samples[i].id, samples[i].name ) );
         }
@@ -47,7 +47,7 @@
 
 	$( function () {
       var region_tag = $( "#region_id" );
-      var well_tag = $( "#well_id" );
+      var section_tag = $( "#section_id" );
       var sample_tag = $( "#image_sample_id" );
       var group_tag = $( "#group_id" );
       var specimen_tag = $( "#image_specimen_id" );
@@ -58,10 +58,10 @@
         populate_specimen_tag( specimen_tag, group_tag.select( "option:selected" ).val() ); 
       });
       region_tag.change( function() {
-        populate_well_tag( well_tag, sample_tag, region_tag.select( "option:selected" ).val() ); 
+        populate_section_tag( section_tag, sample_tag, region_tag.select( "option:selected" ).val() ); 
       });
-      well_tag.change( function() {
-        populate_sample_tag( sample_tag, well_tag.select( "option:selected" ).val() );
+      section_tag.change( function() {
+        populate_sample_tag( sample_tag, section_tag.select( "option:selected" ).val() );
       });
 	});
 </script>
@@ -103,16 +103,16 @@
   <% unless @image.sample.nil? %>
     <p>
     <%= label_tag :region_id %>
-    <%= select_tag :region_id, options_from_collection_for_select( Region.all, :id, :name, @image.sample.well.region_id ),
+    <%= select_tag :region_id, options_from_collection_for_select( Region.all, :id, :name, @image.sample.section.region_id ),
       {:include_blank => true} %>
     </p>
     <p>
-    <%= label_tag :well_id %>
-    <%= select_tag :well_id, options_from_collection_for_select( @image.sample.well.region.wells, :id, :name, @image.sample.well_id ) %>
+    <%= label_tag :section_id %>
+    <%= select_tag :section_id, options_from_collection_for_select( @image.sample.section.region.sections, :id, :name, @image.sample.section_id ) %>
     </p>
     <p>
       <%= f.label :sample_id %>
-      <%= f.collection_select :sample_id, @image.sample.well.samples, :id, :name  %>
+      <%= f.collection_select :sample_id, @image.sample.section.samples, :id, :name  %>
     </p>
   <% else %>
     <p>
@@ -120,8 +120,8 @@
     <%= select_tag :region_id, options_from_collection_for_select( Region.all, :id, :name ), {:include_blank => true} %>
     </p>
     <p>
-    <%= label_tag :well_id %>
-    <%= select_tag :well_id, [] %>
+    <%= label_tag :section_id %>
+    <%= select_tag :section_id, [] %>
     </p>
     <p>
       <%= f.label :sample_id %>

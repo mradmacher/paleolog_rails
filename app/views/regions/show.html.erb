@@ -3,11 +3,11 @@
 
 <% actions = [] %>
 <% if @region.manageable_by?(current_user) %>
-	<% actions << ['Add well', new_region_well_path(@region)] <<
+	<% actions << ['Add section', new_region_section_path(@region)] <<
     ['Add counting', new_region_counting_path(@region)] <<
     ['Add researcher', new_region_research_participation_path(@region.id)] %>
 	<% actions << ['Edit region', edit_region_path(@region)] %>
-	<% if @region.wells.empty? %>
+	<% if @region.sections.empty? %>
 		<% actions << ['Delete region', region_path(@region), { confirm: 'Are you sure', method: :delete }] %>
 	<% end %>
 <% end %>
@@ -21,15 +21,15 @@
 
 <table>
   <tr>
-    <th>Wells</th>
+    <th>Sections</th>
     <th>Countings</th>
     <th>Researchers</th>
   </tr>
   <tr>
     <td>
       <ul>
-      <% @region.wells.each do |well| %>
-        <li><%= link_to well.name, well_path(well) %>
+      <% @region.sections.each do |section| %>
+        <li><%= link_to section.name, section_path(section) %>
       <% end %>
       </ul>
     </td>

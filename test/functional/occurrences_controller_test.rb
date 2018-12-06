@@ -3,9 +3,9 @@ require 'test_helper'
 class OccurrencesControllerTest < ActionController::TestCase
   setup do
     @region = Region.sham!
-    @well = Well.sham!(region: @region)
+    @section = Section.sham!(region: @region)
     @counting = Counting.sham!(region: @region)
-    @sample = Sample.sham!(well: @well)
+    @sample = Sample.sham!(section: @section)
     @specimen = Specimen.sham!
     @occurrence = Occurrence.sham!(sample: @sample, counting: @counting, specimen: @specimen)
   end
@@ -164,7 +164,7 @@ class OccurrencesControllerTest < ActionController::TestCase
   context 'for user in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!(user: @user, region: @well.region, manager: false)
+      ResearchParticipation.sham!(user: @user, region: @section.region, manager: false)
       login( @user )
     end
 
@@ -245,7 +245,7 @@ class OccurrencesControllerTest < ActionController::TestCase
   context 'for manager in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!(user: @user, region: @well.region, manager: true)
+      ResearchParticipation.sham!(user: @user, region: @section.region, manager: true)
       login( @user )
     end
 

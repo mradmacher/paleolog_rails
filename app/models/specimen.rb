@@ -44,7 +44,7 @@ class Specimen < ActiveRecord::Base
   def self.search( params = {} )
     specimens = Specimen.all
     specimens = specimens.where(group_id: params[:group_id]) unless params[:group_id].blank?
-    specimens = specimens.joins(occurrences: :sample).where('samples.well_id' => params[:well_id]) unless params[:well_id].blank?
+    specimens = specimens.joins(occurrences: :sample).where('samples.section_id' => params[:section_id]) unless params[:section_id].blank?
     specimens = specimens.joins(:features).where('features.choice_id' => params[:choice_id]) unless params[:choice_id].blank?
     specimens = specimens.joins(:occurrences).
       where('occurrences.counting_id' => params[:counting_id]).uniq unless params[:counting_id].blank?

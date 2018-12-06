@@ -13,7 +13,7 @@ class User < ActiveRecord::Base
   has_many :account_participations
   has_many :accounts, :through => :account_participations
   has_many :research_participations
-  has_many :wells, :through => :research_participations
+  has_many :sections, :through => :research_participations
 
   HUMANIZED_ATTRIBUTES = {
     :name => 'Name',

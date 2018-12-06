@@ -1,6 +1,6 @@
-<%= render_title "#{@sample.well.region.name}" %>
-<%= render 'wells/navigation' %>
-<%= render_actions [['Cancel', well_path( @sample.well )]] %>
+<%= render_title "#{@sample.section.region.name}" %>
+<%= render 'sections/navigation' %>
+<%= render_actions [['Cancel', section_path( @sample.section )]] %>
 <%= render_heading 'New sample' %>
 
 <%= render :partial => 'form' %>

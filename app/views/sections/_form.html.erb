@@ -1,7 +1,7 @@
-<%= form_for(@well) do |f| %>
+<%= form_for(@section) do |f| %>
 	<%= f.error_messages %>
 	<fieldset>
-		<legend>Well</legend>
+		<legend>Section</legend>
 		<p>
 		<%= f.label :region_id %>
 		<%= f.collection_select :region_id, Region.all, :id, :name %>

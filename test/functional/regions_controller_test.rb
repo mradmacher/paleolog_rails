@@ -148,7 +148,7 @@ class RegionsControllerTest < ActionController::TestCase
 
       should 'show proper links' do
         get :show, :id => @region.id
-        assert_no_link new_region_well_path(@region)
+        assert_no_link new_region_section_path(@region)
         assert_no_link edit_region_path(@region)
         assert_no_delete_link region_path(@region)
       end
@@ -208,17 +208,17 @@ class RegionsControllerTest < ActionController::TestCase
     context 'GET show' do
       should 'show proper links' do
         get :show, id: @region.id
-        assert_link new_region_well_path(@region)
+        assert_link new_region_section_path(@region)
         assert_link edit_region_path(@region)
       end
 
-      should 'not show delete link for region with wells' do
-        well = Well.sham!(region: @region)
+      should 'not show delete link for region with sections' do
+        section = Section.sham!(region: @region)
         get :show, id: @region.id
         assert_no_delete_link region_path(@region)
       end
 
-      should 'show delete link for region without wells' do
+      should 'show delete link for region without sections' do
         get :show, id: @region.id
         assert_delete_link region_path(@region)
       end

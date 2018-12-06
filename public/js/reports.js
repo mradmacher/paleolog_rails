@@ -14,22 +14,22 @@ $(function() {
     return label;
   }
 
-  get_samples = function(well_id, callback) {
-    $.get( '/samples.json', { well_id: well_id }, function( samples ) {
+  get_samples = function(section_id, callback) {
+    $.get( '/samples.json', { section_id: section_id }, function( samples ) {
       callback(samples);
     });
   }
 
-  get_species = function(counting_id, well_id, filter_params, callback) {
-    var params = 'counting_id=' + counting_id + '&well_id=' + well_id + '&' + $.param(filter_params);
+  get_species = function(counting_id, section_id, filter_params, callback) {
+    var params = 'counting_id=' + counting_id + '&section_id=' + section_id + '&' + $.param(filter_params);
 		$.get( "/specimens/search.json", params, function( species ) {
       callback(species);
     });
   }
 
-  get_wells = function(region_id, callback) {
-		$.get("/wells.json", { region_id: region_id }, function(wells) {
-      callback(wells);
+  get_sections = function(region_id, callback) {
+		$.get("/sections.json", { region_id: region_id }, function(sections) {
+      callback(sections);
     });
   }
 
@@ -43,8 +43,8 @@ $(function() {
     return $("#region_id");
   }
 
-  get_well_tag = function() {
-    return $("#well_id");
+  get_section_tag = function() {
+    return $("#section_id");
   }
 
   get_counting_tag = function() {
@@ -55,17 +55,17 @@ $(function() {
     return get_region_tag().select("option:selected").val();
   }
 
-  get_selected_well = function() {
-    return get_well_tag().select( "option:selected" ).val();
+  get_selected_section = function() {
+    return get_section_tag().select( "option:selected" ).val();
   }
 
   get_selected_counting = function() {
     return get_counting_tag().select( "option:selected" ).val();
   }
 
-  load_wells = function() {
-    get_wells(get_selected_region(), function(wells) {
-      populate_well_tag(wells);
+  load_sections = function() {
+    get_sections(get_selected_region(), function(sections) {
+      populate_section_tag(sections);
       populate_selections('samples');
     });
   }
@@ -77,11 +77,11 @@ $(function() {
     });
   }
 
-	populate_well_tag = function(wells) {
-    well_tag = get_well_tag();
-    well_tag.empty();
-    for(i in wells) {
-      well_tag.append(option_tag(wells[i].id, wells[i].name));
+	populate_section_tag = function(sections) {
+    section_tag = get_section_tag();
+    section_tag.empty();
+    for(i in sections) {
+      section_tag.append(option_tag(sections[i].id, sections[i].name));
     }
 	};
 
@@ -126,14 +126,14 @@ $(function() {
     });
   }
 
-  populate_tag = function(source, vector, index, well_id, counting_id) {
+  populate_tag = function(source, vector, index, section_id, counting_id) {
     switch(source) {
       case 'samples':
-        get_samples(well_id, function(samples) {
+        get_samples(section_id, function(samples) {
           populate_selection_tag(vector, index, 'sample_ids', samples);
         }); break;
       case 'species':
-        get_species(counting_id, well_id, get_filter_params(vector, index), function(species) {
+        get_species(counting_id, section_id, get_filter_params(vector, index), function(species) {
           populate_selection_tag(vector, index, 'species_ids', species);
         }); break;
     }
@@ -148,7 +148,7 @@ $(function() {
       var ids = selection.find('.ids');
 
       if( filter.attr('data-source') == source ) {
-        populate_tag(source, vector, index, get_selected_well(), get_selected_counting());
+        populate_tag(source, vector, index, get_selected_section(), get_selected_counting());
         var filter_key = filter.attr("data-filter-key");
 
         selection.find('.all').change(function() {
@@ -164,14 +164,14 @@ $(function() {
       index = filter.closest('.vector').attr('data-index');
       vector = filter.closest('.vector').attr('data-vector');
       source = filter.attr('data-source');
-      populate_tag(source, vector, index, get_selected_well(), get_selected_counting());
+      populate_tag(source, vector, index, get_selected_section(), get_selected_counting());
     });
 
     get_region_tag().change( function() {
-      load_wells();
+      load_sections();
       load_countings();
     });
-    get_well_tag().change( function() {
+    get_section_tag().change( function() {
       populate_selections('samples');
       populate_selections('species');
     });
@@ -179,7 +179,7 @@ $(function() {
       populate_selections('species');
     });
 
-    load_wells();
+    load_sections();
     load_countings();
   }
 });

@@ -76,8 +76,8 @@ en:
             specimen_id:
               blank: can't be blank
         region:
-          wells:
-            exist: can't delete region with wells
+          sections:
+            exist: can't delete region with sections
           attributes:
             account_id:
               blank: can't be blank
@@ -86,7 +86,7 @@ en:
               too_short: is too short (minimum is %{count} characters)
               too_long: is too long (maximum is %{count} characters)
               taken: has already been taken
-        well:
+        section:
           samples:
             exist: can't delete region with samples
           attributes:
@@ -124,7 +124,7 @@ en:
               too_short: is too short (minimum is %{count} characters)
               too_long: is too long (maximum is %{count} characters)
               taken: has already been taken
-            well_id:
+            section_id:
               blank: can't be blank
             weight:
               not_a_number: should be a number
@@ -134,7 +134,7 @@ en:
             counting_id:
               blank: can't be blank
             sample_id:
-              invalid: sample and counting must be from the same well
+              invalid: sample and counting must be from the same section
               blank: can't be blank
             specimen_id:
               blank: can't be blank

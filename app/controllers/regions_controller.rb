@@ -50,12 +50,12 @@ class RegionsController < ApplicationController
 	def destroy
     @region = Region.viewable_by(current_user).find(params[:id])
     raise User::NotAuthorized unless @region.manageable_by?(current_user)
-		if @region.wells.empty?
+		if @region.sections.empty?
 			@region.destroy
 			flash[:notice] = 'Region was successfully deleted.'
 			redirect_to regions_url
 		else
-			flash[:notice] = 'Cannot delete region with wells.'
+			flash[:notice] = 'Cannot delete region with sections.'
 			redirect_to region_url(@region)
 		end
 	end

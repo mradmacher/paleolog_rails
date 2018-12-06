@@ -29,8 +29,8 @@ class Occurrence < ActiveRecord::Base
   scope :ordered_by_occurrence, -> { order(:rank) }
   scope :ordered_by_depth, -> { joins(:sample).order('samples.bottom_depth') }
 
-  scope :viewable_by, lambda { |user| joins(sample: { well: { region: :research_participations }} ).where(research_participations: { user_id: user.id }) }
-  scope :manageable_by, lambda { |user| joins(sample: { well: { region: :research_participations }} ).where(research_participations: { user_id: user.id, manager: true }) }
+  scope :viewable_by, lambda { |user| joins(sample: { section: { region: :research_participations }} ).where(research_participations: { user_id: user.id }) }
+  scope :manageable_by, lambda { |user| joins(sample: { section: { region: :research_participations }} ).where(research_participations: { user_id: user.id, manager: true }) }
 
   def manageable_by?( user )
     !sample.nil? && sample.manageable_by?(user)
@@ -65,6 +65,6 @@ class Occurrence < ActiveRecord::Base
 
   def counting_and_sample_from_same_region
     self.errors[:sample_id] << I18n.t('activerecord.errors.models.occurrence.attributes.sample_id.invalid') if
-      self.counting && self.sample && self.counting.region_id != self.sample.well.region_id
+      self.counting && self.sample && self.counting.region_id != self.sample.section.region_id
   end
 end

@@ -149,10 +149,10 @@ class SpecimenTest < ActiveSupport::TestCase
         @counting1 = Counting.sham!(region: region)
         @counting2 = Counting.sham!(region: region)
 
-        @well1 = Well.sham!(region: region)
-        @well2 = Well.sham!(region: region)
-        @well3 = Well.sham!(region: region)
-        @well4 = Well.sham!(region: region)
+        @section1 = Section.sham!(region: region)
+        @section2 = Section.sham!(region: region)
+        @section3 = Section.sham!(region: region)
+        @section4 = Section.sham!(region: region)
 
         @species1 = Specimen.sham!
         @species2 = Specimen.sham!
@@ -163,15 +163,15 @@ class SpecimenTest < ActiveSupport::TestCase
         @species7 = Specimen.sham!
         @species8 = Specimen.sham!
 
-        Occurrence.sham!( counting: @counting1, sample: Sample.sham!( well: @well1 ), specimen: @species1 )
-        Occurrence.sham!( counting: @counting1, sample: Sample.sham!( well: @well1 ), specimen: @species2 )
-        Occurrence.sham!( counting: @counting1, sample: Sample.sham!( well: @well2 ), specimen: @species3 )
-        Occurrence.sham!( counting: @counting1, sample: Sample.sham!( well: @well2 ), specimen: @species4 )
+        Occurrence.sham!( counting: @counting1, sample: Sample.sham!( section: @section1 ), specimen: @species1 )
+        Occurrence.sham!( counting: @counting1, sample: Sample.sham!( section: @section1 ), specimen: @species2 )
+        Occurrence.sham!( counting: @counting1, sample: Sample.sham!( section: @section2 ), specimen: @species3 )
+        Occurrence.sham!( counting: @counting1, sample: Sample.sham!( section: @section2 ), specimen: @species4 )
 
-        Occurrence.sham!( counting: @counting2, sample: Sample.sham!( well: @well1 ), specimen: @species5 )
-        Occurrence.sham!( counting: @counting2, sample: Sample.sham!( well: @well1 ), specimen: @species6 )
-        Occurrence.sham!( counting: @counting2, sample: Sample.sham!( well: @well2 ), specimen: @species7 )
-        Occurrence.sham!( counting: @counting2, sample: Sample.sham!( well: @well2 ), specimen: @species8 )
+        Occurrence.sham!( counting: @counting2, sample: Sample.sham!( section: @section1 ), specimen: @species5 )
+        Occurrence.sham!( counting: @counting2, sample: Sample.sham!( section: @section1 ), specimen: @species6 )
+        Occurrence.sham!( counting: @counting2, sample: Sample.sham!( section: @section2 ), specimen: @species7 )
+        Occurrence.sham!( counting: @counting2, sample: Sample.sham!( section: @section2 ), specimen: @species8 )
       end
 
       should 'return all for nil filter' do
@@ -201,8 +201,8 @@ class SpecimenTest < ActiveSupport::TestCase
         end
       end
 
-      should 'return only for given well' do
-        result = Specimen.search(well_id: @well1.id)
+      should 'return only for given section' do
+        result = Specimen.search(section_id: @section1.id)
         expected = [@species1, @species2, @species5, @species6]
         assert_equal expected.size, result.size
         expected.each do |species|
@@ -210,8 +210,8 @@ class SpecimenTest < ActiveSupport::TestCase
         end
       end
 
-      should 'return only for given well and counting' do
-        result = Specimen.search(well_id: @well1.id, counting_id: @counting1.id)
+      should 'return only for given section and counting' do
+        result = Specimen.search(section_id: @section1.id, counting_id: @counting1.id)
         expected = [@species1, @species2]
         assert_equal expected.size, result.size
         expected.each do |species|

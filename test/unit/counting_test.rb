@@ -97,9 +97,9 @@ class CountingTest < ActiveSupport::TestCase
 
   context 'group_per_gram' do
     setup do
-      well = Well.sham!
-      @counting = Counting.sham! region: well.region
-      @sample = Sample.sham! well: well
+      section = Section.sham!
+      @counting = Counting.sham! region: section.region
+      @sample = Sample.sham! section: section
       @group = Group.sham!
       @marker = Specimen.sham!
       Occurrence.sham!( counting: @counting, sample: @sample, specimen: Specimen.sham!( group: @group ), quantity: 15 )
@@ -153,9 +153,9 @@ class CountingTest < ActiveSupport::TestCase
 
   context 'occurrence_density_map' do
     setup do
-      @well = Well.sham!
-      @counting = Counting.sham!(region: @well.region)
-      @sample = Sample.sham!(well: @well)
+      @section = Section.sham!
+      @counting = Counting.sham!(region: @section.region)
+      @sample = Sample.sham!(section: @section)
       @group = Group.sham!
       @marker = Specimen.sham!
       @specimen15 = Specimen.sham!(group: @group)
@@ -176,35 +176,35 @@ class CountingTest < ActiveSupport::TestCase
       @sample.weight = nil
       @sample.save
 
-      assert @counting.occurrence_density_map(@well).empty?
+      assert @counting.occurrence_density_map(@section).empty?
 
       @counting.group = @group
-      assert @counting.occurrence_density_map(@well).empty?
+      assert @counting.occurrence_density_map(@section).empty?
 
       @counting.marker = @marker
-      assert @counting.occurrence_density_map(@well).empty?
+      assert @counting.occurrence_density_map(@section).empty?
 
       @counting.marker_count = 37
-      assert @counting.occurrence_density_map(@well).empty?
+      assert @counting.occurrence_density_map(@section).empty?
 
       @sample.weight = 4.1234
       @sample.save
-      assert @counting.occurrence_density_map(@well).empty?
+      assert @counting.occurrence_density_map(@section).empty?
 
       Occurrence.sham!(sample: @sample, counting: @counting, specimen: @marker, quantity: 20)
 
       @sample.weight = 0
       @sample.save
-      assert @counting.occurrence_density_map(@well).empty?
+      assert @counting.occurrence_density_map(@section).empty?
 
       @sample.weight = ''
       @sample.save
-      assert @counting.occurrence_density_map(@well).empty?
+      assert @counting.occurrence_density_map(@section).empty?
 
       @sample.weight = 4.1234
       @sample.save
       @counting.marker_count = ''
-      assert @counting.occurrence_density_map(@well).empty?
+      assert @counting.occurrence_density_map(@section).empty?
     end
 
     should 'return proper result' do
@@ -216,7 +216,7 @@ class CountingTest < ActiveSupport::TestCase
 
       Occurrence.sham!( sample: @sample, counting: @counting, specimen: @marker, quantity: 20 )
 
-      density_map = @counting.occurrence_density_map(@well)
+      density_map = @counting.occurrence_density_map(@section)
       refute density_map.empty?
       assert_equal 3, density_map.keys.size
       assert_equal 7, density_map[@occurrence15].round
@@ -227,11 +227,11 @@ class CountingTest < ActiveSupport::TestCase
 
   context 'for samples/species/occurrences' do
     setup do
-      @well = Well.sham!
-      @counting = Counting.sham!(region: @well.region)
+      @section = Section.sham!
+      @counting = Counting.sham!(region: @section.region)
       @samples = []
       [100, 200, 300, 400, 500, 600, 700].each do |depth|
-        @samples << Sample.sham!( well: @well, bottom_depth: depth )
+        @samples << Sample.sham!( section: @section, bottom_depth: depth )
       end
       @groups = [ Group.sham!, Group.sham! ]
 
@@ -272,7 +272,7 @@ class CountingTest < ActiveSupport::TestCase
           [ nil, nil, @occurrences[5][3], nil, @occurrences[5][2], @occurrences[5][1], @occurrences[5][0] ],
           [ @occurrences[6][0], nil, nil, nil, nil, nil, nil ]
         ]
-        samples, species, occurrences = @counting.summary(@well)
+        samples, species, occurrences = @counting.summary(@section)
         assert_equal expected_species, species
         assert_equal expected_samples, samples
         assert_equal expected_occurrences, occurrences
@@ -372,8 +372,8 @@ class CountingTest < ActiveSupport::TestCase
 
   context 'specimens_by_occurrence' do
     setup do
-      @well = Well.sham!
-      @counting = Counting.sham!(region: @well.region)
+      @section = Section.sham!
+      @counting = Counting.sham!(region: @section.region)
 
       sample_depth = {}
       @samples = []
@@ -386,7 +386,7 @@ class CountingTest < ActiveSupport::TestCase
         species = specimens.sample( Random.new.rand( 1..specimens.size ) )
         (1..species.size).to_a.each do |rank|
           unless sample_depth.keys.include?( depth )
-            sample_depth[depth] = Sample.sham!(well: @well, :bottom_depth => depth )
+            sample_depth[depth] = Sample.sham!(section: @section, :bottom_depth => depth )
             @samples << sample_depth[depth]
           end
           Occurrence.sham!( counting: @counting, sample: sample_depth[depth],
@@ -401,7 +401,7 @@ class CountingTest < ActiveSupport::TestCase
         a[:sample].bottom_depth == b[:sample].bottom_depth ? a[:rank] <=> b[:rank] : a[:sample].bottom_depth <=> b[:sample].bottom_depth }
       expected_specimen_ids = sorted.map{ |v| v[:species].id }.uniq
 
-      received_specimens = @counting.specimens_by_occurrence(@well.ordered_samples)
+      received_specimens = @counting.specimens_by_occurrence(@section.ordered_samples)
       assert_equal expected_specimen_ids.size, received_specimens.size
       assert_equal expected_specimen_ids, received_specimens.map{ |s| s.id }
     end
@@ -426,9 +426,9 @@ class CountingTest < ActiveSupport::TestCase
       species2 = Specimen.sham!( group: group )
       species3 = Specimen.sham!( group: group )
       other_species = Specimen.sham!
-      well = Well.sham!
-      counting = Counting.sham!(region: well.region)
-      sample = Sample.sham!(well: well)
+      section = Section.sham!
+      counting = Counting.sham!(region: section.region)
+      sample = Sample.sham!(section: section)
       Occurrence.sham!(counting: counting, sample: sample, specimen: species1)
       Occurrence.sham!(counting: counting, sample: sample, specimen: species3)
 
@@ -441,10 +441,10 @@ class CountingTest < ActiveSupport::TestCase
       species2 = Specimen.sham!( group: group )
       species3 = Specimen.sham!( group: group )
       other_species = Specimen.sham!
-      well = Well.sham!
-      counting = Counting.sham!(region: well.region)
-      sample = Sample.sham!(well: well)
-      other_sample = Sample.sham!(well: well)
+      section = Section.sham!
+      counting = Counting.sham!(region: section.region)
+      sample = Sample.sham!(section: section)
+      other_sample = Sample.sham!(section: section)
       Occurrence.sham!( counting: counting, sample: sample, specimen: species1 )
       Occurrence.sham!( counting: counting, sample: sample, specimen: species3 )
 

@@ -27,8 +27,8 @@ module ApplicationHelper
         specimen_content_menu_for action
       when 'regions'
         region_content_menu_for action
-      when 'wells'
-        well_content_menu_for action
+      when 'sections'
+        section_content_menu_for action
       when 'images'
         image_content_menu_for action
       when 'samples'
@@ -60,8 +60,8 @@ module ApplicationHelper
         specimen_navigation_for action
       when 'regions'
         region_navigation_for action
-      when 'wells'
-        well_navigation_for action
+      when 'sections'
+        section_navigation_for action
       when 'images'
         image_navigation_for action
       when 'samples'

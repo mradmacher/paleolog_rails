@@ -1,0 +1,6 @@
+<%= render_title @section.region.name %>
+<%= render 'navigation' %>
+<%= render_actions [[ 'Cancel', section_path( @section.id ) ]] %>
+<%= render_heading 'Editing section' %>
+
+<%= render :partial => 'form' %>

@@ -18,7 +18,7 @@ Taxa::Application.routes.draw do
   resources :research_participations, :only => [:show, :create, :destroy]
 
   resources :regions do
-    resources :wells, :only => [:index, :new]
+    resources :sections, :only => [:index, :new]
     resources :countings, :only => :new
     resources :research_participations, :only => [:new]
   end
@@ -29,7 +29,7 @@ Taxa::Application.routes.draw do
     end
   end
 
-  resources :wells, :except => :new do
+  resources :sections, :except => :new do
     resources :samples, :only => [:index, :new]
   end
 
@@ -57,6 +57,6 @@ Taxa::Application.routes.draw do
 
   resources :comments
 
-  root :to => 'site#index'
+  root to: 'site#index'
 end
 

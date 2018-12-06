@@ -22,7 +22,7 @@
 
 <% if current_user.admin? -%>
   <% unless @image.sample.nil? -%>
-    <p>Region: <%= @image.sample.well.region.name %>, Well: <%= @image.sample.well.name %>, Sample: <%= @image.sample.name %></p>
+    <p>Region: <%= @image.sample.section.region.name %>, Section: <%= @image.sample.section.name %>, Sample: <%= @image.sample.name %></p>
   <% end %>
   <p>EF: <%= @image.ef %></p>
 <% end -%>

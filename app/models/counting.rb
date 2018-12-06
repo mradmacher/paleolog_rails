@@ -48,9 +48,9 @@ class Counting < ActiveRecord::Base
     gpg = ((group_count/marker_count)*(self.marker_count/sample.weight))
   end
 
-  def occurrence_density_map(well)
+  def occurrence_density_map(section)
     density_map = {}
-    well.samples.each do |sample|
+    section.samples.each do |sample|
       next unless can_compute_density?(sample)
       marker_cnt = self.occurrences.from_sample(sample).where(specimen_id: self.marker_id).sum(:quantity)
       next if marker_cnt == 0
@@ -61,8 +61,8 @@ class Counting < ActiveRecord::Base
     density_map
   end
 
-  def summary(well)
-    samples_summary = well.ordered_samples
+  def summary(section)
+    samples_summary = section.ordered_samples
 
     species_summary = []
     species_summary = specimens_by_occurrence(samples_summary)

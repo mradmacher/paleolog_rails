@@ -51,14 +51,14 @@ class RegionTest < ActiveSupport::TestCase
 		assert region.errors[:name].include?( I18n.t( 'activerecord.errors.models.region.attributes.name.taken' ) )
   end
 
-  def test_should_not_destroy_countings_while_trying_todestroy_region_with_wells
+  def test_should_not_destroy_countings_while_trying_todestroy_region_with_sections
     region = Region.sham!
-    well = Well.sham!(region: region)
-    sample = Sample.sham!(well: well)
+    section = Section.sham!(region: region)
+    sample = Sample.sham!(section: section)
     counting = Counting.sham!(region: region)
     refute region.destroy
     assert Counting.where(id: counting.id).exists?
-    assert region.errors[:base].include?( I18n.t( 'activerecord.errors.models.region.wells.exist' ) )
+    assert region.errors[:base].include?( I18n.t( 'activerecord.errors.models.region.sections.exist' ) )
   end
 
   def test_destroying_region_destroyes_its_countings
@@ -79,16 +79,16 @@ class RegionTest < ActiveSupport::TestCase
     participations.each{ |c| refute ResearchParticipation.exists?(c.id) }
   end
 
-  def test_should_not_allow_destroying_region_with_wells
+  def test_should_not_allow_destroying_region_with_sections
     region = Region.sham!
-    well = Well.sham!( :region => region )
+    section = Section.sham!( :region => region )
     refute region.destroy
-    assert region.errors[:base].include?( I18n.t( 'activerecord.errors.models.region.wells.exist' ) )
+    assert region.errors[:base].include?( I18n.t( 'activerecord.errors.models.region.sections.exist' ) )
   end
 
-  def test_should_allow_destroying_region_without_wells
+  def test_should_allow_destroying_region_without_sections
     region = Region.sham!
-    assert region.wells.empty?
+    assert region.sections.empty?
     assert region.destroy
   end
 

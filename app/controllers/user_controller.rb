@@ -9,7 +9,7 @@ class UserController < ApplicationController
     if user
       session[:user_id] = user.id
       flash[:notice] = 'You are logged in.'
-      redirect_to root_url
+      redirect_to regions_url
     else
       session[:user_id] = nil
       @user.password = nil
@@ -21,7 +21,7 @@ class UserController < ApplicationController
   def logout
     session[:user_id] = nil
     flash[:notice] = 'You are logged out.'
-    redirect_to root_url(subdomain: false)
+    redirect_to root_url
   end
 
   def user_params

@@ -204,7 +204,7 @@ class CountingsControllerTest < ActionController::TestCase
       end
 
       should 'show proper actions for counting with occurrences' do
-        Occurrence.sham!(sample: Sample.sham!(well: Well.sham!(region: @region)), counting: @counting)
+        Occurrence.sham!(sample: Sample.sham!(section: Section.sham!(region: @region)), counting: @counting)
         get :show, id: @counting.id
         assert_link edit_counting_path(@counting)
         assert_no_delete_link counting_path(@counting)

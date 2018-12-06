@@ -1,9 +1,9 @@
 require 'test_helper'
 
-class WellsControllerTest < ActionController::TestCase
+class SectionsControllerTest < ActionController::TestCase
   setup do
     @region = Region.sham!
-    @well = Well.sham!( region: @region )
+    @section = Section.sham!( region: @region )
   end
 
   context 'for guest' do
@@ -15,13 +15,13 @@ class WellsControllerTest < ActionController::TestCase
 
     should 'refute to GET show' do
       assert_raise( User::NotAuthorized ) do
-        get :show, id: @well.id
+        get :show, id: @section.id
       end
     end
 
     should 'refute to GET edit' do
       assert_raise( User::NotAuthorized ) do
-        get :edit, id: @well.id
+        get :edit, id: @section.id
       end
     end
 
@@ -33,19 +33,19 @@ class WellsControllerTest < ActionController::TestCase
 
     should 'refute to PUT update' do
       assert_raise( User::NotAuthorized ) do
-        put :update, id: @well.id, well: @well.attributes
+        put :update, id: @section.id, section: @section.attributes
       end
     end
 
     should 'refute to POST create' do
       assert_raise( User::NotAuthorized ) do
-        post :create, well: Well.sham!( :build, region: @region ).attributes
+        post :create, section: Section.sham!( :build, region: @region ).attributes
       end
     end
 
     should 'refute to DELETE destroy' do
       assert_raise( User::NotAuthorized ) do
-        delete :destroy, id: @well.id
+        delete :destroy, id: @section.id
       end
     end
   end
@@ -62,16 +62,16 @@ class WellsControllerTest < ActionController::TestCase
         assert_response :success
       end
 
-      should 'not assign wells' do
+      should 'not assign sections' do
         get :index, format: :json, region_id: @region.to_param
-        assert assigns( :wells ).empty?
+        assert assigns( :sections ).empty?
       end
     end
 
     context 'GET show' do
       should 'not find record' do
         assert_raise( ActiveRecord::RecordNotFound ) do
-          get :show, id: @well.id
+          get :show, id: @section.id
         end
       end
     end
@@ -79,7 +79,7 @@ class WellsControllerTest < ActionController::TestCase
     context 'GET edit' do
       should 'not find record' do
         assert_raise( ActiveRecord::RecordNotFound ) do
-          get :edit, id: @well.id
+          get :edit, id: @section.id
         end
       end
     end
@@ -88,7 +88,7 @@ class WellsControllerTest < ActionController::TestCase
       should 'be successful' do
         get :new, region_id: @region.id
         assert_response :success
-        assert_equal @region, assigns( :well ).region
+        assert_equal @region, assigns( :section ).region
 
         assert_link region_path( @region )
       end
@@ -96,18 +96,18 @@ class WellsControllerTest < ActionController::TestCase
 
     context 'POST create' do
       should 'be successful' do
-        well = Well.sham!( :build, region: @region )
-        assert_difference( 'Well.count' ) do
-          post :create, well: well.attributes
+        section = Section.sham!( :build, region: @region )
+        assert_difference( 'Section.count' ) do
+          post :create, section: section.attributes
         end
-        assert_redirected_to well_path( id: assigns( :well ).to_param )
+        assert_redirected_to section_path( id: assigns( :section ).to_param )
       end
     end
 
     context 'PUT update' do
       should 'not find record' do
         assert_raise( ActiveRecord::RecordNotFound ) do
-          put :update, id: @well.id, well: @well.attributes
+          put :update, id: @section.id, section: @section.attributes
         end
       end
     end
@@ -115,8 +115,8 @@ class WellsControllerTest < ActionController::TestCase
     context 'DELETE destroy' do
       should 'not find record' do
         assert_raise( ActiveRecord::RecordNotFound ) do
-          assert_no_difference( 'Well.count' ) do
-            delete :destroy, id: @well.id
+          assert_no_difference( 'Section.count' ) do
+            delete :destroy, id: @section.id
           end
         end
       end
@@ -126,7 +126,7 @@ class WellsControllerTest < ActionController::TestCase
   context 'for user in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!(user: @user, region: @well.region, manager: false)
+      ResearchParticipation.sham!(user: @user, region: @section.region, manager: false)
       login @user
     end
 
@@ -136,32 +136,32 @@ class WellsControllerTest < ActionController::TestCase
         assert_response :success
       end
 
-      should 'assign wells for user in research' do
+      should 'assign sections for user in research' do
         get :index, format: :json, region_id: @region.to_param
         assert_response :success
-        assert_equal [@well], assigns( :wells )
+        assert_equal [@section], assigns( :sections )
       end
     end
 
     context 'GET show' do
       should 'be successful' do
-        get :show, id: @well.to_param
+        get :show, id: @section.to_param
         assert_response :success
-        assert_equal @well, assigns( :well )
+        assert_equal @section, assigns( :section )
       end
 
       should 'show proper links' do
-        get :show, :id => @well.id
-        assert_no_link new_well_sample_path( @well )
-        assert_no_link edit_well_path( @well )
-        assert_no_delete_link well_path( @well )
+        get :show, :id => @section.id
+        assert_no_link new_section_sample_path( @section )
+        assert_no_link edit_section_path( @section )
+        assert_no_delete_link section_path( @section )
       end
     end
 
     context 'GET edit' do
       should 'refute access' do
         assert_raise( User::NotAuthorized ) do
-          get :edit, id: @well.to_param
+          get :edit, id: @section.to_param
         end
       end
     end
@@ -170,7 +170,7 @@ class WellsControllerTest < ActionController::TestCase
       should 'be successful' do
         get :new, region_id: @region.id
         assert_response :success
-        assert_equal @region, assigns( :well ).region
+        assert_equal @region, assigns( :section ).region
 
         assert_link region_path( @region )
       end
@@ -178,18 +178,18 @@ class WellsControllerTest < ActionController::TestCase
 
     context 'POST create' do
       should 'be successful' do
-        well = Well.sham!( :build, region: @region )
-        assert_difference( 'Well.count' ) do
-          post :create, well: well.attributes
+        section = Section.sham!( :build, region: @region )
+        assert_difference( 'Section.count' ) do
+          post :create, section: section.attributes
         end
-        assert_redirected_to well_path( id: assigns( :well ).to_param )
+        assert_redirected_to section_path( id: assigns( :section ).to_param )
       end
     end
 
     context 'PUT update' do
       should 'refute access' do
         assert_raise( User::NotAuthorized ) do
-          put :update, id: @well.id, well: @well.attributes
+          put :update, id: @section.id, section: @section.attributes
         end
       end
     end
@@ -197,8 +197,8 @@ class WellsControllerTest < ActionController::TestCase
     context 'DELETE destroy' do
       should 'refute access for user in research' do
         assert_raise( User::NotAuthorized ) do
-          assert_no_difference( 'Well.count' ) do
-            delete :destroy, id: @well.id
+          assert_no_difference( 'Section.count' ) do
+            delete :destroy, id: @section.id
           end
         end
       end
@@ -208,48 +208,48 @@ class WellsControllerTest < ActionController::TestCase
   context 'for manager in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!(user: @user, region: @well.region, manager: true)
+      ResearchParticipation.sham!(user: @user, region: @section.region, manager: true)
       login @user
     end
 
     context 'GET show' do
-      should 'show proper links for well with samples' do
-        sample = Sample.sham!( :well => @well )
-        get :show, :id => @well.id
-        assert_link new_well_sample_path( @well )
-        assert_link edit_well_path( @well )
-        assert_no_delete_link well_path( @well )
+      should 'show proper links for section with samples' do
+        sample = Sample.sham!( :section => @section )
+        get :show, :id => @section.id
+        assert_link new_section_sample_path( @section )
+        assert_link edit_section_path( @section )
+        assert_no_delete_link section_path( @section )
       end
 
-      should 'show proper links for well without samples' do
-        get :show, :id => @well.id
-        assert_link new_well_sample_path( @well )
-        assert_link edit_well_path( @well )
-        assert_delete_link well_path( @well )
+      should 'show proper links for section without samples' do
+        get :show, :id => @section.id
+        assert_link new_section_sample_path( @section )
+        assert_link edit_section_path( @section )
+        assert_delete_link section_path( @section )
       end
     end
 
     context 'GET edit' do
       should 'be successful for manager in research' do
-        get :edit, id: @well.to_param
+        get :edit, id: @section.to_param
         assert_response :success
-        assert_equal @well, assigns( :well )
+        assert_equal @section, assigns( :section )
 
-        assert_link well_path( @well )
+        assert_link section_path( @section )
       end
     end
 
     context 'PUT update' do
       should 'be successful for manager in research' do
-        put :update, id: @well.id, well: @well.attributes
-        assert_redirected_to well_path( id: @well.to_param )
+        put :update, id: @section.id, section: @section.attributes
+        assert_redirected_to section_path( id: @section.to_param )
       end
     end
 
     context 'DELETE destroy' do
       should 'be successful for manager in research' do
-        assert_difference( 'Well.count', -1 ) do
-          delete :destroy, id: @well.id
+        assert_difference( 'Section.count', -1 ) do
+          delete :destroy, id: @section.id
         end
         assert_redirected_to region_path( id: @region.to_param )
       end

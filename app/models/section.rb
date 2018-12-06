@@ -1,4 +1,4 @@
-class Well < ActiveRecord::Base
+class Section < ActiveRecord::Base
   NAME_MIN_LENGTH = 1
 	NAME_MAX_LENGTH = 32
 	NAME_RANGE = NAME_MIN_LENGTH..NAME_MAX_LENGTH
@@ -15,7 +15,7 @@ class Well < ActiveRecord::Base
 
   before_destroy do
     unless self.samples.empty?
-      errors[:base] << I18n.t( 'activerecord.errors.models.well.samples.exist' )
+      errors[:base] << I18n.t( 'activerecord.errors.models.section.samples.exist' )
       false
     end
   end

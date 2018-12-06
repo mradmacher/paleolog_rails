@@ -2,14 +2,14 @@ require 'test_helper'
 
 class SamplesControllerTest < ActionController::TestCase
   setup do
-    @well = Well.sham!
-    @sample = Sample.sham!( well: @well )
+    @section = Section.sham!
+    @sample = Sample.sham!( section: @section )
   end
 
   context 'for guest' do
     should 'refute to GET index' do
       assert_raise( User::NotAuthorized ) do
-        get :index, well_id: @well.id
+        get :index, section_id: @section.id
       end
     end
 
@@ -27,7 +27,7 @@ class SamplesControllerTest < ActionController::TestCase
 
     should 'refute to GET new' do
       assert_raise( User::NotAuthorized ) do
-        get :new, well_id: @well.id
+        get :new, section_id: @section.id
       end
     end
 
@@ -39,7 +39,7 @@ class SamplesControllerTest < ActionController::TestCase
 
     should 'refute to POST create' do
       assert_raise( User::NotAuthorized ) do
-        post :create, sample: Sample.sham!( :build, well: @well ).attributes
+        post :create, sample: Sample.sham!( :build, section: @section ).attributes
       end
     end
 
@@ -58,7 +58,7 @@ class SamplesControllerTest < ActionController::TestCase
 
     context 'GET index' do
       should 'return empty result' do
-        get :index, format: :json, well_id: @well.to_param
+        get :index, format: :json, section_id: @section.to_param
         assert_response :success
         assert assigns( :samples ).empty?
       end
@@ -83,7 +83,7 @@ class SamplesControllerTest < ActionController::TestCase
     context 'GET new' do
       should 'refute access' do
         assert_raise( User::NotAuthorized ) do
-          get :new, well_id: @well.id
+          get :new, section_id: @section.id
         end
       end
     end
@@ -99,7 +99,7 @@ class SamplesControllerTest < ActionController::TestCase
     context 'POST create' do
       should 'refute access' do
         assert_raise( User::NotAuthorized ) do
-          post :create, sample: Sample.sham!( :build, well: @well ).attributes
+          post :create, sample: Sample.sham!( :build, section: @section ).attributes
         end
       end
     end
@@ -118,13 +118,13 @@ class SamplesControllerTest < ActionController::TestCase
   context 'for user in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!(user: @user, region: @well.region, manager: false)
+      ResearchParticipation.sham!(user: @user, region: @section.region, manager: false)
       login( @user )
     end
 
     context 'GET index' do
       should 'be successful' do
-        get :index, format: :json, well_id: @well.to_param
+        get :index, format: :json, section_id: @section.to_param
         assert_response :success
         assert_equal [@sample], assigns( :samples )
       end
@@ -155,7 +155,7 @@ class SamplesControllerTest < ActionController::TestCase
     context 'GET new' do
       should 'refute access' do
         assert_raise( User::NotAuthorized ) do
-          get :new, well_id: @well.id
+          get :new, section_id: @section.id
         end
       end
     end
@@ -171,7 +171,7 @@ class SamplesControllerTest < ActionController::TestCase
     context 'POST create' do
       should 'refute access' do
         assert_raise( User::NotAuthorized ) do
-          post :create, sample: Sample.sham!( :build, well: @well ).attributes
+          post :create, sample: Sample.sham!( :build, section: @section ).attributes
         end
       end
     end
@@ -190,13 +190,13 @@ class SamplesControllerTest < ActionController::TestCase
   context 'for manager in research' do
     setup do
       @user = User.sham!
-      ResearchParticipation.sham!(user: @user, region: @well.region, manager: true)
+      ResearchParticipation.sham!(user: @user, region: @section.region, manager: true)
       login( @user )
     end
 
     context 'GET show' do
       should 'show proper action for sample with occurrences' do
-        Occurrence.sham!(sample: @sample, counting: Counting.sham!(region: @well.region))
+        Occurrence.sham!(sample: @sample, counting: Counting.sham!(region: @section.region))
         get :show, :id => @sample.id
         assert_link edit_sample_path( @sample )
         assert_no_delete_link sample_path( @sample )
@@ -221,11 +221,11 @@ class SamplesControllerTest < ActionController::TestCase
 
     context 'GET new' do
       should 'be successful' do
-        get :new, well_id: @well.id
+        get :new, section_id: @section.id
         assert_response :success
-        assert_equal @well, assigns( :sample ).well
+        assert_equal @section, assigns( :sample ).section
 
-        assert_link well_path( @well )
+        assert_link section_path( @section )
       end
     end
 
@@ -238,7 +238,7 @@ class SamplesControllerTest < ActionController::TestCase
 
     context 'POST create' do
       should 'be successful' do
-        sample = Sample.sham!( :build, well: @well )
+        sample = Sample.sham!( :build, section: @section )
         assert_difference( 'Sample.count' ) do
           post :create, sample: sample.attributes
         end
@@ -251,7 +251,7 @@ class SamplesControllerTest < ActionController::TestCase
         assert_difference( 'Sample.count', -1 ) do
           delete :destroy, id: @sample.id
         end
-        assert_redirected_to well_path( id: @well.to_param )
+        assert_redirected_to section_path( id: @section.to_param )
       end
     end
   end

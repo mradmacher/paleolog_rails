@@ -3,10 +3,10 @@ class CountingsController < ApplicationController
 
   def species
     @counting = Counting.viewable_by(current_user).find(params[:id])
-    @well = Well.find(params[:well_id])
+    @section = Section.find(params[:section_id])
     respond_to do |format|
       format.json do
-        render json: @counting.specimens_by_occurrence(@well.ordered_samples).map { |s| { id: s.id, name: s.name } }
+        render json: @counting.specimens_by_occurrence(@section.ordered_samples).map { |s| { id: s.id, name: s.name } }
       end
     end
   end

@@ -1,4 +1,4 @@
-#TODO counting and sample should have the same well
+#TODO counting and sample should have the same section
  class Sample < ActiveRecord::Base
   NAME_MIN_LENGTH = 1
 	NAME_MAX_LENGTH = 32
@@ -11,29 +11,29 @@
 	DESCRIPTION_ROWS = 12
 	DESCRIPTION_COLS = 60
 
-  belongs_to :well
+  belongs_to :section
   has_many :images
   has_many :occurrences
 
-  validates :name, uniqueness: { scope: :well_id }, presence: true, length: { within: NAME_RANGE }
-  validates :well_id, :presence => true
+  validates :name, uniqueness: { scope: :section_id }, presence: true, length: { within: NAME_RANGE }
+  validates :section_id, :presence => true
   validates :weight, :numericality => { :greater_than => 0 }, allow_nil: true
 
   default_scope -> { order(:bottom_depth) }
 
-  scope :viewable_by, lambda { |user| joins(well: { region: :research_participations }).where(research_participations: { user_id: user.id }) }
-  scope :manageable_by, lambda { |user| joins(well: { region: :research_participations }).where(research_participations: { user_id: user.id, manager: true }) }
+  scope :viewable_by, lambda { |user| joins(section: { region: :research_participations }).where(research_participations: { user_id: user.id }) }
+  scope :manageable_by, lambda { |user| joins(section: { region: :research_participations }).where(research_participations: { user_id: user.id, manager: true }) }
 
   def manageable_by?( user )
-    !self.well.nil? && self.well.manageable_by?(user)
+    !self.section.nil? && self.section.manageable_by?(user)
   end
 
   def viewable_by?( user )
-    !self.well.nil? && self.well.viewable_by?(user)
+    !self.section.nil? && self.section.viewable_by?(user)
   end
 
   def full_name
-    "#{well.name} : #{name}"
+    "#{section.name} : #{name}"
   end
 
   def can_be_destroyed?

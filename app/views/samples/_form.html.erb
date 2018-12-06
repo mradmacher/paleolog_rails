@@ -4,8 +4,8 @@
 		<legend>Sample</legend>
 		<% if @sample.occurrences.empty? %>
 		<p>
-		<%= f.label :well_id %>	
-		<%= f.collection_select :well_id, @sample.well.region.wells, :id, :name %>
+		<%= f.label :section_id %>	
+		<%= f.collection_select :section_id, @sample.section.region.sections, :id, :name %>
 		</p>
 		<% end %>
 		<p>

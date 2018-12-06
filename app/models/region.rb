@@ -1,5 +1,5 @@
 class Region < ActiveRecord::Base
-	has_many :wells
+	has_many :sections
 
 	NAME_MIN_LENGTH = 1
 	NAME_MAX_LENGTH = 32
@@ -16,8 +16,8 @@ class Region < ActiveRecord::Base
   scope :manageable_by, lambda { |user| joins(:research_participations).where(research_participations: { user_id: user.id, manager: true }) }
 
   before_destroy do
-    unless self.wells.empty?
-      errors[:base] << I18n.t('activerecord.errors.models.region.wells.exist')
+    unless self.sections.empty?
+      errors[:base] << I18n.t('activerecord.errors.models.region.sections.exist')
       false
     end
   end

@@ -1,4 +1,4 @@
-<%= render_title "#{@sample.well.region.name}" %>
+<%= render_title "#{@sample.section.region.name}" %>
 <%= render 'navigation' %>
 
 <% if @sample.manageable_by?( current_user ) %>
@@ -9,8 +9,8 @@
 	<%= render_actions actions %>
 <% end %>
 <% content_for :breadcrumb do %>
-  <%= link_to bracketize( @sample.well.region.name ), region_path( @sample.well.region ) %> - 
-  <%= link_to bracketize( @sample.well.name ), well_path( @sample.well ) %> - 
+  <%= link_to bracketize( @sample.section.region.name ), region_path( @sample.section.region ) %> - 
+  <%= link_to bracketize( @sample.section.name ), section_path( @sample.section ) %> - 
   <%= link_to bracketize( @sample.name ), sample_path( @sample ) %>
 <% end %>
 <%= render_heading 'Sample' %>

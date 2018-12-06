@@ -73,25 +73,25 @@ class SampleTest < ActiveSupport::TestCase
     end
   end
 
-  def test_it_should_have_unique_name_in_well
+  def test_it_should_have_unique_name_in_section
     existing_sample = Sample.sham!
-    sample = Sample.sham!( :well => existing_sample.well, :name => existing_sample.name )
+    sample = Sample.sham!( :section => existing_sample.section, :name => existing_sample.name )
     refute sample.valid?
     assert sample.invalid?( :name )
 		assert sample.errors[:name].include?( I18n.t( 'activerecord.errors.models.sample.attributes.name.taken' ) )
   end
 
-  def test_it_can_have_same_name_in_different_wells
+  def test_it_can_have_same_name_in_different_sections
     existing_sample = Sample.sham!
-    sample = Sample.sham!( :well => Well.sham!, :name => existing_sample.name )
+    sample = Sample.sham!( :section => Section.sham!, :name => existing_sample.name )
     assert sample.valid?
 	end
 
-  def test_it_should_have_well
-		sample = Sample.sham!( :build, :well => nil )
+  def test_it_should_have_section
+		sample = Sample.sham!( :build, :section => nil )
     refute sample.valid?
-		assert sample.invalid?( :well_id )
-		assert sample.errors[:well_id].include?( I18n.t( 'activerecord.errors.models.sample.attributes.well_id.blank' ) )
+		assert sample.invalid?( :section_id )
+		assert sample.errors[:section_id].include?( I18n.t( 'activerecord.errors.models.sample.attributes.section_id.blank' ) )
   end
 
   def test_it_should_not_destroy_sample_with_occurrences

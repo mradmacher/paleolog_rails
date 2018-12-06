@@ -9,17 +9,17 @@
       </ul>
     </div>
     <div class="navigation-section">
-      <span class="navigation-section-title">Well</span>
+      <span class="navigation-section-title">Section</span>
       <ul>
-        <% @well.region.wells.each do |well| %>
-          <li class="<%= well == @well ? 'current-item' : 'item' %>"><%= link_to well.name, well_path(well) %></li>
+        <% @section.region.sections.each do |section| %>
+          <li class="<%= section == @section ? 'current-item' : 'item' %>"><%= link_to section.name, section_path(section) %></li>
         <% end %>
       </ul>
     </div>
     <div class="navigation-section">
       <span class="navigation-section-title">Sample</span>
       <ul>
-        <% @sample.well.samples.all.each do |sample| %>
+        <% @sample.section.samples.all.each do |sample| %>
           <li class="<%= sample == @sample ? 'current-item' : 'item' %>"><%= link_to sample.name, sample_path( sample ) %></li>
         <% end %>
       </ul>
@@ -27,7 +27,7 @@
     <div class="navigation-section">
       <span class="navigation-section-title">Counting</span>
       <ul>
-        <% @sample.well.region.countings.each do |counting| %>
+        <% @sample.section.region.countings.each do |counting| %>
           <li class="item"><%= link_to counting.name, counting_sample_occurrences_path(counting, @sample) %></li>
         <% end %>
       </ul>

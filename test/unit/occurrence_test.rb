@@ -29,7 +29,7 @@ class OccurrenceTest < ActiveSupport::TestCase
   should 'have both sample and counting from the same region' do
     region1 = Region.sham!
     region2 = Region.sham!
-    sample = Sample.sham!(well: Well.sham!(region: region1))
+    sample = Sample.sham!(section: Section.sham!(region: region1))
     counting = Counting.sham!(region: region2)
     occurrence = Occurrence.sham!(:build, counting: counting, sample: sample)
     refute occurrence.valid?
@@ -52,8 +52,8 @@ class OccurrenceTest < ActiveSupport::TestCase
 
   should 'allow to repeat rank id in different countings for the same sample' do
     region = Region.sham!
-    well = Well.sham!(region: region)
-    sample = Sample.sham!(well: well)
+    section = Section.sham!(region: region)
+    sample = Sample.sham!(section: section)
     counting1 = Counting.sham!(region: region)
     counting2 = Counting.sham!(region: region)
     existing = Occurrence.sham!(sample: sample, counting: counting1)
@@ -63,10 +63,10 @@ class OccurrenceTest < ActiveSupport::TestCase
 
   should 'allow to repeat rank in different samples from the same counting' do
     region = Region.sham!
-    well = Well.sham!(region: region)
+    section = Section.sham!(region: region)
     counting = Counting.sham!(region: region)
-    sample1 = Sample.sham!(well: well)
-    sample2 = Sample.sham!(well: well)
+    sample1 = Sample.sham!(section: section)
+    sample2 = Sample.sham!(section: section)
     existing = Occurrence.sham!(counting: counting, sample: sample1, specimen: Specimen.sham!)
     occurrence = Occurrence.sham!(:build, counting: counting, sample: sample2, specimen: Specimen.sham!, rank: existing.rank)
     assert occurrence.valid?
@@ -74,11 +74,11 @@ class OccurrenceTest < ActiveSupport::TestCase
 
   should 'allow to repeat rank in different samples and countings' do
     region = Region.sham!
-    well = Well.sham!(region: region)
+    section = Section.sham!(region: region)
     counting1 = Counting.sham!(region: region)
     counting2 = Counting.sham!(region: region)
-    sample1 = Sample.sham!(well: well)
-    sample2 = Sample.sham!(well: well)
+    sample1 = Sample.sham!(section: section)
+    sample2 = Sample.sham!(section: section)
     existing = Occurrence.sham!(counting: counting1, sample: sample1, specimen: Specimen.sham!)
     occurrence = Occurrence.sham!(counting: counting2, sample: sample2, specimen: Specimen.sham!, rank: existing.rank)
     assert occurrence.valid?
@@ -93,8 +93,8 @@ class OccurrenceTest < ActiveSupport::TestCase
 
 	should 'allow to repeat specimens in different countings of the same sampel' do
     region = Region.sham!
-    well = Well.sham!(region: region)
-    sample = Sample.sham!(well: well)
+    section = Section.sham!(region: region)
+    sample = Sample.sham!(section: section)
     counting1 = Counting.sham!(region: region)
     counting2 = Counting.sham!(region: region)
     existing = Occurrence.sham!(sample: sample, counting: counting1)
@@ -104,10 +104,10 @@ class OccurrenceTest < ActiveSupport::TestCase
 
   should 'allow to repeat specimens in different samples from the same counting' do
     region = Region.sham!
-    well = Well.sham!(region: region)
+    section = Section.sham!(region: region)
     counting = Counting.sham!(region: region)
-    sample1 = Sample.sham!(well: well)
-    sample2 = Sample.sham!(well: well)
+    sample1 = Sample.sham!(section: section)
+    sample2 = Sample.sham!(section: section)
     existing = Occurrence.sham!(counting: counting, sample: sample1)
     occurrence = Occurrence.sham!(:build, counting: counting, sample: sample2, specimen: existing.specimen)
     assert occurrence.valid?
@@ -115,11 +115,11 @@ class OccurrenceTest < ActiveSupport::TestCase
 
   should 'allow to repeat specimens in different samples and countings' do
     region = Region.sham!
-    well = Well.sham!(region: region)
+    section = Section.sham!(region: region)
     counting1 = Counting.sham!(region: region)
     counting2 = Counting.sham!(region: region)
-    sample1 = Sample.sham!(well: well)
-    sample2 = Sample.sham!(well: well)
+    sample1 = Sample.sham!(section: section)
+    sample2 = Sample.sham!(section: section)
     existing = Occurrence.sham!(counting: counting1, sample: sample1)
     occurrence = Occurrence.sham!(counting: counting2, sample: sample2, specimen: existing.specimen)
     assert occurrence.valid?
