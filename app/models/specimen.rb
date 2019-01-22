@@ -1,6 +1,6 @@
 class Specimen < ActiveRecord::Base
   has_many :images, :dependent => :destroy
-  has_many :occurrences, :dependent => :destroy
+  has_many :occurrences
   has_many :comments, :as => :commentable, :dependent => :destroy
   belongs_to :group
   has_many :countings, :foreign_key => 'marker_id'
@@ -9,29 +9,28 @@ class Specimen < ActiveRecord::Base
   accepts_nested_attributes_for :features
 
   NAME_MIN_LENGTH = 1
-  NAME_MAX_LENGTH = 50
+  NAME_MAX_LENGTH = 100
   NAME_RANGE = NAME_MIN_LENGTH..NAME_MAX_LENGTH
-  NAME_SIZE = 40
-  AGE_COLS = 60
-  AGE_ROWS = 4
-  DESCRIPTION_COLS = 60
+  NAME_SIZE = 58
+  ENVIRONMENTAL_PREFERENCES_COLS = 80
+  ENVIRONMENTAL_PREFERENCES_ROWS = 4
+  DESCRIPTION_COLS = 80
   DESCRIPTION_ROWS = 10
-  COMPARISON_COLS = 60
-  COMPARISON_ROWS = 8
-  RANGE_COLS = 60
-  RANGE_ROWS = 4
-  DESCRIPTION_MAX_LENGTH = 2047
-  AGE_MAX_LENGTH = 2047
-  COMPARISON_MAX_LENGTH = 2047
-  RANGE_MAX_LENGTH = 2047
+  DESCRIPTION_MAX_LENGTH = 4096
+  ENVIRONMENTAL_PREFERENCES_MAX_LENGTH = 4096
 
   validates :name, :length => { :within => NAME_RANGE }, :presence => true, :uniqueness => { :scope => :group_id }
   validates :group_id, :presence => true
   validates :description, :length => { :maximum => DESCRIPTION_MAX_LENGTH }
-  validates :age, :length => { :maximum => AGE_MAX_LENGTH }
-  validates :comparison, :length => { :maximum => COMPARISON_MAX_LENGTH }
-  validates :range, :length => { :maximum => RANGE_MAX_LENGTH }
+  validates :environmental_preferences, :length => { :maximum => ENVIRONMENTAL_PREFERENCES_MAX_LENGTH }
   validate :feature_group
+
+  before_destroy do
+    unless self.occurrences.empty?
+      errors[:base] << I18n.t('activerecord.errors.models.specimen.occurrence.exists')
+      false
+    end
+  end
 
   def field_features
     result = {}
@@ -41,7 +40,7 @@ class Specimen < ActiveRecord::Base
     result
   end
 
-  def self.search( params = {} )
+  def self.search(params = {})
     specimens = Specimen.all
     specimens = specimens.where(group_id: params[:group_id]) unless params[:group_id].blank?
     specimens = specimens.joins(occurrences: :sample).where('samples.section_id' => params[:section_id]) unless params[:section_id].blank?
@@ -61,11 +60,11 @@ class Specimen < ActiveRecord::Base
   end
 
   private
+
   def feature_group
     if changes.keys.include? 'group_id'
       errors[:group_id] << I18n.t( 'activerecord.errors.models.specimen.attributes.group_id.features' ) if
         Feature.where( specimen_id: self.id ).exists?
     end
   end
-
 end

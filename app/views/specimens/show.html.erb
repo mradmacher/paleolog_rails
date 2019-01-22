@@ -1,12 +1,12 @@
 <%= render_title @specimen.name %>
-<%= render_navigation [
-	['Module', 'Species', specimens_path], 
-	navigation_for_species( @specimen.id, @specimen.name )] %>
 <% if current_user.admin? %>
 <%= render_actions [[
-	'Edit species', edit_specimen_path( @specimen )], [
-	'Delete species', specimen_path( @specimen ), {:confirm => 'Are you sure?', :method => :delete}], [
-	'Add image', new_specimen_image_path( @specimen )]] %>
+	'Edit species', edit_specimen_path(@specimen)], [
+	'Delete species', specimen_path(@specimen), data: { confirm: 'Are you sure?', method: :delete }], [
+	'Add image', new_specimen_image_path(@specimen)]] %>
+<% end %>
+<% content_for :breadcrumb do %>
+  <%= link_to bracketize(@specimen.name), specimen_path(@specimen) %>
 <% end %>
 <% if !@specimen.verified %>
 <p>
@@ -47,31 +47,18 @@
     </tr>
   </table>
 </p>
-<% if @specimen.age.present? -%>
-  <p>
-    <b>Age:</b>
-    <%= raw RedCloth.new( @specimen.age ).to_html -%>
-  </p>
-<% end -%>
 <% if @specimen.description.present? -%>
   <p>
     <b>Description:</b>
     <%= raw RedCloth.new( @specimen.description ).to_html %>
   </p>
 <% end -%>
-<% if @specimen.comparison.present? -%>
+<% if @specimen.environmental_preferences.present? -%>
   <p>
-    <b>Comparison:</b>
-    <%= raw RedCloth.new( @specimen.comparison ).to_html %>
+    <b>Environmental Preferences:</b>
+    <%= raw RedCloth.new(@specimen.environmental_preferences).to_html -%>
   </p>
 <% end -%>
-<% if @specimen.range.present? -%>
-  <p>
-    <b>Stratigraphic range:</b>
-    <%= raw RedCloth.new( @specimen.range ).to_html %>
-  </p>
-<% end -%>
-
 <p>
 <%= render :partial => 'comments/index' %>
 </p>

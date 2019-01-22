@@ -2,23 +2,19 @@
   <title>Listing images</title>
 <% end %>
 <% content_for :content_menu do %>
-  <%= render :partial => 'layouts/content_menu_section', 
-      :locals => { 
-          :title => 'Dinoflagellate', 
+  <%= render :partial => 'layouts/content_menu_section',
+      :locals => {
+          :title => 'Dinoflagellate',
           :separator => true,
           :items => [ link_to( 'Show', dinoflagellate_path( @dino ) ) ] } %>
-  <%= render :partial => 'layouts/content_menu_section', 
-      :locals => { 
+  <%= render :partial => 'layouts/content_menu_section',
+      :locals => {
           :title => 'Images',
           :items => [ link_to( 'New', new_dinoflagellate_image_path( @dino ) ) ] } %>
 <% end %>
-<% content_for :navigation do %>
-  <%= build_navigation( 'Listing images', @dino ) %>
-<% end %>
-
 <p>
 <% @images.each do |image| %>
-  <%= link_to image_tag( image.image.url( :medium ) ), 
+  <%= link_to image_tag( image.image.url( :medium ) ),
     dinoflagellate_image_path( @dino.id, image.id ) %>
 <% end %>
 </p>

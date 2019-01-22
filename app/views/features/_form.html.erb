@@ -10,7 +10,7 @@
   <% end %>
   <%= f.submit 'Commit' %>
   <% unless feature.new_record? %>
-    <%= link_to 'Delete', feature, :method => :delete, :confirm => 'Are you sure?' %>
+    <%= link_to 'Delete', feature, data: { method: :delete, confirm: 'Are you sure?' } %>
   <% end %>
 <% end %>
 

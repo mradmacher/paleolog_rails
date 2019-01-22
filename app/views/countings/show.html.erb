@@ -5,7 +5,7 @@
 	<% actions = [] <<
 		['Edit counting', edit_counting_path( @counting )] %>
 	<% if @counting.can_be_destroyed? %>
-			<% actions << ['Delete counting', counting_path( @counting ), :confirm => 'Are you sure?', :method => :delete ] %>
+			<% actions << ['Delete counting', counting_path( @counting ), data: { confirm: 'Are you sure?', :method => :delete } ] %>
 	<% end %>
 	<%= render_actions actions %>
 <% end %>

@@ -6,7 +6,7 @@
 	<% actions << ['Add sample', new_section_sample_path( @section )] <<
 		['Edit section', edit_section_path( @section )] %>
 	<% if @section.samples.empty? %>
-		<% actions << ['Delete section', section_path( @section ), :confirm => 'Are you sure', :method => :delete] %>
+		<% actions << ['Delete section', section_path(@section), data: { confirm: 'Are you sure', method: :delete }] %>
 	<% end %>
 <% end %>
 <%= render_actions actions %>

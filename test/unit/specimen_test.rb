@@ -39,28 +39,12 @@ class SpecimenTest < ActiveSupport::TestCase
       :count => Specimen::DESCRIPTION_MAX_LENGTH ) )
 	end
 
-  def test_if_invalid_when_age_maximum_length_exceeded
-    specimen = Specimen.sham!( :build, :age => 'a' * (Specimen::AGE_MAX_LENGTH + 1) )
+  def test_if_invalid_when_environmental_preferences_maximum_length_exceeded
+    specimen = Specimen.sham!(:build, environmental_preferences: 'a' * (Specimen::ENVIRONMENTAL_PREFERENCES_MAX_LENGTH + 1))
     refute specimen.valid?
-		assert specimen.invalid?( :age )
-		assert specimen.errors[:age].include?( I18n.t( 'activerecord.errors.models.specimen.attributes.age.too_long',
-      :count => Specimen::AGE_MAX_LENGTH ) )
-	end
-
-  def test_if_invalid_when_comparison_maximum_length_exceeded
-    specimen = Specimen.sham!( :build, :comparison => 'a' * (Specimen::COMPARISON_MAX_LENGTH + 1) )
-    refute specimen.valid?
-		assert specimen.invalid?( :comparison )
-		assert specimen.errors[:comparison].include?( I18n.t( 'activerecord.errors.models.specimen.attributes.comparison.too_long',
-      :count => Specimen::COMPARISON_MAX_LENGTH ) )
-	end
-
-  def test_if_invalid_when_range_maximum_length_exceeded
-    specimen = Specimen.sham!( :build, :range => 'a' * (Specimen::RANGE_MAX_LENGTH + 1) )
-    refute specimen.valid?
-		assert specimen.invalid?( :range )
-		assert specimen.errors[:range].include?( I18n.t( 'activerecord.errors.models.specimen.attributes.range.too_long',
-      :count => Specimen::RANGE_MAX_LENGTH ) )
+		assert specimen.invalid?(:environmental_preferences)
+		assert specimen.errors[:environmental_preferences].include?( I18n.t( 'activerecord.errors.models.specimen.attributes.environmental_preferences.too_long',
+      :count => Specimen::ENVIRONMENTAL_PREFERENCES_MAX_LENGTH ) )
 	end
 
   def test_name_uniqueness_in_group

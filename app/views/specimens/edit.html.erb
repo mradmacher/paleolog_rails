@@ -1,8 +1,5 @@
 <%= render_title @specimen.name %>
-<%= render_navigation [
-	['Module', 'Species', specimens_path], 
-	navigation_for_species( @specimen.id, @specimen.name )] %>
+<%= render_actions [['Cancel', specimen_path(@specimen.id)]] %>
 <h1>Editing species</h1>
 
 <%= render :partial => 'form' %>
-

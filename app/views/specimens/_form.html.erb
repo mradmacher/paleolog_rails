@@ -15,32 +15,17 @@
 		</p>
 		<p>
     <%= f.label :description %>
-    <%= f.text_area :description, 
+    <%= f.text_area :description,
           :rows => Specimen::DESCRIPTION_ROWS,
           :cols => Specimen::DESCRIPTION_COLS %>
     </p>
     <p>
-      <%= f.label :age %>
-      <%= f.text_area :age, 
-            :rows => Specimen::AGE_ROWS,
-            :cols => Specimen::AGE_COLS %>
+      <%= f.label :environmental_preferences %>
+      <%= f.text_area :environmental_preferences,
+            :rows => Specimen::ENVIRONMENTAL_PREFERENCES_ROWS,
+            :cols => Specimen::ENVIRONMENTAL_PREFERENCES_COLS %>
     </p>
-    <p>
-      <%= f.label :comparison %>
-      <%= f.text_area :comparison, 
-            :rows => Specimen::COMPARISON_ROWS,
-            :cols => Specimen::COMPARISON_COLS %>
-    </p>
-    <p>
-      <%= f.label :range, 'Stratigraphic range' %>
-      <%= f.text_area :range, 
-            :rows => Specimen::RANGE_ROWS,
-            :cols => Specimen::RANGE_COLS %>
-    </p>
-    <p>
-      <%= f.submit 'Commit' %>
-      <%= link_to 'Cancel', @specimen.new_record? ? specimens_path : specimen_path( @specimen.id ) %>
-    </p>
+    <p><%= f.submit 'Commit' %></p>
   </fieldset>
 <% end %>
 

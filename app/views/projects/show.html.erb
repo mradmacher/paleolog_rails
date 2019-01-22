@@ -8,10 +8,13 @@
     ['Add researcher', new_project_research_participation_path(@project.id)] %>
 	<% actions << ['Edit project', edit_project_path(@project)] %>
 	<% if @project.sections.empty? %>
-		<% actions << ['Delete project', project_path(@project), { confirm: 'Are you sure', method: :delete }] %>
+		<% actions << ['Delete project', project_path(@project), data: { confirm: 'Are you sure', method: :delete }] %>
 	<% end %>
 <% end %>
 <%= render_actions actions %>
+<% content_for :breadcrumb do %>
+  <%= link_to bracketize(@project.name), project_path(@project) %>
+<% end %>
 <%= render_heading 'Project' %>
 
 <dl class="fields">

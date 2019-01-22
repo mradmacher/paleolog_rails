@@ -3,7 +3,7 @@
 
 <% actions = [] %>
 <% if @research_participation.manageable_by?(current_user) %>
-  <% actions << ['Remove from research', research_participation_path(@research_participation), confirm: 'Are you sure', method: :delete] %>
+  <% actions << ['Remove from research', research_participation_path(@research_participation), data: { confirm: 'Are you sure', method: :delete }] %>
 <% end %>
 <%= render_actions actions %>
 <% content_for :breadcrumb do %>

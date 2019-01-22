@@ -44,10 +44,10 @@
       <% if current_user? %>
         <div id="account-menu">
           <ul>
-            <li><%= link_to 'Species', specimens_url %></li>
-            <li><%= link_to 'Projects', projects_url %></li>
-            <li><%= link_to 'Activities', comments_url %></li>
-            <li><%= link_to "Reports", new_report_url %></li>
+            <li class="<%= controller_name.in?(%w(specimens images)) ? 'current' : 'other' %>"><%= link_to 'Species', specimens_url %></li>
+            <li class="<%= controller_name.in?(%w(projects sections samples countings occurrences)) ? 'current' : 'other' %>"><%= link_to 'Projects', projects_url %></li>
+            <li class="<%= controller_name.in?(%w(comments)) ? 'current' : 'other' %>"><%= link_to 'Activities', comments_url %></li>
+            <li class="<%= controller_name.in?(%w(reports)) ? 'current' : 'other' %>"><%= link_to "Reports", new_report_url %></li>
           </ul>
         </div>
     <% end %>
@@ -57,8 +57,7 @@
 	<% end -%>
     <div id="content">
       <strong><%= yield :breadcrumb %></strong>
-			<%= yield :navigation %>
-			<div id="heading"><%= yield :heading %></div>
+      <%= yield :navigation %>
       <p style="color: green"><%= flash[:notice] %></p>
       <%= yield %>
     </div>
@@ -69,4 +68,3 @@
 </div>
 </body>
 </html>
-

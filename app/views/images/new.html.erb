@@ -1,6 +1,7 @@
 <%= render_title @image.specimen.name %>
-<%= render_navigation [['Module', 'Species', specimens_path]] %>
+<%= render_actions [['Cancel', specimen_path(@image.specimen_id)]] %>
+<% content_for :breadcrumb do %>
+  <%= link_to bracketize(@image.specimen.name), specimen_path(@image.specimen) %>
+<% end %>
 <h1>New image</h1>
-
 <%= render 'form' %>
-

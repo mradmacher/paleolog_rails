@@ -1,5 +1,4 @@
 <%= render_title 'Species' %>
-<%= render_navigation [['Module', 'Species', specimens_path]] %>
 <% if current_user.admin? %>
 	<%= render_actions [['Add species', new_specimen_path ]] %>
 <% end %>
@@ -8,7 +7,11 @@
 	<fieldset>
 		<p>
 		<%= label_tag 'Group' %>
-    <%= select_tag( :group_id, options_from_collection_for_select( Group.all, :id, :name, @group_id ) ) %>
+    <%= select_tag(:group_id, options_from_collection_for_select(Group.all, :id, :name, @group_id)) %>
+		</p>
+		<p>
+		<%= label_tag 'Project' %>
+    <%= select_tag(:project_id, options_from_collection_for_select(Project.viewable_by(current_user), :id, :name, @project_id), include_blank: true) %>
 		</p>
 		<p>
 		<%= label_tag 'Name' %>

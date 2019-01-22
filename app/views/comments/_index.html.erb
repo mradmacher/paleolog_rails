@@ -19,7 +19,7 @@
 <% @comments.each do |comment| %>
   <tr>
     <td>
-      <b><%=h comment.user.name %></b> 
+      <b><%=h comment.user.name %></b>
       (<%=h comment.updated_at.localtime.to_s( :long_ordinal ) %>)
     </td>
     <td>
@@ -37,7 +37,7 @@
     <% if !@commentable.nil? %>
       <% if @logged_user.author_of?( comment ) %>
         <td><%= link_to 'Edit', edit_comment_path(comment) %></td>
-        <td><%= link_to 'Destroy', comment, :confirm => 'Are you sure?', :method => :delete %></td>
+        <td><%= link_to 'Remove', comment, data: { confirm: 'Are you sure?', method: :delete } %></td>
       <% else %>
         <td></td>
         <td></td>

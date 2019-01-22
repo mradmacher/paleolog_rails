@@ -1,12 +1,13 @@
 <%= render_title @image.specimen.name %>
-<%= render_navigation [[
-	'Module', 'Species', specimens_path],
-	navigation_for_imageable( @image )] %>
 <% if	current_user.admin? %>
 	<%= render_actions [[
 		'Show original', @image.image.url], [
     'Edit image', edit_image_path( @image.id )] ,[
-		'Delete image', image_path( @image.id ), {:confirm => 'Are you sure?', :method => :delete}]] %>
+		'Delete image', image_path( @image.id ), data: { confirm: 'Are you sure?', method: :delete }]] %>
+<% end %>
+<% content_for :breadcrumb do %>
+  <%= link_to bracketize(@image.specimen.name), specimen_path(@image.specimen) %> -
+  <%= link_to bracketize(@image.image_file_name), image_path(@image) %>
 <% end %>
 <br />
 <small>

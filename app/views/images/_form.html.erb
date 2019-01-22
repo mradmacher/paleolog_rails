@@ -52,13 +52,13 @@
       var group_tag = $( "#group_id" );
       var specimen_tag = $( "#image_specimen_id" );
       <% if @image.specimen.nil? %>
-        populate_specimen_tag( specimen_tag, group_tag.select( "option:selected" ).val() ); 
+        populate_specimen_tag( specimen_tag, group_tag.select( "option:selected" ).val() );
       <% end %>
       group_tag.change( function() {
-        populate_specimen_tag( specimen_tag, group_tag.select( "option:selected" ).val() ); 
+        populate_specimen_tag( specimen_tag, group_tag.select( "option:selected" ).val() );
       });
       project_tag.change( function() {
-        populate_section_tag( section_tag, sample_tag, project_tag.select( "option:selected" ).val() ); 
+        populate_section_tag( section_tag, sample_tag, project_tag.select( "option:selected" ).val() );
       });
       section_tag.change( function() {
         populate_sample_tag( sample_tag, section_tag.select( "option:selected" ).val() );
@@ -132,14 +132,7 @@
     <%= f.label :ef, 'EF' %>
     <%= f.text_field :ef, :size => Image::EF_MAX_LENGTH, :maxlength => Image::EF_MAX_LENGTH %>
   </p>
-	<p>
-    <%= f.submit 'Commit' %>
-    <% if @image.specimen.nil? %>
-      <%= link_to 'Cancel', specimens_path %>
-    <% else %>
-      <%= link_to 'Cancel', specimen_path( @image.specimen_id ) %>
-    <% end %>
-  </p>
+	<p><%= f.submit 'Commit' %></p>
 </fieldset>
 <% end %>
 

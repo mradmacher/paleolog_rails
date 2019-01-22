@@ -29,6 +29,8 @@ en:
               taken: has already been taken
               blank: can't be blank
         specimen:
+          occurrence:
+            exists: can't delete specimen used in counting
           attributes:
             name:
               too_short: is too short (minimum is %{count} characters)
@@ -41,11 +43,7 @@ en:
               blank: can't be blank
             description:
               too_long: is too long (maximum is %{count} characters)
-            age:
-              too_long: is too long (maximum is %{count} characters)
-            comparison:
-              too_long: is too long (maximum is %{count} characters)
-            range:
+            environmental_preferences:
               too_long: is too long (maximum is %{count} characters)
         field:
           feature:

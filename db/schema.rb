@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181206182343) do
+ActiveRecord::Schema.define(version: 20190122211840) do
 
   create_table "choices", force: :cascade do |t|
     t.string  "name"
@@ -124,9 +124,7 @@ ActiveRecord::Schema.define(version: 20181206182343) do
     t.string   "name"
     t.boolean  "verified"
     t.text     "description"
-    t.text     "age"
-    t.text     "comparison"
-    t.text     "range"
+    t.text     "environmental_preferences"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "group_id"

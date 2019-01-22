@@ -4,13 +4,13 @@
 <% if @sample.manageable_by?( current_user ) %>
 	<% actions = [] << ['Edit sample', edit_sample_path( @sample )] %>
 	<% if @sample.can_be_destroyed? %>
-			<% actions << ['Delete sample', sample_path( @sample ), :confirm => 'Are you sure', :method => :delete ] %>
+			<% actions << ['Delete sample', sample_path(@sample), data: { confirm: 'Are you sure', method: :delete }] %>
 	<% end %>
 	<%= render_actions actions %>
 <% end %>
 <% content_for :breadcrumb do %>
-  <%= link_to bracketize( @sample.section.project.name ), project_path( @sample.section.project ) %> - 
-  <%= link_to bracketize( @sample.section.name ), section_path( @sample.section ) %> - 
+  <%= link_to bracketize( @sample.section.project.name ), project_path( @sample.section.project ) %> -
+  <%= link_to bracketize( @sample.section.name ), section_path( @sample.section ) %> -
   <%= link_to bracketize( @sample.name ), sample_path( @sample ) %>
 <% end %>
 <%= render_heading 'Sample' %>

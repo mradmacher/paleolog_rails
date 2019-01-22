@@ -7,21 +7,27 @@ class SpecimensController < ApplicationController
     respond_to do |format|
       format.html
       format.json do
-        render json: @specimens.map{ |s| { :id => s.id, :name => s.name} }
+        render json: @specimens.map { |s| { id: s.id, name: s.name }}
       end
     end
   end
 
   def index
+    @specimens = Specimen.all
     if params.has_key? :group_id
       @group = Group.find( params[:group_id] )
-			@specimens = Specimen.where( :group_id => @group.id )
+			@specimens = @specimens.where(group_id: @group.id)
 			@group_id = @group.id
+    end
+    unless params[:project_id].blank?
+      @project = Project.find(params[:project_id])
+			@specimens = @specimens.where(id: Occurrence.joins(:counting).where('countings.project_id' => params[:project_id]).select(:specimen_id).distinct)
+			@project_id = @project.id
     end
 		@name_pattern = params[:name] || ''
 		@images_visible = params[:images].nil? ? false : true
 		if params.has_key? :name
-			@specimens = @specimens.where( 'name like ?', '%' + @name_pattern + '%' )
+			@specimens = @specimens.where('specimens.name like ?', '%' + @name_pattern + '%')
 		end
 		@specimens = Specimen.where( '1<>1' ) if @specimens.nil?
     @specimens = @specimens.order(:name)
@@ -82,9 +88,7 @@ class SpecimensController < ApplicationController
       :name,
       :verified,
       :description,
-      :age,
-      :comparison,
-      :range,
+      :environmental_preferences,
       :group_id
     )
   end

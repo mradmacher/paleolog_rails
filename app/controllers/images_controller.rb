@@ -35,7 +35,7 @@ class ImagesController < ApplicationController
 
     if @image.save
       flash[:notice] = 'Image was successfully created.'
-      redirect_to image_url( @image )
+      redirect_to specimen_url(@image.specimen_id)
     else
       render :action => "new"
     end

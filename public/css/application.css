@@ -113,12 +113,12 @@ dl.fields ul {
 
 #menu {
   color: black;
-  font-size: 12pt;
+  background: #eeeeee;
+  font-size: 13pt;
   font-weight: bold;
-  background: #0fffff;
   padding: 0.5em;
   clear: both;
-  height: 20px;
+  height: 24px;
 }
 #menu ul {
 	padding: 0;
@@ -142,7 +142,8 @@ dl.fields ul {
   border-bottom: 2px dotted maroon;
 }
 #menu li.current a {
-  background-color: #0fffff;
+  text-transform: uppercase;
+	font-size: 20px;
 }
 #account-menu {
   float: left;
@@ -150,7 +151,6 @@ dl.fields ul {
 #main-menu {
   float: right;
 }
-
 
 .unverified, a.unverified, a:visited.unverified {
   color: red;
@@ -200,13 +200,12 @@ a, a:visited, a:hover {
   border-bottom: 2px dotted maroon;
 }
 
-
 #content h1 {
   font-size: 18pt;
 }
 
 form fieldset {
-	background: #ebf4fb;
+	background: #eeeeee;
 	max-width: 1000px;
 }
 
@@ -264,12 +263,12 @@ form p {
 }
 
 input[type=submit], input[type=reset] {
-	background: #777766;
+	background: #dddddd;
 	text-align: center;
-	color: #ffffff;
+	color: #3f0055;
 	font-weight: bold;
 	border: 2px outset #d7b9c9;
-	font-size: 12px;
+	font-size: 13px;
 	width: 100px;
   display: block;
 }
@@ -292,35 +291,33 @@ form a:visited {
 form a:link {
 	color: #ffffff;
 }
-#heading {
+.heading {
+  text-align: center;
+  text-transform: uppercase;
 }
-#heading h1 {
+.heading h1 {
 	padding: 0px;
-	margin: 0 0 0 5px;
-	font-size: normal;
 }
 #actions {
-	background: #abcbdb;
 	padding: 5px;
 	margin: 5px;
 }
 #actions a {
 	display: inline-block;
-	background: #777766;
+	background: #dddddd;
 	text-align: center;
 	text-decoration: none;
-	color: #ffffff;
 	font-weight: bold;
 	border: 2px outset #d7b9c9;
-	font-size: 12px;
+	font-size: 13px;
 	padding: 1px;
 	width: 120px;
 }
 #actions a:visited {
-	color: #ffffff;
+	color: #3f0055;
 }
 #actions a:link {
-	color: #ffffff;
+	color: #3f0055;
 }
 #new_report label {
   display: inline;
