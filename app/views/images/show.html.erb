@@ -9,28 +9,33 @@
   <%= link_to bracketize(@image.specimen.name), specimen_path(@image.specimen) %> -
   <%= link_to bracketize(@image.image_file_name), image_path(@image) %>
 <% end %>
-<br />
 <small>
 <% current_index = @other_images.index @image -%>
 <% if current_index > 0 -%>
   <%= link_to '<< Previous', image_path( @other_images[current_index-1] ) %>
+<% else %>
+  <small><%= '<< Previous' %></small>
 <% end -%>
 &nbsp;
 <% if current_index < @other_images.size - 1 -%>
   <%= link_to 'Next >>', image_path( @other_images[current_index+1] ) %>
+<% else %>
+  <small><%= 'Next >>' %></small>
 <% end -%>
 </small>
+
+<p>
+  <%= image_tag( @image.image.url( :medium ) ) %>
+</p>
 
 <% if current_user.admin? -%>
   <% unless @image.sample.nil? -%>
     <p>Project: <%= @image.sample.section.project.name %>, Section: <%= @image.sample.section.name %>, Sample: <%= @image.sample.name %></p>
   <% end %>
-  <p>EF: <%= @image.ef %></p>
+  <% unless @image.ef.blank? -%>
+    <p>EF: <%= @image.ef %></p>
+  <% end %>
 <% end -%>
-
-<p>
-  <%= image_tag( @image.image.url( :medium ) ) %>
-</p>
 
 <p>
   <b>Comments:</b>

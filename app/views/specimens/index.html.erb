@@ -2,7 +2,6 @@
 <% if current_user.admin? %>
 	<%= render_actions [['Add species', new_specimen_path ]] %>
 <% end %>
-<h1>Listing Species</h1>
 <form action="<%= specimens_path %>" method="get">
 	<fieldset>
 		<p>
