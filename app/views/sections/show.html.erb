@@ -22,6 +22,7 @@
 <table>
   <tr>
     <th>Samples</th>
+    <th>Description</th>
     <% @countings.each do |counting| %>
       <th><%= counting.name %></th>
     <% end %>
@@ -29,6 +30,7 @@
   <% @samples.each do |sample| -%>
     <tr>
 			<td><%= link_to sample.name, sample_path(sample) %></td>
+      <td><%= sample.description %></td>
       <% @countings.each do |counting| %>
         <td align="center"><%= link_to(@counted_samples.include?([counting.id, sample.id]) ? 'C' : 'X', counting_sample_occurrences_path(counting, sample)) %></td>
       <% end %>

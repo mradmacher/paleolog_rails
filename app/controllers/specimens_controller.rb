@@ -21,8 +21,11 @@ class SpecimensController < ApplicationController
     end
     unless params[:project_id].blank?
       @project = Project.find(params[:project_id])
-			@specimens = @specimens.where(id: Occurrence.joins(:counting).where('countings.project_id' => params[:project_id]).select(:specimen_id).distinct)
 			@project_id = @project.id
+      occurrence_specimen_ids = Occurrence.joins(:counting).where('countings.project_id' => @project_id).select(:specimen_id).distinct.map(&:specimen_id)
+      image_specimen_ids = Image.joins(sample: :section).where('sections.project_id' => @project_id).select(:specimen_id).distinct.map(&:specimen_id)
+      specimen_ids = occurrence_specimen_ids + image_specimen_ids
+			@specimens = @specimens.where(id: specimen_ids)
     end
 		@name_pattern = params[:name] || ''
 		@images_visible = params[:images].nil? ? false : true
