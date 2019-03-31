@@ -6,7 +6,7 @@
 	<fieldset>
 		<p>
 		<%= label_tag 'Group' %>
-    <%= select_tag(:group_id, options_from_collection_for_select(Group.all, :id, :name, @group_id)) %>
+    <%= select_tag(:group_id, options_from_collection_for_select(Group.all, :id, :name, @group_id), include_blank: true) %>
 		</p>
 		<p>
 		<%= label_tag 'Project' %>
@@ -30,10 +30,18 @@
   <b>Found:</b> <%= @specimens.size %>
   </p>
   <table>
+    <tr>
+      <th>Species</th>
+      <th>Group</th>
+      <th></th>
+    </tr>
   <% @specimens.each do |specimen| %>
     <tr>
       <td>
         <%= link_to specimen.name, specimen, :class => (specimen.verified ? 'verified' : 'unverified' ) %>
+      </td>
+      <td>
+        <%= specimen.group.name %>
       </td>
       <% if !@images_visible %>
       <td>

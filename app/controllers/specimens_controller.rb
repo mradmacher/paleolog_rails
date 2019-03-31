@@ -13,8 +13,8 @@ class SpecimensController < ApplicationController
   end
 
   def index
-    @specimens = Specimen.all
-    if params.has_key? :group_id
+    @specimens = params.keys.any? { |k| k.in?(['group_id', 'project_id', 'name']) } ? Specimen.all : Specimen.where('1<>1')
+    unless params[:group_id].blank?
       @group = Group.find( params[:group_id] )
 			@specimens = @specimens.where(group_id: @group.id)
 			@group_id = @group.id
@@ -27,12 +27,12 @@ class SpecimensController < ApplicationController
       specimen_ids = occurrence_specimen_ids + image_specimen_ids
 			@specimens = @specimens.where(id: specimen_ids)
     end
-		@name_pattern = params[:name] || ''
 		@images_visible = params[:images].nil? ? false : true
-		if params.has_key? :name
+		unless params[:name].blank?
+      @name_pattern = params[:name] || ''
 			@specimens = @specimens.where('specimens.name like ?', '%' + @name_pattern + '%')
 		end
-		@specimens = Specimen.where( '1<>1' ) if @specimens.nil?
+		#@specimens = Specimen.where( '1<>1' ) if @specimens.nil?
     @specimens = @specimens.order(:name)
     respond_to do |format|
       format.html
