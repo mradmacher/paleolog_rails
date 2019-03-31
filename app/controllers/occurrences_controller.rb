@@ -5,7 +5,7 @@ class OccurrencesController < ApplicationController
     @counting = Counting.viewable_by(current_user).find(params[:counting_id])
     respond_to do |format|
       format.json do
-		    render json: Specimen.where( id: @counting.available_species_ids(params[:group_id], params[:sample_id])).order(:name)
+		    render json: Specimen.where(id: CountingSummary.new(@counting).available_species_ids(params[:group_id], params[:sample_id])).order(:name)
       end
     end
   end

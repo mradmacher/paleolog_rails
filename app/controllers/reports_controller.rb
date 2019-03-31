@@ -10,12 +10,12 @@ class ReportsController < ApplicationController
   end
 
   def create
-    @report = Report.build( params )
+    @report = Report.build(params)
 		@report.generate
   end
 
   def export
-    @report = Report.build( params[:report] )
+    @report = Report.build(params[:report])
 		@report.generate
     respond_to do |format|
       format.csv
@@ -27,6 +27,6 @@ class ReportsController < ApplicationController
 
   private
   def reports_layout
-    ['create', 'export'].include?( params[:action] ) ? 'report' : 'application'
+    ['create', 'export'].include?(params[:action]) ? 'report' : 'application'
   end
 end

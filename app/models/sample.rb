@@ -15,14 +15,18 @@
   has_many :images
   has_many :occurrences
 
+  validates :rank, presence: true, uniqueness: { scope: :section_id }
   validates :name, uniqueness: { scope: :section_id }, presence: true, length: { within: NAME_RANGE }
   validates :section_id, :presence => true
   validates :weight, :numericality => { :greater_than => 0 }, allow_nil: true
 
-  default_scope -> { order(:bottom_depth) }
-
   scope :viewable_by, lambda { |user| joins(section: { project: :research_participations }).where(research_participations: { user_id: user.id }) }
   scope :manageable_by, lambda { |user| joins(section: { project: :research_participations }).where(research_participations: { user_id: user.id, manager: true }) }
+  # order of samples is important
+  # samples must be ordered by bottom_depth
+  # occurrences must be ordered by specimen's first occurrence
+  # samples.sort{ |s1, s2| s1.bottom_depth <=> s2.bottom_depth }.each do |sample|
+  scope :ordered, lambda { order(rank: :asc) }
 
   def manageable_by?( user )
     !self.section.nil? && self.section.manageable_by?(user)

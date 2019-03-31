@@ -105,4 +105,35 @@ class SampleTest < ActiveSupport::TestCase
     assert sample.occurrences.empty?
     assert sample.destroy
   end
+
+  test 'have a rank' do
+    sample = Sample.sham!(:build, rank: nil)
+    refute sample.valid?
+		assert sample.errors[:rank].include? I18n.t( 'activerecord.errors.models.sample.attributes.rank.blank' )
+	end
+
+  test 'have unique rank in section' do
+    existing = Sample.sham!
+    sample = Sample.sham!(:build, section: existing.section, rank: existing.rank)
+    refute sample.valid?
+		assert sample.errors[:rank].include? I18n.t('activerecord.errors.models.sample.attributes.rank.taken')
+	end
+
+  test 'allow to repeat rank in different sections' do
+    section1 = Section.sham!
+    section2 = Section.sham!
+    existing = Sample.sham!(section: section1)
+    sample = Sample.sham!(:build, section: section2, rank: existing.rank)
+    assert sample.valid?
+	end
+
+  test 'samples are orderd by rank' do
+    section = Section.sham!
+    Sample.sham!(section: section, name: 'a', rank: 3)
+    Sample.sham!(section: section, name: 'b', rank: 1)
+    Sample.sham!(section: section, name: 'c', rank: 2)
+    Sample.sham!(section: section, name: 'd', rank: 4)
+    ordered = section.samples.ordered.map(&:name)
+    assert ['b', 'c', 'a', 'd'], ordered
+  end
 end

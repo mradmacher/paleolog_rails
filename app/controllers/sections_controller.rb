@@ -14,7 +14,7 @@ class SectionsController < ApplicationController
     @section = Section.viewable_by(current_user).find(params[:id])
 		@project = @section.project
     @countings = @project.countings
-    @samples = @section.samples
+    @samples = @section.samples.ordered
     @counted_samples = Occurrence.where(counting_id: @countings.map(&:id), sample_id: @samples.map(&:id))
       .select(:counting_id, :sample_id).distinct.map { |o| [o.counting_id, o.sample_id] }
 	end
@@ -67,6 +67,6 @@ class SectionsController < ApplicationController
 	end
 
   def section_params
-    params.require(:section).permit(:name, :project_id)
+    params.require(:section).permit(:name, :category, :project_id)
   end
 end

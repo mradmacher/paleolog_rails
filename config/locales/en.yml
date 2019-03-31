@@ -127,6 +127,9 @@ en:
             weight:
               not_a_number: should be a number
               greater_than: "should be grater than 0"
+            rank:
+              blank: can't be blank
+              taken: has already been taken
         occurrence:
           attributes:
             counting_id:

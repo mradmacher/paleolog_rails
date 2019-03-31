@@ -6,7 +6,7 @@ require 'paleorep/report'
 
 class Report
 	attr_accessor :type, :counting_id, :section_id, :sample_ids, :species_ids,
-    :view, :charts, :orientation, :show_symbols, :percentages,
+    :view, :charts, :orientation, :show_symbols, :percentages, :reverse_rows,
     :column_criteria, :row_criteria
 	attr_reader :column_headers, :row_headers, :values, :splits, :title
 
@@ -146,6 +146,7 @@ class Report
     @report.percentages = params[:percentages]
     @report.column_criteria = params[:columns]
     @report.row_criteria = params[:rows]
+    @report.reverse_rows = params[:reverse_rows] == '1'
 
     @report
   end
@@ -206,7 +207,7 @@ class Report
         column_group.headers << Paleorep::Field.new(s, species_textizer)
       end
       occurrence_textizer = if self.type == DENSITY
-          density_map = self.counting.occurrence_density_map(section)
+          density_map = CountingSummary.new(counting).occurrence_density_map(section)
           OccurrenceDensityTextizer.new(density_map)
         else
           OccurrenceQuantityTextizer.new(@show_symbols.to_i > 0)
@@ -358,11 +359,15 @@ class Report
   end
 
 	def generate
-    samples, species, occurrences = counting.summary(section)
+    samples, species, occurrences = CountingSummary.new(counting).summary(section)
 
     report = Paleorep::Report.new
     @row_criteria.each_value do |criteria|
       samples, occurrences = filter_row( criteria, samples, occurrences )
+      if reverse_rows
+        samples.reverse!
+        occurrences.reverse!
+      end
       sample_textizer = SampleTextizer.new
       samples.each do |sample|
         report.add_row(Paleorep::Field.new(sample, sample_textizer))
@@ -371,10 +376,10 @@ class Report
 
     @column_criteria.each_value do |criteria|
       column_group = report.append_column_group
-      process_column( column_group, species, occurrences )
-      post_process_column( column_group, criteria )
-      filter_column( column_group, criteria )
-      reduce_column( column_group, criteria )
+      process_column(column_group, species, occurrences)
+      post_process_column(column_group, criteria)
+      filter_column(column_group, criteria)
+      reduce_column(column_group, criteria)
     end
 
     @column_criteria.each_value do |criteria|
@@ -413,6 +418,4 @@ class Report
     @section = Section.find(self.section_id) if @section.nil? && self.section_id
     @section
   end
-
 end
-

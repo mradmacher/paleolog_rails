@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190122211840) do
+ActiveRecord::Schema.define(version: 20190331203134) do
 
   create_table "choices", force: :cascade do |t|
     t.string  "name"
@@ -111,6 +111,7 @@ ActiveRecord::Schema.define(version: 20190122211840) do
     t.decimal  "top_depth"
     t.text     "description"
     t.decimal  "weight"
+    t.integer  "rank"
   end
 
   create_table "sections", force: :cascade do |t|
@@ -118,6 +119,7 @@ ActiveRecord::Schema.define(version: 20190122211840) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "project_id"
+    t.integer  "category"
   end
 
   create_table "specimens", force: :cascade do |t|

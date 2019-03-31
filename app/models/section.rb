@@ -3,19 +3,19 @@ class Section < ActiveRecord::Base
 	NAME_MAX_LENGTH = 32
 	NAME_RANGE = NAME_MIN_LENGTH..NAME_MAX_LENGTH
 
-  has_many :samples, -> { order(:bottom_depth) }
+  has_many :samples
   has_many :users, :through => :research_participations
   belongs_to :project
 
-  validates :name, :presence => true, :length => { :within => NAME_RANGE }, :uniqueness => { :scope => :project_id }
-  validates :project_id, :presence => true
+  validates :name, presence: true, length: { within: NAME_RANGE }, uniqueness: { scope: :project_id }
+  validates :project_id, presence: true
 
   scope :viewable_by, lambda { |user| joins(project: :research_participations).where(research_participations: { user_id: user.id }) }
   scope :manageable_by, lambda { |user| joins(project: :research_participations).where(research_participations: { user_id: user.id, manager: true }) }
 
   before_destroy do
     unless self.samples.empty?
-      errors[:base] << I18n.t( 'activerecord.errors.models.section.samples.exist' )
+      errors[:base] << I18n.t('activerecord.errors.models.section.samples.exist')
       false
     end
   end
@@ -28,11 +28,7 @@ class Section < ActiveRecord::Base
     !self.project.nil? && self.project.research_participations.where(user_id: user.id).exists?
   end
 
-  def ordered_samples
-    samples.order(:bottom_depth)
-  end
-
   def managers
-    self.users.where( :research_participations => { :manager => true } )
+    self.users.where(research_participations: { manager: true } )
   end
 end

@@ -33,9 +33,11 @@ class SamplesController < ApplicationController
 	def create
 		@sample = Sample.new(sample_params)
     raise User::NotAuthorized unless @sample.manageable_by? current_user
+    max = Sample.where(section_id: @sample.section_id).maximum(:rank)
+    @sample.rank = max.nil? ? 0 : max + 1
     if @sample.save
       flash[:notice] = 'Sample was successfully created.'
-      redirect_to( @sample )
+      redirect_to(@sample)
     else
       render :action => "new"
     end

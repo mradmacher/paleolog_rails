@@ -16,7 +16,7 @@ def fake_string( klass, method, min, max )
   name
 end
 
-Sham.config( User ) do |c|
+Sham.config(User) do |c|
   c.attributes do
     { :name => fake_string( User, :name, User::NAME_MIN_LENGTH, User::NAME_MAX_LENGTH ),
       :email => fake_email,
@@ -27,13 +27,13 @@ Sham.config( User ) do |c|
   end
 end
 
-Sham.config( Group ) do |c|
+Sham.config(Group) do |c|
   c.attributes do
     { :name => fake_string( Group, :name, Group::NAME_MIN_LENGTH, Group::NAME_MAX_LENGTH ) }
   end
 end
 
-Sham.config( ResearchParticipation ) do |c|
+Sham.config(ResearchParticipation) do |c|
   c.attributes do
     {
       :user => Sham::Nested.new( User ),
@@ -43,7 +43,7 @@ Sham.config( ResearchParticipation ) do |c|
   end
 end
 
-Sham.config( Specimen ) do |c|
+Sham.config(Specimen) do |c|
   c.attributes do
     { :name => fake_string( Specimen, :name, Specimen::NAME_MIN_LENGTH, Specimen::NAME_MAX_LENGTH ),
       :verified => [true, false][Random.new.rand( 0..1 )],
@@ -61,8 +61,9 @@ end
 
 Sham.config(Section) do |c|
   c.attributes do
-    { :name => fake_string(Section, :name, Section::NAME_MIN_LENGTH, Section::NAME_MAX_LENGTH ),
-      :project => Sham::Nested.new(Project)
+    {
+      name: fake_string(Section, :name, Section::NAME_MIN_LENGTH, Section::NAME_MAX_LENGTH ),
+      project: Sham::Nested.new(Project)
     }
   end
 end
@@ -81,6 +82,7 @@ Sham.config(Sample) do |c|
     {
       name: fake_string( Sample, :name, Sample::NAME_MIN_LENGTH, Sample::NAME_MAX_LENGTH ),
       section: Sham::Nested.new(Section),
+      rank: Sample.maximum(:rank).nil? ? 0 : Sample.maximum(:rank) + 1,
       top_depth: -20.0,
       bottom_depth: -45.5
     }
@@ -101,7 +103,7 @@ Sham.config(Occurrence) do |c|
   end
 end
 
-Sham.config( Comment ) do |c|
+Sham.config(Comment) do |c|
   c.attributes do
     { :message => 'Some message',
       :user => Sham::Nested.new( User ),
@@ -111,7 +113,7 @@ Sham.config( Comment ) do |c|
   end
 end
 
-Sham.config( Field ) do |c|
+Sham.config(Field) do |c|
   c.attributes do
     {
       :group => Sham::Nested.new( Group ),
@@ -120,7 +122,7 @@ Sham.config( Field ) do |c|
   end
 end
 
-Sham.config( Choice ) do |c|
+Sham.config(Choice) do |c|
   c.attributes do
     {
       :field => Sham::Nested.new( Field ),
@@ -129,7 +131,7 @@ Sham.config( Choice ) do |c|
   end
 end
 
-Sham.config( Feature ) do |c|
+Sham.config(Feature) do |c|
   field = Field.sham!
   c.attributes do
     {
@@ -138,4 +140,3 @@ Sham.config( Feature ) do |c|
     }
   end
 end
-

@@ -11,7 +11,7 @@
   <%= link_to bracketize( @counting.name ), @counting %>
 <% end %>
 <%= render_heading "Counting for Sample" %>
-<% group_per_gram = @counting.group_per_gram( @sample ) %>
+<% group_per_gram = CountingSummary.new(@counting).group_per_gram(@sample) %>
 <dl class="fields">
 	<dt>Counting</dt>
   <dd><%= @counting.name %></dd>

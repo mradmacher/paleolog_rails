@@ -53,22 +53,6 @@ class SectionTest < ActiveSupport::TestCase
     assert section.destroy
   end
 
-  def test_if_samples_orderd_by_bottom_depth_asc
-    section = Section.sham!
-    Sample.sham!(:section => section, :bottom_depth => 100.0, :top_depth => 80.0)
-    Sample.sham!(:section => section, :bottom_depth => 50.0, :top_depth => 20.0)
-    Sample.sham!(:section => section, :bottom_depth => 20.0, :top_depth => 10.0)
-    Sample.sham!(:section => section, :bottom_depth => 70.0, :top_depth => 50.0)
-    previous_depth = nil
-    section.samples.each do |s|
-      unless previous_depth.nil?
-        assert s.bottom_depth > previous_depth
-      else
-        previous_depth = s.bottom_depth
-      end
-    end
-  end
-
   def test_viewable_by
     user = User.sham!
     expected = []

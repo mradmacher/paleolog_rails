@@ -6,7 +6,7 @@ class CountingsController < ApplicationController
     @section = Section.find(params[:section_id])
     respond_to do |format|
       format.json do
-        render json: @counting.specimens_by_occurrence(@section.ordered_samples).map { |s| { id: s.id, name: s.name } }
+        render json: CountingSummary.new(@counting).specimens_by_occurrence_for_section(@section).map { |s| { id: s.id, name: s.name } }
       end
     end
   end

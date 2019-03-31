@@ -5,6 +5,7 @@
   <input type="hidden" name="report[view]" value="<%= @report.view %>">
   <input type="hidden" name="report[show_symbols]" value="<%= @report.show_symbols %>">
   <input type="hidden" name="report[percentages]" value="<%= @report.percentages %>">
+  <input type="hidden" name="report[reverse_rows]" value="<%= @report.reverse_rows ? '1' : '0' %>">
   <% @report.column_criteria.each do |i, column| %>
     <% if column['species_ids'] %>
       <% column['species_ids'].each do |id| %>
