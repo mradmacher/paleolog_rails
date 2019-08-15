@@ -43,10 +43,7 @@
 <h1>Section <%= @report.title %></h1>
 <%= render :partial => 'reports/table', :formats => [:svg] %>
 
-<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-<script src="http://code.jquery.com/jquery-migrate-1.1.1.min.js"></script>
-<% javascript_include_tag '/js/jquery.min.js' %>
-<% javascript_include_tag '/js/jquery-migrate.min.js' %>
+<%= javascript_include_tag '/js/jquery.min.js' %>
 <%= javascript_include_tag '/js/rails.js' %>
 <%= javascript_include_tag '/js/application.js' %>
 <script type="text/javascript">
