@@ -44,6 +44,10 @@ class Occurrence < ActiveRecord::Base
 		self.status == stat
 	end
 
+  def status_symbol
+    STATUSES[status]
+  end
+
   def normal?
     self.status == NORMAL
   end

@@ -10,12 +10,42 @@ class OccurrencesController < ApplicationController
     end
   end
 
+  def stats
+    occurrences = Occurrence.where(counting_id: params[:counting_id], sample_id: params[:sample_id])
+    respond_to do |format|
+      format.json do
+		    render json: {
+          countable: occurrences.countable.sum(:quantity),
+          total: occurrences.sum(:quantity)
+        }
+      end
+    end
+  end
+
   def index
     @counting = Counting.viewable_by(current_user).find(params[:counting_id])
     @sample = Sample.find(params[:sample_id])
     @section = @sample.section
     @project = @section.project
     @occurrences = Occurrence.where(counting_id: params[:counting_id], sample_id: params[:sample_id])
+
+    respond_to do |format|
+      format.html
+      format.json do
+        render json: {
+          occurrences: @occurrences.map { |occurrence|
+            {
+              id: occurrence.id,
+              specimen_name: occurrence.specimen.name,
+              group_name: occurrence.specimen.group.name,
+              quantity: occurrence.quantity,
+              status_symbol: occurrence.status_symbol,
+              uncertain: occurrence.uncertain
+            }
+          }
+        }
+      end
+    end
   end
 
 	def count
@@ -27,101 +57,6 @@ class OccurrencesController < ApplicationController
     @occurrences = Occurrence.where( sample_id: @sample.id, counting_id: @counting.id ).ordered_by_occurrence
 		@occurrence = Occurrence.new( sample: @sample, counting: @counting )
 	end
-
-	def set_uncertain
-    occurrence_id = params[:id]
-    @occurrence = Occurrence.viewable_by(current_user).find(occurrence_id)
-    raise User::NotAuthorized unless @occurrence.manageable_by? current_user
-    @occurrence.uncertain = params[:quantity]
-    @occurrence.save
-    respond_to do |format|
-      format.json do
-		    render json: {
-          'occurrence_id' => occurrence_id,
-          'quantity' => @occurrence.uncertain?
-        }
-      end
-    end
-	end
-
-	def set_status
-    occurrence_id = params[:id]
-    @occurrence = Occurrence.viewable_by(current_user).find(occurrence_id)
-    raise User::NotAuthorized unless @occurrence.manageable_by? current_user
-    @occurrence.status = params[:quantity].to_i
-    @occurrence.save
-    @occurrences = @occurrence.counting.occurrences.from_sample( @occurrence.sample )
-    respond_to do |format|
-      format.json do
-		    render json: {
-          'occurrence_id' => occurrence_id,
-          'quantity' => @occurrence.status,
-          'countable' => @occurrences.countable.sum(:quantity),
-          'uncountable' => @occurrences.uncountable.sum(:quantity)
-        }
-      end
-    end
-	end
-
-	def set_quantity
-    occurrence_id = params[:id]
-    @occurrence = Occurrence.viewable_by( current_user ).find(occurrence_id)
-    raise User::NotAuthorized unless @occurrence.manageable_by? current_user
-    @occurrence.quantity = params[:quantity].to_i
-    @occurrence.save
-    @occurrences = @occurrence.counting.occurrences.from_sample(@occurrence.sample)
-    respond_to do |format|
-      format.json do
-		    render json: {
-          'occurrence_id' => occurrence_id,
-          'quantity' => @occurrence.quantity,
-          'countable' => @occurrences.countable.sum(:quantity),
-          'uncountable' => @occurrences.uncountable.sum(:quantity)
-        }
-      end
-    end
-	end
-
-  def increase_quantity
-    occurrence_id = params[:id]
-    @occurrence = Occurrence.viewable_by(current_user).find(occurrence_id)
-    raise User::NotAuthorized unless @occurrence.manageable_by? current_user
-    @occurrence.quantity = 0 if @occurrence.quantity.nil?
-    @occurrence.quantity += 1
-    @occurrence.save
-    @occurrences = @occurrence.counting.occurrences.from_sample(@occurrence.sample)
-    respond_to do |format|
-      format.json do
-        render json: {
-          'occurrence_id' => occurrence_id,
-          'quantity' => @occurrence.quantity,
-          'countable' => @occurrences.countable.sum(:quantity),
-          'uncountable' => @occurrences.uncountable.sum(:quantity)
-        }
-      end
-    end
-  end
-
-  def decrease_quantity
-    occurrence_id = params[:id]
-    occurrence_id = params[:id]
-    @occurrence = Occurrence.viewable_by(current_user).find(occurrence_id)
-    raise User::NotAuthorized unless @occurrence.manageable_by? current_user
-    @occurrence.quantity = 0 unless !@occurrence.quantity.nil?
-    @occurrence.quantity = @occurrence.quantity == 0 ? nil : @occurrence.quantity - 1
-    @occurrence.save
-    @occurrences = @occurrence.counting.occurrences.from_sample( @occurrence.sample )
-    respond_to do |format|
-      format.json do
-        render json: {
-          'occurrence_id' => occurrence_id,
-          'quantity' => @occurrence.quantity,
-          'countable' => @occurrences.countable.sum(:quantity),
-          'uncountable' => @occurrences.uncountable.sum(:quantity)
-        }
-      end
-    end
-  end
 
   def exchange
     ocr1 = Occurrence.viewable_by(current_user).find(params[:id1])
@@ -142,28 +77,53 @@ class OccurrencesController < ApplicationController
   end
 
   def create
-    @occurrence = Occurrence.new(occurrence_params)
-    raise User::NotAuthorized unless @occurrence.manageable_by? current_user
-    max = Occurrence.where(counting_id: @occurrence.counting_id, sample_id: @occurrence.sample_id).maximum( :rank )
-    @occurrence.rank = max.nil? ? 0 : max + 1
-    @occurrence.save
-		redirect_to edit_counting_sample_occurrences_url( @occurrence.counting_id, @occurrence.sample_id )
+    occurrence = Occurrence.new(occurrence_params)
+    raise User::NotAuthorized unless occurrence.manageable_by? current_user
+    max = Occurrence.where(counting_id: occurrence.counting_id, sample_id: occurrence.sample_id).maximum(:rank)
+    occurrence.rank = max.nil? ? 0 : max + 1
+    occurrence.save
+    respond_to do |format|
+      format.json do
+        render json: {
+          id: occurrence.id,
+          specimen_name: occurrence.specimen.name,
+          group_name: occurrence.specimen.group.name,
+          quantity: occurrence.quantity,
+          status_symbol: occurrence.status_symbol,
+          uncertain: occurrence.uncertain
+        }
+      end
+    end
   end
 
   def update
-    @occurrence = Occurrence.viewable_by( current_user ).find(params[:id])
-    raise User::NotAuthorized unless @occurrence.manageable_by? current_user
-    @occurrence.assign_attributes(occurrence_params)
-    @occurrence.save
-		redirect_to edit_counting_sample_occurrences_url( @occurrence.counting, @occurrence.sample )
+    occurrence = Occurrence.viewable_by( current_user ).find(params[:id])
+    raise User::NotAuthorized unless occurrence.manageable_by?(current_user)
+
+    occurrence.assign_attributes(occurrence_params)
+    occurrence.save
+    respond_to do |format|
+      format.json do
+        render json: {
+          quantity: occurrence.quantity,
+          status_symbol: occurrence.status_symbol,
+          uncertain: occurrence.uncertain?,
+        }
+      end
+    end
   end
 
   def destroy
-    @occurrence = Occurrence.viewable_by( current_user ).find( params[:id] )
-    raise User::NotAuthorized unless @occurrence.manageable_by? current_user
-    @occurrence.destroy
+    occurrence = Occurrence.viewable_by(current_user).find(params[:id])
+    raise User::NotAuthorized unless occurrence.manageable_by?(current_user)
 
-		redirect_to edit_counting_sample_occurrences_url( @occurrence.counting, @occurrence.sample )
+    occurrence.destroy
+
+    respond_to do |format|
+      format.json do
+        render json: {}
+      end
+    end
   end
 
   def occurrence_params
@@ -171,7 +131,6 @@ class OccurrencesController < ApplicationController
       :specimen_id,
       :specimen_type,
       :quantity,
-      :sample_counting_id,
       :rank,
       :status,
       :uncertain,

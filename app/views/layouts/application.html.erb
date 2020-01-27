@@ -15,6 +15,9 @@
 
   <%= javascript_include_tag '/js/rails.js' %>
   <%= javascript_include_tag '/js/application.js' %>
+  <!--<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>-->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <!--
   <link href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" media="screen" rel="stylesheet" type="text/css" />
   -->
@@ -27,9 +30,7 @@
 <body>
 <div id="body">
   <div id="page">
-    <div id="header">
-      <span id="main-header"><a href="<%= root_url %>">PaleoLog</a></span>
-    </div>
+    <div id="header"><span id="main-header"><a href="<%= root_url %>">PaleoLog</a></span></div>
     <div id="menu">
       <div id="main-menu">
         <ul>
@@ -39,34 +40,30 @@
         <% else -%>
           <li><%= link_to 'Login', show_login_url %></li>
         <% end -%>
-      </ul>
+        </ul>
       </div>
-      <% if current_user? %>
-        <div id="account-menu">
-          <ul>
-            <li class="<%= controller_name.in?(%w(specimens images)) ? 'current' : 'other' %>"><%= link_to 'Species', specimens_url %></li>
-            <li class="<%= controller_name.in?(%w(projects sections samples countings occurrences)) ? 'current' : 'other' %>"><%= link_to 'Projects', projects_url %></li>
-            <li class="<%= controller_name.in?(%w(comments)) ? 'current' : 'other' %>"><%= link_to 'Activities', comments_url %></li>
-            <li class="<%= controller_name.in?(%w(reports)) ? 'current' : 'other' %>"><%= link_to "Reports", new_report_url %></li>
-          </ul>
-        </div>
+    <% if current_user? %>
+      <div id="account-menu">
+        <ul>
+          <li class="<%= controller_name.in?(%w(specimens images)) ? 'current' : 'other' %>"><%= link_to 'Species', specimens_url %></li>
+          <li class="<%= controller_name.in?(%w(projects sections samples countings occurrences)) ? 'current' : 'other' %>"><%= link_to 'Projects', projects_url %></li>
+          <li class="<%= controller_name.in?(%w(comments)) ? 'current' : 'other' %>"><%= link_to 'Activities', comments_url %></li>
+          <li class="<%= controller_name.in?(%w(reports)) ? 'current' : 'other' %>"><%= link_to "Reports", new_report_url %></li>
+        </ul>
+      </div>
     <% end %>
-  </div>
-	<% if current_user? -%>
-    <%= yield :actions %>
-	<% end -%>
+    </div>
     <div id="content">
-      <strong><%= yield :breadcrumb %></strong>
+      <p><strong><%= yield :breadcrumb %></strong></p>
+      <h1><%= yield :title %></h1>
+      <% if current_user? -%>
+        <%= yield :actions %>
+      <% end -%>
       <%= yield :navigation %>
       <p style="color: green"><%= flash[:notice] %></p>
       <%= yield %>
     </div>
   </div>
-  <% if current_user? -%>
-    <div id="footer">
-      <%= link_to "About", about_url %>
-    </div>
-  <% end %>
 </div>
 </body>
 </html>

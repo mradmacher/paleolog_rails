@@ -1,5 +1,4 @@
 <%= render_title @project.name %>
-<%= render 'navigation' %>
 
 <% actions = [] %>
 <% if @project.manageable_by?(current_user) %>
@@ -18,37 +17,33 @@
 <%= render_heading 'Project' %>
 
 <dl class="fields">
-	<dt>Name</dt>
+	<dt>Project</dt>
 	<dd><%= @project.name %></dd>
-</dl>
 
-<table>
-  <tr>
-    <th>Sections</th>
-    <th>Countings</th>
-    <th>Researchers</th>
-  </tr>
-  <tr>
-    <td>
-      <ul>
-      <% @project.sections.each do |section| %>
-        <li><%= link_to section.name, section_path(section) %>
-      <% end %>
-      </ul>
-    </td>
-    <td>
-      <ul>
-      <% @project.countings.each do |counting| %>
-        <li><%= link_to counting.name, counting_path(counting) %>
-      <% end %>
-      </ul>
-    </td>
-    <td>
-      <ul>
-      <% @project.research_participations.each do |participation| %>
-        <li><%= link_to participation.user.name, research_participation_path(participation) %>
-      <% end %>
-      </ul>
-    </td>
-  </tr>
-</table>
+  <dt>Researchers</dt>
+  <dd>
+    <ul>
+    <% @project.research_participations.each do |participation| %>
+      <li><%= link_to participation.user.name, research_participation_path(participation) %>
+    <% end %>
+    </ul>
+  </dd>
+
+  <dt>Countings</dt>
+  <dd>
+    <ul>
+    <% @project.countings.each do |counting| %>
+      <li><%= link_to counting.name, counting_path(counting) %>
+    <% end %>
+    </ul>
+  </dd>
+
+  <dt>Sections</dt>
+  <dd>
+    <ul>
+    <% @project.sections.each do |section| %>
+      <li><%= link_to section.name, section_path(section) %>
+    <% end %>
+    </ul>
+  </dd>
+</dl>

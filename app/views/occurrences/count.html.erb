@@ -1,4 +1,4 @@
-<%= render_title @sample.name %>
+<%= render_title @counting.project.name %>
 <%= render 'navigation' %>
 <%= render_actions [['Show counting', counting_sample_occurrences_path( @counting, @sample )]] %>
 <% content_for :breadcrumb do %>
@@ -8,187 +8,321 @@
   <%= link_to bracketize( @counting.name ), @counting %>
 <% end %>
 <%= render_heading 'Sample Counting' %>
+
+<div id="occurrence-list">
 <dl class="fields">
-	<dt>Name</dt>
+	<dt>Counting</dt>
 	<dd><%= @counting.name %></dd>
+	<dt>Sample</dt>
+	<dd><%= @sample.name %></dd>
 	<dt>Sum</dt>
 	<dd>
 		<table>
 			<tr>
 				<th>Counted:</th>
-				<td><span id="sample-countable-sum"><%= @occurrences.countable.sum( :quantity ) %></span></td>
+				<td><span id="sample-countable-sum">{{ countable }}</span></td>
 			</tr>
 			<tr>
 				<th>Other:</th>
-				<td><span id="sample-uncountable-sum"><%= @occurrences.uncountable.sum( :quantity ) %></span></td>
+				<td><span id="sample-uncountable-sum">{{ uncountable }}</span></td>
 			</tr>
 			<tr>
 				<th>Total:</th>
-				<td><span id="sample-total-sum"><%= @occurrences.sum( :quantity ) %></span></td>
+				<td><span id="sample-total-sum">{{ total }}</span></td>
 			</tr>
 		</table>
 	</dd>
 </dl>
-<table id="movable">
-  <tr>
-    <th></th>
-    <th>Species</th>
-    <th></th>
-    <th colspan="2"></th>
-    <th>Quantity</th>
-    <th>Status</th>
-		<th>&nbsp;<%= Occurrence::UNCERTAIN_SYMBOL %>&nbsp;</th>
-    <th></th>
-  </tr>
-  <%= render @occurrences %>
+
+<input type="button" v-if="isCountingMode()" v-on:click="switchOnActionMode" value="Reorganize" />
+<input type="button" v-if="isActionMode()" v-on:click="switchOnCountingMode" value="Count" />
+<br />
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>Group</th>
+      <th>Species</th>
+      <th></th>
+      <th>Quantity</th>
+      <th></th>
+      <th>Status</th>
+      <th>&nbsp;<%= Occurrence::UNCERTAIN_SYMBOL %>&nbsp;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="occurrence in occurrenceList" v-bind:occurrence="occurrence" v-bind:key="occurrence.id">
+      <td>
+        <span v-if="isActionMode()">
+          <input type="button" value="^" v-on:click="moveUp(occurrence)"/>
+          <input type="button" value="Remove" style="background-color: red" v-on:click="remove(occurrence)" />
+        </span>
+      </td>
+      <td>{{ occurrence.group_name }}</td>
+      <td>{{ occurrence.specimen_name }}</td>
+      <td align="center">
+        <input type="button" value="  -  " v-on:click="decreaseOne(occurrence)" v-bind:disabled="!isCountingMode()">
+        <input type="button" value="  +  " v-on:click="increaseOne(occurrence)" v-bind:disabled="!isCountingMode()">
+      </td>
+      <td>
+        <input type="text" size="4" v-bind:id="'occurrence-quantity-' + occurrence.id" v-bind:readonly="!(isEditingMode() && occurrence.editing)" v-bind:disabled="!(isEditingMode() && occurrence.editing)" v-bind:value="occurrence.quantity" v-on:keyup="function(event) { quantityChanged(event, occurrence) }" />
+      </td>
+      <td>
+        <input type="button" value="  =  " v-if="isCountingMode()" v-on:click="switchOnEditingMode(occurrence)" v-bind:disabled="!isCountingMode()">
+        <input type="button" v-if="isEditingMode() && occurrence.editing" value="  ✓  " v-on:click="confirmEditQuantity(occurrence)">
+        <input type="button" v-if="isEditingMode() && occurrence.editing" value="  X  " v-on:click="switchOffEditingMode(occurrence)">
+      </td>
+      <td>
+        <select v-bind:name="'occurrence-status-' + occurrence.id" v-on:change="function(event) { changeStatus(event, occurrence) }" v-bind:disabled="!isCountingMode()">
+        <% Occurrence::STATUSES.each do |value, symbol| %>
+          <option value="<%= value %>" v-bind:selected="'<%= symbol %>' == occurrence.status_symbol"><%= symbol %></option>
+        <% end %>
+        </select>
+      </td>
+      <td>
+        <input type="checkbox" v-bind:name="'occurrence-uncertain-' + occurrence.id" value="1" v-bind:checked="occurrence.uncertain" v-on:change="function(event) { changeUncertain(event, occurrence) }" v-bind:disabled="!isCountingMode()" />
+      </td>
+    </tr>
+  </tbody>
 </table>
 <% if current_user.admin? %>
-  <p><%= render :partial => 'occurrences/form', :locals => { :occurrence => @occurrence } %></p>
+  <input type="button" value="Add" v-on:click="onAddingSpecies" v-if="!isActionMode() && !isAddingMode()" v-bind:disabled="!isCountingMode()"/>
+  <species-selector v-if="isAddingMode()" v-on:species-selected="onAdded" v-on:species-not-selected="onAddingCanceled"></species-selector>
 <% end %>
+</div>
+
+<script type="text/x-template" id="species-selector-template">
+  <fieldset>
+    <legend>Occurrence</legend>
+    <p>
+      <label for="group_id">Group</label>
+      <select name="group_id" v-model="selectedGroupId" v-on:change="groupChanged">
+        <option disabled value=""></option>
+        <option v-for="group in groupList" v-bind:value="group.id">{{ group.name }}</option>
+      </select>
+      <label for="specimen_id">Species</label>
+
+      <select name="specimen_id" v-on:change="speciesChanged">
+        <option v-for="species in speciesList" v-bind:value="species.id">{{ species.name }}</option>
+      </select>
+    </p>
+    <p>
+      <input type="button" value="Select" v-on:click="speciesSelected" v-bind:disabled="!!!selected_id" >
+      <input type="button" value="Cancel" v-on:click="speciesNotSelected">
+    </p>
+  </fieldset>
+</script>
 
 <script type="text/javascript">
-	$( function() {
-		$( "#movable" ).find( ".move-up" ).click( function( event ) {
-			event.preventDefault();
-			sourceRow = $(this).parents( "tr" );
-			targetRow = sourceRow.prev( "tr" ).not( ":has(th)" );
-			targetDirection = "none";
-			if( targetRow.length > 0 ) {
-				targetDirection = "before";
-			} else {
-				targetRow = $( sourceRow ).find( "~tr" ).last();
-				if( targetRow.length > 0 ) {
-					targetDirection = "after";
-				}
-			}
-			sourceId = sourceRow.find( '.reference-id' ).html();
-			targetId = targetRow.find( '.reference-id' ).html();
-			$.ajax({
-				url: '/occurrences/exchange.json',
-        method: 'PUT',
-				dataType: 'json',
-				data: { id1: sourceId, id2: targetId },
-				success: function(json) {
-					if( targetDirection == "after" ) {
-						targetRow.after( sourceRow );
-					}	else if( targetDirection = "before" ) {
-						targetRow.before( sourceRow );
-					} },
-				failure: function(json) {
-					alert( 'I am sorry. Please try again.' ); }
-			});
-		});
+Vue.component('species-selector', {
+  template: '#species-selector-template',
+  data: function() {
+    return {
+      selectedGroupId: null,
+      groupList: [
+        <% Group.all.each do |group| %>
+          { id: <%= group.id %>, name: "<%= group.name %>" },
+        <% end %>
+      ],
+      speciesList: [],
+      selected_id: null
+    }
+  },
+  methods: {
+    selectSpecies: function(id) {
+      this.selected_id = id
+    },
+    loadSpecies: function(groupId) {
+      var vm = this
+      axios.get("/countings/" + "<%= @counting.id %>" + "/samples/" + "<%= @sample.id %>" + "/occurrences/available.json", {
+        params: { group_id: groupId }
+      })
+      .then(function (response) {
+        vm.speciesList = response.data
+        vm.selectSpecies(vm.speciesList[0].id)
+      })
+      .catch(function (error) {
+      })
+    },
+    groupChanged: function(event) {
+      this.loadSpecies(this.selectedGroupId)
+    },
+    speciesChanged: function(event) {
+      this.selectSpecies(event.target.value)
+    },
+    speciesSelected: function() {
+      this.$emit('species-selected', this.selected_id)
+    },
+    speciesNotSelected: function() {
+      this.$emit('species-not-selected')
+    }
+  }
+})
 
-		var setOccurrences = function( context, action ) {
-			referenceId = $(context).parent().find( ".reference-id" ).html();
-			key = "quantity";
-			switch( action ) {
-				case "inc":
-					action = "increase_quantity";
-          break;
-				case "dec":
-					action = "decrease_quantity";
-          break;
-				case "qnt":
-					action = "set_quantity";
-          break;
-				case "stat":
-					action = "set_status";
-					key = "status";
-          break;
-				case "uncert":
-					action = "set_uncertain";
-					key = "uncertain";
-          break;
+var counter = new Vue({
+  el: '#occurrence-list',
+  data: {
+    countable: 0,
+    uncountable: 0,
+    total: 0,
+    mode: 'count',
+    occurrenceList: [],
+  },
+  methods: {
+    isCountingMode: function() {
+      return this.mode == 'count'
+    },
+    isActionMode: function() {
+      return this.mode == 'action'
+    },
+    isEditingMode: function() {
+      return this.mode == 'edit'
+    },
+    isAddingMode: function() {
+      return this.mode == 'add'
+    },
+    switchOnActionMode: function() {
+      this.mode = 'action'
+    },
+    switchOnCountingMode: function() {
+      this.mode = 'count'
+    },
+    switchOnEditingMode: function(occurrence) {
+      this.mode = 'edit'
+      occurrence.editing = true
+    },
+    switchOffEditingMode: function(occurrence) {
+      delete occurrence.editing
+      this.mode = 'count'
+    },
+    confirmEditQuantity: function(occurrence) {
+      this.switchOffEditingMode(occurrence)
+      qnt = document.getElementById("occurrence-quantity-" + occurrence.id).value
+      this.updateOccurrence(occurrence, { quantity: qnt })
+    },
+    quantityChanged: function(event, occurrence) {
+			if (event.keyCode == 27) {
+        this.switchOffEditingMode(occurrence)
+        event.target.value = occurrence.quantity
+			} else if (event.keyCode == 13) {
+        this.switchOffEditingMode(occurrence)
+        this.updateOccurrence(occurrence, { quantity: event.target.value })
+			}
+		},
+    updateOccurrence: function(occurrence, args) {
+      var vm = this
+      if(args['quantity'] <= 0) {
+        args['quantity'] = null
       }
-			var elem = $( "#occurrence-" + key + "-" + referenceId );
-			var newValue = elem.val();
-			if( key == "uncertain" ) {
-				newValue = elem.attr( "checked" ) == "checked"
-			}
-
-			$.ajax({
-				url: '/occurrences/' + action + '.json',
-        method: 'PUT',
-				data: { id: referenceId, quantity: newValue },
-				success: function(json) {
-					elem.val( json.quantity );
-					if( key == "uncertain" ) {
-						if( json.quantity ) elem.attr( "checked", "checked" );
-						else elem.removeAttr( "checked" );
-					}
-					if( !(json.countable === undefined) ) {
-						$( "#sample-countable-sum" ).html( json.countable );
-					}
-					if( !(json.uncountable === undefined) ) {
-						$( "#sample-uncountable-sum" ).html( json.uncountable );
-					}
-					if( !(json.countable === undefined) && !(json.uncountable === undefined) ) {
-						$( "#sample-total-sum" ).html( json.countable + json.uncountable );
-					}
-				},
-				error: function(json) {
-          alert( 'The value was not updated. Please try again.' );
-          location.reload(true);
+      args['authenticity_token'] = "<%= form_authenticity_token %>"
+      axios.put('/occurrences/' + occurrence.id + '.json', args)
+      .then(function (response) {
+        occurrence.quantity = response.data.quantity;
+        occurrence.uncertain = response.data.uncertain
+        occurrence.status_symbol = response.data.status_symbol
+        vm.refreshStats()
+      })
+      .catch(function (error) {
+        alert( 'The value was not updated. Please try again.' );
+      })
+    },
+    decreaseOne: function(occurrence) {
+      this.updateOccurrence(occurrence, { quantity: occurrence.quantity - 1 })
+    },
+    increaseOne: function(occurrence) {
+      this.updateOccurrence(occurrence, { quantity: occurrence.quantity + 1 })
+    },
+    changeStatus: function(event, occurrence) {
+      this.updateOccurrence(occurrence, { status: event.target.value })
+    },
+    changeUncertain: function(event, occurrence) {
+      this.updateOccurrence(occurrence, { uncertain: event.target.checked })
+    },
+    remove: function(occurrence) {
+      if (!confirm('Are you sure?')) {
+        return
+      }
+      var vm = this
+      axios.delete('/occurrences/' + occurrence.id + '.json', {
+        data: { authenticity_token: "<%= form_authenticity_token %>" }
+      })
+      .then(function (response) {
+        vm.occurrenceList.splice(vm.occurrenceList.indexOf(occurrence), 1)
+        vm.refreshStats()
+      })
+      .catch(function (error) {
+        alert( 'The value was not updated. Please try again.' );
+      })
+    },
+    onAddingSpecies: function(event) {
+      this.mode = 'add'
+    },
+    onAddingCanceled: function() {
+      this.mode = 'count'
+    },
+    onAdded: function(species_id) {
+      this.mode = 'count'
+      var vm = this
+			args = {
+        authenticity_token: "<%= form_authenticity_token %>",
+        occurrence: {
+          specimen_id: species_id,
+          counting_id: <%= @counting.id %>,
+          sample_id: <%= @sample.id %>
         }
-			});
-		}
+      }
+      axios.post('/occurrences.json', args)
+      .then(function (response) {
+        vm.occurrenceList.push(response.data)
+      })
+      .catch(function (error) {
+        alert('The value was not updated. Please try again.')
+      })
+    },
+    moveUp: function (occurrence) {
+      var sourceIndex = this.occurrenceList.indexOf(occurrence)
+      if (sourceIndex == 0) {
+        return
+      }
+      otherOccurrence = this.occurrenceList[sourceIndex - 1]
 
-		$( ".increase-one" ).click( function() {
-			setOccurrences( this, "inc" );
-		});
-
-		$( ".decrease-one" ).click( function() {
-			setOccurrences( this, "dec" );
-		});
-		$( ".occurrence-status" ).change( function() {
-			setOccurrences( this, "stat" );
-		});
-		$( ".occurrence-uncertain" ).click( function() {
-			setOccurrences( this, "uncert" );
-		});
-
-		$( ".self-updateable" ).blur( function() {
-			$(this).val( this.defaultValue ).attr( "readonly", "readonly" );
-		});
-		$( ".self-updateable" ).dblclick( function() {
-			$(this).removeAttr( "readonly" );
-		});
-		$( ".self-updateable" ).keypress( function( event ) {
-			if( event.keyCode == 27 ) {
-				$(this).val( this.defaultValue ).attr( "readonly", "readonly" );
-			} else if( event.keyCode == 13 ) {
-				setOccurrences( this, "qnt" );
-				this.defaultValue = $(this).val();
-				$(this).attr( "readonly", "readonly" );
-			}
-		});
-
-//occurrences
-    option_tag = function( value, text ) {
-      return $( "<option></option>" ).attr({ value: value }).append( text );
-    };
-    populate_species_tag = function( species_tag, group_id, counting_id, sample_id ) {
-      $.get("/countings/" + counting_id + "/samples/" + sample_id + "/occurrences/available.json",
-        {group_id: group_id},
-        function( species ) {
-          species_tag.empty();
-          for( i in species ) {
-            species_tag.append( option_tag( species[i].id, species[i].name ) );
-          }
-        }
-      );
-    };
-
-		var group_tag = $( "#group_id" );
-		var species_tag = $( "#occurrence_specimen_id" );
-		var counting_tag = $( "#occurrence_counting_id" );
-		var sample_tag = $( "#occurrence_sample_id" );
-		species_tag.empty();
-		populate_species_tag( species_tag, group_tag.select( "option:selected" ).val(), counting_tag.val(), sample_tag.val() );
-		group_tag.change( function() {
-			populate_species_tag( species_tag, group_tag.select( "option:selected" ).val(), counting_tag.val(), sample_tag.val() );
-		});
-	});
-
+      args = {
+      }
+      var vm = this
+			axios.put('/occurrences/exchange.json', {
+        authenticity_token: "<%= form_authenticity_token %>",
+        id1: occurrence.id,
+        id2: otherOccurrence.id
+      }).then(function (response) {
+        vm.occurrenceList.splice(sourceIndex - 1, 0, vm.occurrenceList.splice(sourceIndex, 1)[0])
+      })
+      .catch(function (error) {
+        alert( 'The value was not updated. Please refresh the page.' )
+      })
+    },
+    refreshStats: function() {
+      var vm = this
+      axios.get("/occurrences/" + "<%= @counting.id %>/" + "<%= @sample.id %>/" + "stats.json")
+      .then(function (response) {
+        vm.total = response.data.total
+        vm.countable = response.data.countable
+        vm.uncountable = vm.total - vm.countable
+      })
+      .catch(function (error) {
+        alert( 'The value was not updated. Please refresh the page.' )
+      })
+    }
+  },
+  created: function() {
+    var vm = this
+    axios.get('<%= counting_sample_occurrences_path(@counting, @sample, format: :json) %>')
+      .then(function (response) {
+        vm.occurrenceList = response.data.occurrences
+        vm.refreshStats()
+      })
+      .catch(function (error) {
+        alert('Ups')
+      })
+  },
+});
 </script>

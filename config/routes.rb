@@ -1,5 +1,4 @@
 Taxa::Application.routes.draw do
-  get '/site/about', :to => 'site#about', :as => :about
   get '/user/logout', :to => 'user#logout', :as => :logout
   get '/user/login', :to => 'user#show_login', :as => :show_login
   post '/user/login', :to => 'user#login', :as => :login
@@ -8,11 +7,7 @@ Taxa::Application.routes.draw do
   resources :features, only: [:create, :update, :destroy]
 
   put 'occurrences/exchange' => 'occurrences#exchange', :as => :exchange_occurrences
-  put 'occurrences/decrease_quantity' => 'occurrences#decrease_quantity', :as => :decrease_occurrences
-  put 'occurrences/increase_quantity' => 'occurrences#increase_quantity', :as => :increase_occurrences
-  put 'occurrences/set_quantity' => 'occurrences#set_quantity', :as => :set_quantity
-  put 'occurrences/set_status' => 'occurrences#set_status', :as => :set_status
-  put 'occurrences/set_uncertain' => 'occurrences#set_uncertain', :as => :set_uncertain
+  get 'occurrences/:counting_id/:sample_id/stats' => 'occurrences#stats', :as => :stats
 
   resources :account_participations, :only => [:index, :create, :destroy]
   resources :research_participations, :only => [:show, :create, :destroy]

@@ -19,7 +19,7 @@
   </td>
   <td align="center">
     <span class="reference-id"><%= occurrence.id %></span>
-    <input id="occurrence-quantity-<%= occurrence.id %>"  type="text" size="4" readonly="readonly" class="self-updateable" value="<%= occurrence.quantity %>" /> 
+    <input id="occurrence-quantity-<%= occurrence.id %>"  type="text" size="4" readonly="readonly" class="self-updateable" value="<%= occurrence.quantity %>" />
   </td>
 	<td>
     <span class="reference-id"><%= occurrence.id %></span>
@@ -31,8 +31,7 @@
     <%= check_box_tag "occurrence-uncertain-#{occurrence.id}", '1', occurrence.uncertain?, :class => 'occurrence-uncertain' %>
 	</td>
   <td>
-    <%= button_to 'Remove', { :controller => :occurrences, :action => :destroy, :id => occurrence.id }, 
+    <%= button_to 'Remove', { :controller => :occurrences, :action => :destroy, :id => occurrence.id },
 			:method => :delete, :onclick => "return confirm('Are you sure?')" %>
   </td>
 </tr>
-

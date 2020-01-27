@@ -1,5 +1,4 @@
 <%= render_title @research_participation.project.name %>
-<%= render 'navigation' %>
 
 <% actions = [] %>
 <% if @research_participation.manageable_by?(current_user) %>
@@ -12,6 +11,6 @@
 <% end %>
 <%= render_heading "Researcher" %>
 <dl class="fields">
-	<dt>Name</dt>
+	<dt>Researcher</dt>
 	<dd><%= @research_participation.user.name %></dd>
 </dl>
