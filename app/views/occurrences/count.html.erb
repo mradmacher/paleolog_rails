@@ -58,7 +58,7 @@
           <input type="button" value="Remove" style="background-color: red" v-on:click="remove(occurrence)" />
         </span>
       </td>
-      <td>{{ occurrence.group_name }}</td>
+      <td>({{ occurrence.group_name }})</td>
       <td>{{ occurrence.specimen_name }}</td>
       <td align="center">
         <input type="button" value="  -  " v-on:click="decreaseOne(occurrence)" v-bind:disabled="!isCountingMode()">

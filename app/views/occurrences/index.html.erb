@@ -41,15 +41,15 @@
 </dl>
 <table>
   <tr align="center">
-    <th>Species</th>
     <th>Group</th>
+    <th>Species</th>
     <th>Quantity</th>
     <th>Status</th>
   </tr>
 <% @occurrences.each do |occurrence| %>
 	<tr>
-		<td><%= occurrence.specimen.name %></td>
 		<td>(<%= occurrence.specimen.group.name %>)</td>
+		<td><%= occurrence.specimen.name %></td>
 		<td><%= occurrence.quantity %></td>
 		<td><%= occurrence.status_symbol %><%= if occurrence.uncertain? then Occurrence::UNCERTAIN_SYMBOL end %></td>
 	</tr>
